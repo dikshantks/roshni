@@ -175,7 +175,10 @@ router.post('/:adminID/funders', async (req, res) => {
         adminID
       });
   
-      res.send({ message: 'Funder added successfully' });
+      res.send({ 
+        message: 'Funder added successfully' ,
+        fundID: fundID
+     });
     } catch (error) {
       console.error('Error adding Funder:', error);
       res.status(500).json({ error: 'Failed to add funder' });
@@ -202,7 +205,7 @@ router.post('/:adminID/funders', async (req, res) => {
     }
   });
   
-  //delete a question
+  //delete a funder
   router.delete('/:adminID/funders/:fundID', async (req, res) => {
     try {
       const { adminID, fundID } = req.params;
@@ -222,7 +225,7 @@ router.post('/:adminID/funders', async (req, res) => {
     }
   })
   
-  //update a question
+  //update a funder
   router.put('/:adminID/funders/:fundID', async (req, res) => {
     try {
         const { adminID, fundID } = req.params;
