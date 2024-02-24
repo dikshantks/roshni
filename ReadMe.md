@@ -11,8 +11,8 @@ Millions of individuals in countries like India and China lack internet access, 
 Roshni is a comprehensive tool for NGOs, featuring both a mobile application and a website. The mobile app aids fieldwork, while the website is accessed by admins and stakeholders. It centralizes student information, offers assessment tools, and provides analytics, empowering NGOs to track progress and demonstrate impact effectively.
 
 # . Flow Chart
-![Flow of Web App](<Flow Chart - Web App.png>)
-![Flow of Mobile App](<Flow Chart - Mobile App (2).png>)
+![Flow of Web App](<Web.png>)
+![Flow of Mobile App](<Mob.png>)
 
 # . Tech Stack
 | Frontend | Backend | Database | Design 
