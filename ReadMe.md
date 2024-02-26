@@ -2,8 +2,8 @@
 Millions of individuals in countries like India and China lack internet access, hindering their educational opportunities. This digital gap disproportionately affects marginalized communities and poses challenges for NGOs dedicated to improving education. Traditional methods of student management are time-consuming and error-prone, while the lack of comprehensive analytics hampers assessment efforts. There is a pressing need for streamlined solutions to track student progress effectively and address educational disparities.
 
 # . Targeted UN SDG’s
-<img src="https://www.un.org/sustainabledevelopment/wp-content/uploads/2019/08/E-Goal-04-1024x1024.png" alt="Quality Education : Goal 4"  height="450" width = "2000">
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Sustainable_Development_Goal_10.png/1200px-Sustainable_Development_Goal_10.png" alt="Quality Education : Goal 4"  height="450" width = "2000">
+<img src="https://www.un.org/sustainabledevelopment/wp-content/uploads/2019/08/E-Goal-04-1024x1024.png" alt="Quality Education : Goal 4"  height="250">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Sustainable_Development_Goal_10.png/1200px-Sustainable_Development_Goal_10.png" alt="Reduced Inequalities: Goal 10"   height="250">
 
 
 
