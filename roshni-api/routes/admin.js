@@ -50,7 +50,8 @@ router.post("/signup", async (req, res) => {
             organizationName,
             email,
             adminID: adminID,
-            password: hashedPassword, // Store only the hashed PIN
+            password: hashedPassword,
+            // Store only the hashed PIN
         });
 
         // Customize response JSON according to requirements
@@ -59,6 +60,7 @@ router.post("/signup", async (req, res) => {
             organizationName,
             email,
             adminID: adminID,
+            success: true
         };
 
         // Optionally, return only relevant details or omit certain fields
@@ -103,6 +105,7 @@ router.post("/login", async (req, res) => {
         res.json({
             message: "Login successful",
             adminData,
+            success: true
         });
     } catch (error) {
         console.error("error at login:", error);

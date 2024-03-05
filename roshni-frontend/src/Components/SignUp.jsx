@@ -32,7 +32,7 @@ const SignUp = () => {
 
     if (validateForm()) {
       // Send data to your REST API (example for Axios)
-      axios.post("http://localhost:8080/api/admin/signup/", {
+      axios.post("http://localhost:5000/api/admin/signup/", {
         organizationName,
         email,
         password,
@@ -59,7 +59,7 @@ const SignUp = () => {
 
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} method='POST'>
         <h3>Sign Up</h3>
         {error && <p className="error-message">{error}</p>}
 

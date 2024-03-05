@@ -7,8 +7,6 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const validateForm = (e) => {
-    e.preventDefault(); // Prevent default form submission
-
     let error = "";
 
     // Validate adminId
@@ -30,33 +28,35 @@ const Login = () => {
       setError(error);
       return false; // Prevent form submission if there are errors
     }
+    return true;
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    const userCredentials = { adminId };
-    
-    const apiEndpoint = "http://localhost:5173/api/admin/login";
-    const credentials = btoa(`${adminId}:${password}`);
-    // const headers = {
-    //   Authorization: `Basic ${credentials}`,
-    // };
-    axios
-      .post(apiEndpoint, userCredentials)
-      .then((response) => {
-        if (response.data.success) {
-          // Handle successful login (e.g., store token, redirect)
-          console.log("Login successful!", response.data);
-          localStorage.setItem("accessToken", response.data.token); // Store token securely
-        } else {
-          setError(response.data.error || "Login failed."); // Handle API-specific error messages
-        }
-      })
-      .catch((error) => {
-        console.error("API error:", error);
-        setError("An error occurred. Please try again later."); // Generic error message for user
-      });
-        return false; 
-      };
+    if (validateForm(e)) { // Pass the event object to validateForm
+      const userCredentials = { adminId, password };
+      const apiEndpoint = "http://localhost:5000/api/admin/login";
+      
+      axios.post(apiEndpoint, userCredentials)
+        .then((response) => {
+          console.log('Login up successful!', response.data);
+          if (response.data.success) {
+            // Handle successful login (e.g., store token, redirect)
+            console.log("Login successful!", response.data);
+            localStorage.setItem("accessToken", response.data.token); // Store token securely
+          } else {
+            setError(response.data.error || "Login failed."); // Handle API-specific error messages
+          }
+        })
+        .catch((error) => {
+          console.error("API error:", error);
+          setError("An error occurred. Please try again later."); // Generic error message for user
+        });
+    }
+  };
+
   return (
-    <form onSubmit={validateForm}>
+    <form onSubmit={handleSubmit} method="POST">
       <h3>Sign In</h3>
 
       {error && <p className="error-message">{error}</p>}
