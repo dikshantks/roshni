@@ -25,11 +25,11 @@ router.post("/signup", async (req, res) => {
 
         // Validate user input
         if (!firstname ||!lastname || !email || !DOB || !loc) {
-            return res.status(400).json({
+            return res.status(404).json({
                 error: "Missing required fields",
             });
         }
-        const dobRegex = /^\d{2}-\d{2}-\d{4}$/;
+        const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dobRegex.test(DOB)) {
         return res.status(401).json({
           error: "Invalid DOB format. Please use DD-MM-YYYY."
