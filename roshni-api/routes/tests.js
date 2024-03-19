@@ -45,6 +45,7 @@ router.post("/create", async (req, res) => {
       createDate,
       imageUrl,
       questions: []
+
   });
 
     const response = {
@@ -54,7 +55,8 @@ router.post("/create", async (req, res) => {
       time,
       expiry,
       createDate,
-      imageUrl
+      imageUrl,
+      success: true
     };
 
     res.json(response);} 
@@ -166,8 +168,16 @@ router.post('/:testID/questions', async (req, res) => {
     const {text, type, difficulty, options = [], correct } = req.body;
 
     if (!text || !type || !difficulty || !options || !correct) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      let missingFields = [];
+      if (!text) missingFields.push('text');
+      if (!type) missingFields.push('type');
+      if (!difficulty) missingFields.push('difficulty');
+      if (!options) missingFields.push('options');
+      if (!correct) missingFields.push('correct');
+    
+      return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
     }
+    
     else if(options.length < 4){
       return res.status(402).json({ error: 'Minimum 4 options required' });
     }
@@ -196,10 +206,20 @@ router.post('/:testID/questions', async (req, res) => {
       difficulty,
       options,
       correct,
-      testID
+      testID,
     });
+    const response = { message: 'Question added successfully',
+      questionID: questionID,
+      text,
+      type,
+      difficulty,
+      options,
+      correct,
+      testID
+    };
 
-    res.send({ message: 'Question added successfully' });
+    res.json(response);
+    // res.send({ message: 'Question added successfully' });
   } catch (error) {
     console.error('Error adding question:', error);
     res.status(500).json({ error: 'Failed to add question' });
