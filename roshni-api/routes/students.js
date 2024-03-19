@@ -23,12 +23,12 @@ router.get("/", async (req, res) => {
 router.post("/signup", async (req, res) => {
     try {
       // Destructure required fields from request body
-      const { firstName, lastName, dob, gender, location} = req.body;
+      const { firstName, lastName, dob, gender, location, grade} = req.body;
   
       // Validate all required fields
-      if (!firstName || !lastName || !dob || !gender || !location) {
+      if (!firstName || !lastName || !dob || !gender || !location || !grade) {
         return res.status(400).json({
-          error: "Missing required fields: firstName, lastName, dob, gender, location"
+          error: "Missing required fields: firstName, lastName, dob, gender, location, grade."
         });
       }
   
@@ -59,6 +59,7 @@ router.post("/signup", async (req, res) => {
         dob,
         gender,
         location,
+        grade,
         pin: pin, // Store only the hashed PIN (or uniqueId if used)
       });
   
