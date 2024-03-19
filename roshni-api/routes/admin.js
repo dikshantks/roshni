@@ -178,7 +178,13 @@ router.post('/:adminID/funders', async (req, res) => {
         adminID
       });
   
-      res.send({ message: 'Funder added successfully' });
+      res.json({ message: 'Funder added successfully',
+      fundID,
+      organizationName,
+      email,
+      locations,
+      adminID
+     });
     } catch (error) {
       console.error('Error adding Funder:', error);
       res.status(500).json({ error: 'Failed to add funder' });

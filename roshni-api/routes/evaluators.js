@@ -20,11 +20,10 @@ router.get("/", async (req, res) => {
 // Signup endpoint
 router.post("/signup", async (req, res) => {
     try {
-        console.log("req.body", req.body);
-        const { firstname, lastname, email, DOB, loc} = req.body;
+        const { adminId, firstname, lastname, email, DOB, loc} = req.body;
 
         // Validate user input
-        if (!firstname ||!lastname || !email || !DOB || !loc) {
+        if (!adminId || !firstname ||!lastname || !email || !DOB || !loc) {
             return res.status(404).json({
                 error: "Missing required fields",
             });
@@ -63,6 +62,7 @@ router.post("/signup", async (req, res) => {
             loc,
             evalID: evalID,
             password: hashedPassword, // Store only the hashed PIN
+            adminId
         });
 
         // Customize response JSON according to requirements
@@ -75,6 +75,7 @@ router.post("/signup", async (req, res) => {
             loc,
             evalID: evalID,
             password: password,
+            adminId: adminId
         };
 
         // Optionally, return only relevant details or omit certain fields

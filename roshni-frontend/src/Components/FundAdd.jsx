@@ -49,7 +49,7 @@ const FundAdd = () => {
 
     if (validateForm()) {
       const funderData = { organizationName, email, password, locations };
-      const adminId = 1734; // Replace with actual admin ID
+      const adminId = localStorage.getItem("accessToken"); // Replace with actual admin ID
       const apiEndpoint = `http://localhost:5000/api/admin/${adminId}/funders`;
 
       axios
@@ -67,7 +67,7 @@ const FundAdd = () => {
   };
 
   const formatMessage = (data) => {
-    let message = "Details received from backend:\n";
+    let message = "";
     for (const key in data) {
       message += `${key}: ${data[key]}\n`;
     }

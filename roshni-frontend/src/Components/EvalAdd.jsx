@@ -53,9 +53,10 @@ const AddEval = () => {
     e.preventDefault();
 
     if (validateForm()) {
-      const evaluatorData = { firstname, lastname, email, DOB, loc };
+      const adminId = localStorage.getItem("accessToken");
+      const evaluatorData = {adminId, firstname, lastname, email, DOB, loc };
       const apiEndpoint = "http://localhost:5000/api/evaluators/signup/";
-
+       
       axios
         .post(apiEndpoint, evaluatorData)
         .then((response) => {
@@ -70,7 +71,7 @@ const AddEval = () => {
     }
   };
   const formatMessage = (data) => {
-    let message = "Details received from backend:\n";
+    let message = "";
     for (const key in data) {
       message += `${key}: ${data[key]}\n`;
     }
