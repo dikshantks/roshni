@@ -71,6 +71,6 @@ dist-ssr
 key.js
 
 # flutter
-/roshni-app/build
-.apk
+/roshni-app/build/
+*.apk
 roshni-app/build/app/outputs/apk/debug/app-debug.apk
