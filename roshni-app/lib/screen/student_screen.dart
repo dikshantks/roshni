@@ -13,21 +13,15 @@ class _StudentScreen extends State<StudentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (value) => print(value),
-        destinations: [
+        onDestinationSelected: (value) =>
+            debugPrint(" sdf  sdf sdf  sdf sdf $value , "),
+        destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: "home"),
           NavigationDestination(icon: Icon(Icons.home), label: "home"),
           NavigationDestination(icon: Icon(Icons.home), label: "home"),
         ],
       ),
       backgroundColor: Colors.transparent,
-      // body: SafeArea(
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [],
-      //   ),
-      // ),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:roshni_app/screen/facilitator_login_screen.dart';
 import 'package:roshni_app/screen/student_login_screen.dart';
 
-import '../common/button-1.dart';
+import '../utils/button-1.dart';
 
 class OnboardingScreen extends StatefulWidget {
   static const routeName = '/onboarding';

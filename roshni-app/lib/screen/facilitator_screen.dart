@@ -14,7 +14,7 @@ class _FacilitatorScreen extends State<FacilitatorScreen> {
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (value) => print(value),
-        destinations: [
+        destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: "home"),
           NavigationDestination(icon: Icon(Icons.home), label: "home"),
           NavigationDestination(icon: Icon(Icons.home), label: "home"),
@@ -22,13 +22,6 @@ class _FacilitatorScreen extends State<FacilitatorScreen> {
         ],
       ),
       backgroundColor: Colors.transparent,
-      // body: SafeArea(
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [],
-      //   ),
-      // ),
     );
   }
 }
