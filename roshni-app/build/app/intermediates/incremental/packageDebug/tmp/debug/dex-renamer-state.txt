@@ -1,4 +1,0 @@
-#Sat Mar 16 19:21:53 IST 2024
-base.0=/home/dikshant/Desktop/roshni/roshni-app/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
-path.0=classes.dex
-renamed.0=classes.dex

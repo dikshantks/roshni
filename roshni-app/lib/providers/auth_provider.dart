@@ -15,6 +15,15 @@ class AuthProvider extends ChangeNotifier {
   AuthStatus get status => _status;
   Evaluator? get evaluator => _evaluator;
   Student? get student => _student;
+  String? get ngoId {
+    if (_evaluator != null) {
+      return _evaluator!.evalID;
+    } else if (_student != null) {
+      return _student!.firstName;
+    } else {
+      return null;
+    }
+  }
 
   AuthProvider(this._authService);
 
@@ -26,6 +35,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _status = AuthStatus.authenticated; // Indicate authentication in progress
       notifyListeners();
+      print("provider evalID : $evalID , password : $password");
 
       final evaluator = await _authService.loginEvaluator(evalID, password);
 
@@ -53,11 +63,13 @@ class AuthProvider extends ChangeNotifier {
     try {
       _status = AuthStatus.authenticated; // Indicate authentication in progress
       notifyListeners();
+      print("provider pin : $pin");
 
       final student = await _authService.loginStudent(pin);
 
       if (student != null) {
         _student = student;
+
         notifyListeners();
         // Navigate to Student dashboard (implementation below)
       } else {

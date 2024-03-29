@@ -6,7 +6,7 @@ import 'package:roshni_app/services/api_service.dart';
 import 'package:roshni_app/utils/route_generation.dart';
 import 'package:roshni_app/themes/themes.dart';
 
-const String baseurl = "http://127.0.0.1:5000/api";
+const String baseurl = "https://roshni-api.onrender.com/api";
 
 void main() {
   runApp(
@@ -19,8 +19,8 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => TestProvider(
-            TestService("$baseurl/students"),
-            QuestionService("$baseurl/students"),
+            TestService(baseurl),
+            QuestionService(baseurl),
           ),
         ),
       ],

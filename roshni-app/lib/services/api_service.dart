@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'package:bcrypt/bcrypt.dart';
 import 'package:http/http.dart' as http;
 import 'package:roshni_app/models/exams_model.dart'; // For JSON handling
-
 import 'package:roshni_app/models/facilitator_model.dart';
-
 import '../models/student_model.dart';
 
 class TestService {
@@ -14,12 +11,21 @@ class TestService {
 
   Future<List<Test>> fetchAllTests() async {
     final url = Uri.parse('$_baseUrl/tests');
+    print("init fetch all test api service ");
     final response = await http.get(url);
-
+    // print(response.body);
     if (response.statusCode == 200) {
+      print("status fine: ${response.statusCode} \n ${response.body}");
+
       final jsonData = jsonDecode(response.body) as List;
+      print(jsonData[0]);
+      final one = Test.fromJson(jsonData[0]);
+      print("printinig one");
+      print(one);
+
       return jsonData.map((data) => Test.fromJson(data)).toList();
     } else {
+      print("fethcallexam issue");
       throw Exception('Failed to fetch tests');
     }
   }
@@ -31,6 +37,7 @@ class QuestionService {
   QuestionService(this._baseUrl);
 
   Future<List<Question>> fetchQuestionsForTest(String testID) async {
+    print("init question api service");
     final url = Uri.parse('$_baseUrl/tests/$testID/questions');
     final response = await http.get(url);
 
@@ -53,24 +60,27 @@ class AuthService {
 
   Future<Evaluator?> loginEvaluator(String evalID, String password) async {
     try {
-      final url = Uri.parse('$_baseUrl/login'); // Assuming '/login' endpoint
-      final response =
-          await http.post(url, body: {'evalID': evalID, 'password': password});
+      print("init login evaluator api service");
+      print("evalID : $evalID , password : $password ");
+      final url =
+          Uri.parse('$_baseUrl/evaluators/login'); // Assuming '/login' endpoint
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({'evalID': evalID, 'password': password}),
+      );
+      print(response.body);
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        print(response.body);
 
         if (responseData['message'] == 'Login successful') {
-          // Verify password using Bcrypt
-          final hashedPassword = responseData['evaluatorData']['password'];
-          final passwordMatch = await BCrypt.checkpw(password, hashedPassword);
+          responseData['evaluatorData']['password'] = password;
 
-          if (passwordMatch) {
-            responseData['evaluatorData']['password']; // Remove password
-            return Evaluator.fromJson(responseData['evaluatorData']);
-          } else {
-            return null; // Indicate incorrect password
-          }
+          print(responseData['evaluatorData']);
+          final evaluator = Evaluator.fromJson(responseData['evaluatorData']);
+          return evaluator;
         } else {
           return null; // Indicate login failure in other cases
         }
@@ -85,18 +95,20 @@ class AuthService {
 
   Future<Student?> loginStudent(String pin) async {
     try {
-      // final url = Uri.parse('$_baseUrl/students/login');
-      final url = Uri.parse('http://127.0.0.1:5000/api/students/login');
+      final url = Uri.parse('$_baseUrl/students/login');
       print(url);
       print(pin);
-      final response = await http.post(url, body: {'pin': pin});
+      final response = await http.post(url,
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({'pin': pin}));
       print(response.body);
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
         if (responseData['message'] == 'Login successful') {
-          responseData['studentData']['pin'];
+          responseData['studentData']['pin'] = pin;
+          print(responseData['studentData']['pin']);
           return Student.fromJson(responseData['studentData']);
         } else {
           return null;

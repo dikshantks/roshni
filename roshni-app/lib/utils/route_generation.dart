@@ -66,18 +66,18 @@ Route<dynamic> _errorRoute({required String message}) {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Display a visually appealing error icon or image
-            Icon(Icons.error_outline, size: 100, color: Colors.red),
-            SizedBox(height: 20),
+            const Icon(Icons.error_outline, size: 100, color: Colors.red),
+            const SizedBox(height: 20),
             Text(
               message,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             // Provide a button to navigate back to a safe screen (e.g., home)
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/'),
-              child: Text('Go Home'),
+              child: const Text('Go Home'),
             )
           ],
         ),

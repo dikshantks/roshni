@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart'; // Import this for date/time handling
+// import 'package:intl/intl.dart'; // Import this for date/time handling
 
 class Test {
   String createDate;
@@ -23,16 +23,19 @@ class Test {
   // Factory method to create a Test object from JSON
   factory Test.fromJson(Map<String, dynamic> json) {
     // Parse the expiry date/time
-    final dateFormat = DateFormat('yyyy-MM-ddTHH:mm');
+    // final dateFormat = DateFormat('yyyy-MM-ddTHH:mm');
 
+    print("working test.fromjson");
+    print(json);
     return Test(
-      createDate: json['createDate'],
-      expiry: dateFormat.parse(json['expiry']).toString(), // Parse and reformat
-      imageUrl: json['imageUrl'],
-      questions: json['questions'],
       subject: json['subject'],
+      imageUrl: json['imageUrl'],
       testID: json['testID'],
       time: json['time'],
+      expiry: json['expiry'], // Parse and reformat
+      createDate: json['createDate'],
+      questions: json['questions'],
+      // expiry: dateFormat.parse(json['expiry']).toString(), // Parse and reformat
     );
   }
 

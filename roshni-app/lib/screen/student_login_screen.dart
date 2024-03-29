@@ -24,13 +24,14 @@ class _StudentLoginScreen extends State<StudentLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const TextField(
-              decoration: InputDecoration(
-                hintText: "Password",
+            TextField(
+              controller: _pinController,
+              decoration: const InputDecoration(
+                hintText: "PIN",
               ),
             ),
             RoundButton1(
-              text: "Log ",
+              text: "Log in ",
               onPressed: () async {
                 await _handleLogin(context);
               },

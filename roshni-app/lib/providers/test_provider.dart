@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:roshni_app/models/exams_model.dart';
 import 'package:roshni_app/services/api_service.dart';
 
@@ -18,14 +19,21 @@ class TestProvider extends ChangeNotifier {
   TestProvider(this.testService, this.questionService);
 
   Future<void> fetchTests() async {
+    print("provider fetch test init");
     _isLoading = true;
     _error = null;
-    notifyListeners();
+    // notifyListeners();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
 
     try {
       final fetchedTests = await testService.fetchAllTests();
+      print("paper fethced");
       _tests = await _populateQuestionsForTests(fetchedTests);
+      print("questions added");
       _isLoading = false;
+      print(_tests);
       notifyListeners();
     } catch (error) {
       _error = error.toString();
@@ -35,6 +43,7 @@ class TestProvider extends ChangeNotifier {
   }
 
   Future<List<Test>> _populateQuestionsForTests(List<Test> tests) async {
+    print("populating questions form provider");
     return Future.wait(tests.map((test) async {
       test.questions = await questionService.fetchQuestionsForTest(test.testID);
       return test;
