@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
+import 'package:roshni_app/providers/facilitator_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
 import 'package:roshni_app/services/api_service.dart';
 import 'package:roshni_app/utils/route_generation.dart';
@@ -21,6 +22,11 @@ void main() {
           create: (context) => TestProvider(
             TestService(baseurl),
             QuestionService(baseurl),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FacilitatorProvider(
+            ApiService(baseurl),
           ),
         ),
       ],

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:roshni_app/screen/facilitator_examscreen_screen.dart';
+import 'package:roshni_app/screen/facilitator_students_screen.dart';
 
 class FacilitatorScreen extends StatefulWidget {
   static const routeName = '/facilitator';
@@ -9,19 +11,64 @@ class FacilitatorScreen extends StatefulWidget {
 }
 
 class _FacilitatorScreen extends State<FacilitatorScreen> {
+  int selectedindex = 0;
+  final _pageController = PageController();
+
+  List<Widget> widgetList = [
+    const StudentRegisterScreen(),
+    const FacilitatorExamScreen(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (value) => print(value),
+        onDestinationSelected: (value) {
+          setState(() {
+            selectedindex = value;
+            _pageController.animateToPage(
+              value,
+              duration: const Duration(
+                milliseconds: 300,
+              ),
+              curve: Curves.ease,
+            );
+
+            print("$value , $selectedindex , ${_pageController.page}");
+          });
+        },
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        selectedIndex: selectedindex,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: "home"),
-          NavigationDestination(icon: Icon(Icons.home), label: "home"),
-          NavigationDestination(icon: Icon(Icons.home), label: "home"),
-          NavigationDestination(icon: Icon(Icons.home), label: "home"),
+          NavigationDestination(
+            icon: Icon(
+              Icons.person,
+            ),
+            label: "Profile",
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.pie_chart,
+            ),
+            label: "Circle Chart",
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.book,
+            ),
+            label: "Open Book",
+          ),
         ],
       ),
-      backgroundColor: Colors.transparent,
+      body: PageView(
+        controller: _pageController,
+        children: widgetList,
+        onPageChanged: (value) {
+          setState(() {
+            selectedindex = value;
+          });
+        },
+      ),
     );
   }
 }

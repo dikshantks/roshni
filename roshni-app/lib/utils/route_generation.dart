@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:roshni_app/screen/facilitator_login_screen.dart';
 import 'package:roshni_app/screen/facilitator_screen.dart';
+import 'package:roshni_app/screen/facilitator_examscreen_screen.dart';
+import 'package:roshni_app/screen/facilitator_students_screen.dart';
 import 'package:roshni_app/screen/onboarding_screen.dart';
 import 'package:roshni_app/screen/student_login_screen.dart';
 import 'package:roshni_app/screen/student_screen.dart';
@@ -30,13 +32,12 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
         builder: (_) => const StudentScreen(),
       );
 
-    // case '/facilitator/exams':
-    //   return MaterialPageRoute(builder: (_) => FacilitatorExams());
+    case '/facilitator/register':
+      return MaterialPageRoute(builder: (_) => const StudentRegisterScreen());
 
-    // case '/facilitator/exams/:examId':
-    //   final examId = settings.arguments as String;
-    //   return MaterialPageRoute(
-    //       builder: (_) => FacilitatorExamDetails(examId: examId));
+    case '/facilitator/exams':
+      // final examId = settings.arguments as String;
+      return MaterialPageRoute(builder: (_) => const FacilitatorExamScreen());
 
     // case '/student/home':
     //   return MaterialPageRoute(builder: (_) => StudentHome());

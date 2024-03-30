@@ -25,7 +25,7 @@ class TestService {
 
       return jsonData.map((data) => Test.fromJson(data)).toList();
     } else {
-      print("fethcallexam issue");
+      print("fetch all exam issue");
       throw Exception('Failed to fetch tests');
     }
   }
@@ -119,6 +119,40 @@ class AuthService {
     } catch (error) {
       print('Error logging in student: $error');
       return null;
+    }
+  }
+}
+
+// In 'api_service.dart'
+class ApiService {
+  final String _baseUrl;
+
+  ApiService(this._baseUrl);
+
+  Future<void> registerStudent(Map<String, dynamic> studentData) async {
+    final url = Uri.parse('$_baseUrl/students/signup');
+    print("init register student api service : $studentData");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(studentData),
+    );
+    print(response.body);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to register student: ${response.body}');
+    } // else registration successful (consider handling detailed responses)
+  }
+
+  Future<List<Student>> fetchStudents() async {
+    final url = Uri.parse('$_baseUrl/students/');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body) as List;
+      return jsonData.map((data) => Student.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to fetch students');
     }
   }
 }
