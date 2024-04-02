@@ -235,8 +235,7 @@ router.post('/:adminID/funders', async (req, res) => {
   router.put('/:adminID/funders/:fundID', async (req, res) => {
     try {
         const { adminID, fundID } = req.params;
-        const whitelist = ['locations'];
-        // Filter allowed fields and retrieve existing test
+        const whitelist = ['organizationName','email','locations'];
         const keys = Object.keys(req.body);
 
         // Check if any key is not in the whitelist

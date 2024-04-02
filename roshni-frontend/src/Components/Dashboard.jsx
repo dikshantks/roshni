@@ -12,8 +12,11 @@ const Dashboard = () => {
         <Link to="/add-funder">
           <button>Add Funder</button>
         </Link>
-        <Link to="/see-data">
-          <button>See Data</button>
+        <Link to="/view-evaluators"> 
+          <button>View Evaluators</button>
+        </Link>
+        <Link to="/view-funders"> 
+          <button>View Funders</button>
         </Link>
       </div>
     </div>

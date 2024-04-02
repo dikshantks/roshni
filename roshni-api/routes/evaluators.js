@@ -129,8 +129,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-module.exports = router;
-
 //Delete evaluator
 router.delete("/delete/:evalID", async (req, res) => {
     try {
@@ -151,3 +149,44 @@ router.delete("/delete/:evalID", async (req, res) => {
     }
 });
 
+// Change password endpoint
+router.post("/changepassword", async (req, res) => {
+    try {
+        const { evalID, oldPassword, newPassword } = req.body;
+
+        if (!evalID || !oldPassword || !newPassword) {
+            return res.status(400).json({ error: "Missing ID, old password, or new password" });
+        }
+
+        const evaluatorDoc = await db.collection("evaluators").doc(evalID).get();
+
+        if (!evaluatorDoc.exists) {
+            return res.status(404).json({ error: "Evaluator not found" });
+        }
+
+        const evaluatorData = evaluatorDoc.data();
+        const hashedPassword = evaluatorData.password;
+
+        // Compare the provided old password with the hashed password from the database
+        const passwordMatch = await bcrypt.compare(oldPassword, hashedPassword);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ error: "Invalid old password" });
+        }
+
+        // Hash the new password securely
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the password in the database
+        await db.collection("evaluators").doc(evalID).update({
+            password: newHashedPassword
+        });
+
+        res.json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("error at changepassword:", error);
+        res.status(500).json({ error: "Failed to change password" });
+    }
+});
+
+module.exports = router;
