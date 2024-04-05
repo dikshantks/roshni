@@ -2,6 +2,41 @@ import React, { useState } from 'react';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import CreateQuestions from './CreateQuestions';
+
+const showAllTests = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/tests/");
+    const tests = response.data; // Assuming the response contains an array of tests
+
+    // Get the container element where you want to display the tests:
+    const testListElement = document.getElementById('test-list'); // Replace with your actual ID
+
+    // Clear any existing content:
+    testListElement.innerHTML = ''; // Optional if needed
+
+    // Create the HTML table structure:
+    const table = document.createElement('table');
+    table.classList.add('tests-table'); // Add a CSS class for styling (optional)
+
+    // Create table header row:
+    const tableHeaderRow = document.createElement('tr');
+    tableHeaderRow.innerHTML = `<th>ID</th><th>Name</th><th>Description</th>`;
+    table.appendChild(tableHeaderRow);
+
+    // Loop through the tests and create table rows:
+    tests.forEach((test) => {
+      const tableRow = document.createElement('tr');
+      tableRow.innerHTML = `<td>${test.id}</td><td>${test.name}</td><td>${test.description}</td>`; // Adjust column names based on your data
+      table.appendChild(tableRow);
+    });
+
+    // Append the table to the container element:
+    testListElement.appendChild(table);
+  } catch (error) {
+    console.error("Error fetching tests:", error);
+  }
+};
+
 const CreateTest = () => {
   const [subject, setSubject] = useState('');
   const [time, setTime] = useState('');

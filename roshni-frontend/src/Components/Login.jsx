@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "./Login.css"
+import Carousel from "react-bootstrap/Carousel";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigate } from "react-router-dom";
+import { Modal, Form, Button, FloatingLabel } from "react-bootstrap";
+import img1 from "../resources/HiWEP 3.jpg";
+import img2 from "../resources/HiWEP 2.jpg";
+import img3 from "../resources/l3.jpg";
 
-const Login = () => {
+const Login = (props) => {
   const [adminID, setadminID] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -56,57 +64,68 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} method="POST">
-      <h3>Sign In</h3>
+    <div style={{ overflow: "hidden" }}>
+    <hr className="hr-custom" />
 
-      {error && <p className="error-message">{error}</p>}
-
-      <div className="mb-3">
-        <label>adminID address</label>
-        <input
-          type="adminID"
-          className="form-control"
-          placeholder="Enter adminID"
-          value={adminID}
-          onChange={(e) => setadminID(e.target.value)}
-        />
+    <h1 style={{ textAlign: "center", paddingBottom: "1vh" }}>
+      Welcome to Examination Suite by NIIT Foundation
+    </h1>
+      <div className="landing-content">
+        <Carousel>
+          <Carousel.Item interval={5000}>
+            <img className="d-block w-100 img-1" src={img1} alt="First slide" />
+            <Carousel.Caption></Carousel.Caption>
+          </Carousel.Item>
+          <Carousel.Item interval={5000}>
+            <img
+              className="d-block w-100 img-2"
+              src={img2}
+              alt="Second slide"
+            />
+            <Carousel.Caption></Carousel.Caption>
+          </Carousel.Item>
+          <Carousel.Item interval={5000}>
+            <img className="d-block w-100 img-3" src={img3} alt="Third slide" />
+            <Carousel.Caption></Carousel.Caption>
+          </Carousel.Item>
+        </Carousel>
+        <Modal show={true} onHide={() => {}} disabled={true} backdrop="static">
+        <Modal.Header closeButton>
+          <Modal.Title>Admin Login</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="adminID">
+          <FloatingLabel label="Admin ID">
+            <Form.Control
+              type="text"
+              placeholder="Enter your admin ID"
+              value={adminID}
+              onChange={(e) => setadminID(e.target.value)}
+            />
+          </FloatingLabel>
+        </Form.Group>
+        <Form.Group controlId="password">
+          <FloatingLabel label="Password">
+            <Form.Control
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </FloatingLabel>
+        </Form.Group>
+        {error && <div className="error-message">{error}</div>}
+        <Button variant="primary" type="submit">
+          Sign In
+        </Button>
+      </Form>
+      </Modal.Body>
+      </Modal>
       </div>
+    </div>
+  );
+}
 
-      <div className="mb-3">
-        <label>Password</label>
-        <input
-          type="password"
-          className="form-control"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-
-      <div className="mb-3">
-        <div className="custom-control custom-checkbox">
-          <input
-            type="checkbox"
-            className="custom-control-input"
-            id="customCheck1"
-          />
-          <label className="custom-control-label" htmlFor="customCheck1">
-            Remember me
-          </label>
-        </div>
-      </div>
-
-      <div className="d-grid">
-        <button type="submit" className="btn btn-primary">
-          Submit
-        </button>
-      </div>
-
-      <p className="forgot-password text-right">
-        Forgot <a href="#">password?</a>
-      </p>
-      </form>
-        );
-    }
 
 export default Login;

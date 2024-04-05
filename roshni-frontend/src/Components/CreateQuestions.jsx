@@ -1,137 +1,117 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const CreateQuestions = () => {
-  // const { testID } = useParams();
-  
-  const [questions, setQuestions] = useState([]);
-  const [questionID, setQuestionID] = useState('');
   const [newQuestion, setNewQuestion] = useState({
     text: '',
-    type: '', 
+    type: '',
     difficulty: '',
-    options: [], // Array of options for multiple choice questions
-    correct: '' // Index of the correct option for multiple choice questions (or true/false answer)
+    options: [],
+    correct: ''
   });
-  const [addingQuestion, setAddingQuestion] = useState(false);
 
-  const item = localStorage.getItem('testID');
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/tests/${item}/questions`);
-        setQuestions(response.data);
-        console.log(response.data)
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-      }
-    };
-
-    fetchQuestions();
-  }, [item]);
-
-  const handleAddQuestion = () => {
-    setAddingQuestion(true);
-  };
-
-  const handleQuestionSubmit = (e) => {
+  const handleQuestionSubmit = async (e) => {
     e.preventDefault();
-  
-    axios.post(`http://localhost:5000/api/tests/${item}/questions`, { ...newQuestion, item })
-      .then(response => {
-        console.log('Question added successfully', response.data);
-        setNewQuestion({ text: '', type: '', difficulty: '', options: [], correct: '' });
-        setAddingQuestion(false); // Hide the form after submission
-    })
-      .catch(error => {
-        console.error('Error adding question:', error);
+    try {
+      const response = await axios.post(`http://localhost:5000/api/tests/${localStorage.getItem('testID')}/questions`, newQuestion);
+      console.log('Question added successfully:', response.data);
+      
+      // Reset form fields after successful submission
+      setNewQuestion({
+        text: '',
+        type: '',
+        difficulty: '',
+        options: [],
+        correct: ''
       });
+    } catch (error) {
+      console.error('Error adding question:', error);
+    }
   };
+
+  const handleDone = () => {
+    window.location.href = '/createTest';
+  }
   
+  const handleOptionChange = (index, value) => {
+    const updatedOptions = [...newQuestion.options];
+    updatedOptions[index] = value;
+    setNewQuestion({ ...newQuestion, options: updatedOptions });
+  };
+
+  const handleAddOption = () => {
+    setNewQuestion({ ...newQuestion, options: [...newQuestion.options, ''] });
+  };
 
   return (
-<div>
-  <h2>Add Questions for Test ID: {item}</h2>
-  <button onClick={handleAddQuestion}>Add Question</button>
-  {addingQuestion && (
-    <form onSubmit={handleQuestionSubmit}>
-      <label htmlFor="questionText">Question Text:</label>
-      <textarea
-        id="questionText"
-        value={newQuestion.text}
-        onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
-        required
-      />
-      <label htmlFor="questionType">Question Type:</label>
-      <select
-        id="questionType"
-        value={newQuestion.type}
-        onChange={(e) => setNewQuestion({ ...newQuestion, type: e.target.value })}
-        required
-      >
-        <option value="">Select Type</option>
-        <option value="multiple-choice">Multiple Choice</option>
-        {/* Add other question type options here */}
-      </select>
-      <label htmlFor="questionDifficulty">Difficulty:</label>
-      <select
-        id="questionDifficulty"
-        value={newQuestion.difficulty}
-        onChange={(e) => setNewQuestion({ ...newQuestion, difficulty: e.target.value })}
-        required
-      >
-        <option value="">Select Difficulty</option>
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-        {/* Add other difficulty options here */}
-      </select>
-      {newQuestion.type === 'multiple-choice' && (
-        <>
-          <label htmlFor="options">Options:</label>
-          {newQuestion.options.map((option, index) => (
-            <div key={index}>
-              <input
-                type="text"
-                value={option}
-                onChange={(e) => {
-                  const options = [...newQuestion.options];
-                  options[index] = e.target.value;
-                  setNewQuestion({ ...newQuestion, options: options });
-                }}
-                required
-                placeholder={`Option ${index + 1}`}
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => setNewQuestion({ ...newQuestion, options: [...newQuestion.options, ''] })}
-          >
-            Add Option
-          </button>
-          <label htmlFor="correctOption">Correct Option:</label>
-          <select
-            id="correctOption"
-            value={newQuestion.correct}
-            onChange={(e) => setNewQuestion({ ...newQuestion, correct: e.target.value })}
-            required
-          >
-            <option value="">Select Correct Option</option>
+    <div>
+      <h2>Add Question</h2>
+      <form onSubmit={handleQuestionSubmit}>
+        <label htmlFor="text">Question Text:</label>
+        <input
+          type="text"
+          id="text"
+          value={newQuestion.text}
+          onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
+          required
+        />
+        <label htmlFor="type">Question Type:</label>
+        <select
+          id="type"
+          value={newQuestion.type}
+          onChange={(e) => setNewQuestion({ ...newQuestion, type: e.target.value })}
+          required
+        >
+          <option value="">Select Type</option>
+          <option value="multiple-choice">Multiple Choice</option>
+          {/* Add other question type options here */}
+        </select>
+        <label htmlFor="difficulty">Difficulty:</label>
+        <select
+          id="difficulty"
+          value={newQuestion.difficulty}
+          onChange={(e) => setNewQuestion({ ...newQuestion, difficulty: e.target.value })}
+          required
+        >
+          <option value="">Select Difficulty</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          {/* Add other difficulty options here */}
+        </select>
+        {newQuestion.type === 'multiple-choice' && (
+          <div>
+            <label>Options:</label>
             {newQuestion.options.map((option, index) => (
-              <option key={index} value={index}>
-                {option}
-              </option>
+              <div key={index}>
+                <input
+                  type="text"
+                  value={option}
+                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                  required
+                />
+              </div>
             ))}
-          </select>
-          </>
-      )}
-      <button type="submit">Submit</button>
-    </form>
-  )}
-</div>
-
+            <button type="button" onClick={handleAddOption}>Add Option</button>
+          </div>
+        )}
+        <label htmlFor="correct">Correct Option:</label>
+        <select
+          id="correct"
+          value={newQuestion.correct}
+          onChange={(e) => setNewQuestion({ ...newQuestion, correct: e.target.value })}
+          required
+        >
+          <option value="">Select Correct Option</option>
+          {newQuestion.options.map((option, index) => (
+            <option key={index} value={option}>{option}</option>
+          ))}
+        </select>
+        <button type="submit">Submit</button>
+        <button type="button" onClick={handleDone}>Done</button>
+      </form>
+    </div>
   );
 };
 

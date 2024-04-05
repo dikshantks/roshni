@@ -1,0 +1,24 @@
+.hr-custom {
+    border-top: 3px solid #000000;
+    margin: 1vh auto 2vh auto;
+    width: 80vw
+  }
+
+
+.img-1 {
+    object-fit: cover;
+    height: 100vh;
+    
+}
+
+.img-2 {
+    object-fit: cover;
+    height: 100vh;
+   
+}
+
+.img-3 {
+    object-fit: cover;
+    height:100vh;
+    
+}

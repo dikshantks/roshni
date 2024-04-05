@@ -165,7 +165,7 @@ router.post('/:testID/questions', async (req, res) => {
     //   return res.status(400).json({ error: error.details[0].message });
     // }
 
-    const {text, type, difficulty, options = [], correct } = req.body;
+    const {text, type, difficulty, options = [""], correct } = req.body;
 
     if (!text || !type || !difficulty || !options || !correct) {
       let missingFields = [];
@@ -178,9 +178,9 @@ router.post('/:testID/questions', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
     }
     
-    else if(options.length < 4){
-      return res.status(402).json({ error: 'Minimum 4 options required' });
-    }
+    // else if(options.length < 4){
+    //   return res.status(402).json({ error: 'Minimum 4 options required' });
+    // }
     else if(!options.includes(correct)){
       return res.status(403).json({ error: 'Correct answer not in options' });
     }
