@@ -97,6 +97,10 @@ const ViewFunder = () => {
     }
   };
 
+  const handleBackToDashboard = () => {
+    window.location.href = "/dashboard";
+  };
+
   return (
     <div>
       <h3>View Funders</h3>
@@ -126,6 +130,8 @@ const ViewFunder = () => {
           ))}
         </tbody>
       </table>
+      
+      <button onClick={handleBackToDashboard}>Back to Dashboard</button>
 
       {selectedFunder && (
         <div>
@@ -140,19 +146,18 @@ const ViewFunder = () => {
               <input type="email" name="email" value={updateData.email} onChange={handleChange} />
             </div>
             <div>
-            <label>Locations:</label>
-            <input type="text" name="locations" value={updateData.locations.join(", ")} onChange={handleChange} />
-          </div>
-          <div>
-            <button type="submit">Update Funder</button>
-            <button onClick={() => setSelectedFunder(null)}>Cancel</button>
-          </div>
-        </form>
-      </div>
+              <label>Locations:</label>
+              <input type="text" name="locations" value={updateData.locations.join(", ")} onChange={handleChange} />
+            </div>
+            <div>
+              <button type="submit">Update Funder</button>
+              <button onClick={() => setSelectedFunder(null)}>Cancel</button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );
 };
 
 export default ViewFunder;
-

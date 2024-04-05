@@ -10,7 +10,6 @@ const AddEval = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-
   const validateForm = () => {
     let error = "";
 
@@ -54,15 +53,15 @@ const AddEval = () => {
 
     if (validateForm()) {
       const adminId = localStorage.getItem("accessToken");
-      const evaluatorData = {adminId, firstname, lastname, email, DOB, loc };
+      const evaluatorData = { adminId, firstname, lastname, email, DOB, loc };
       const apiEndpoint = "http://localhost:5000/api/evaluators/signup/";
-       
+
       axios
         .post(apiEndpoint, evaluatorData)
         .then((response) => {
-        console.log("Teacher added successfully!", response.data);
-        setError("");
-        setMessage(formatMessage(response.data));
+          console.log("Teacher added successfully!", response.data);
+          setError("");
+          setMessage(formatMessage(response.data));
         })
         .catch((error) => {
           console.error("API error:", error);
@@ -70,6 +69,11 @@ const AddEval = () => {
         });
     }
   };
+
+  const handleCancel = () => {
+    window.location.href = "/dashboard";
+  };
+
   const formatMessage = (data) => {
     let message = "";
     for (const key in data) {
@@ -80,83 +84,86 @@ const AddEval = () => {
 
   return (
     <div>
-        <form onSubmit={handleSubmit} method="POST">
+      <form onSubmit={handleSubmit} method="POST">
         <h3>Add Teacher</h3>
 
         {error && <p className="error-message">{error}</p>}
 
         <div className="mb-3">
-            <label>First Name</label>
-            <input
+          <label>First Name</label>
+          <input
             type="text"
             className="form-control"
             placeholder="Enter first name"
             value={firstname}
             onChange={(e) => setfirstname(e.target.value)}
-            />
+          />
         </div>
 
         <div className="mb-3">
-            <label>Last Name</label>
-            <input
+          <label>Last Name</label>
+          <input
             type="text"
             className="form-control"
             placeholder="Enter last name"
             value={lastname}
             onChange={(e) => setlastname(e.target.value)}
-            />
+          />
         </div>
 
         <div className="mb-3">
-            <label>Email</label>
-            <input
+          <label>Email</label>
+          <input
             type="email"
             className="form-control"
             placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            />
+          />
         </div>
 
         <div className="mb-3">
-            <label>Date of Birth</label>
-            <input
+          <label>Date of Birth</label>
+          <input
             type="date"
             className="form-control"
             value={DOB}
             onChange={(e) => setDOB(e.target.value)}
-            />
+          />
         </div>
 
         <div className="mb-3">
-            <label>Location</label>
-            <input
+          <label>Location</label>
+          <input
             type="text"
             className="form-control"
             placeholder="Enter location"
             value={loc}
             onChange={(e) => setLocation(e.target.value)}
-            />
+          />
         </div>
 
         <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary">
             Submit
-            </button>
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={handleCancel}>
+            Cancel
+          </button>
         </div>
-        </form>
+      </form>
 
-        {error && (
-            <div className="alert alert-danger">
-                {error}
-            </div>
-        )}
+      {error && (
+        <div className="alert alert-danger">
+          {error}
+        </div>
+      )}
 
-        {message && (
-            <div className="alert alert-success">
-                <pre>{message}</pre>
-            </div>
-        )}
+      {message && (
+        <div className="alert alert-success">
+          <pre>{message}</pre>
+        </div>
+      )}
     </div>
   );
 };

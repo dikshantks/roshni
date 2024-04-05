@@ -34,11 +34,17 @@ const ViewEval = () => {
     }
   };
 
+  const handleBackToDashboard = () => {
+    window.location.href = "/dashboard";
+  };
+
   return (
     <div>
       <h3>View Evaluators</h3>
 
       {error && <p className="error-message">{error}</p>}
+
+      
 
       <table className="table">
         <thead>
@@ -66,6 +72,7 @@ const ViewEval = () => {
           ))}
         </tbody>
       </table>
+      <button onClick={handleBackToDashboard}>Back to Dashboard</button>
     </div>
   );
 };

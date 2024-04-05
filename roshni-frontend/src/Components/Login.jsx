@@ -73,7 +73,7 @@ const Login = () => {
           {error && <p className="error-message">{error}</p>}
 
           <div className="mb-3">
-            <label>adminID address</label>
+            <label>adminID</label>
             <input
               type="adminID"
               className="form-control"

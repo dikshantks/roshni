@@ -74,6 +74,10 @@ const FundAdd = () => {
     return message;
   };
 
+  const handleCancel = () => {
+    window.location.href = "/dashboard";
+  };
+
   return (
     <div>
       <form onSubmit={handleSubmit} method="POST">
@@ -128,6 +132,9 @@ const FundAdd = () => {
         <div className="d-grid">
           <button type="submit" className="btn btn-primary">
             Submit
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={handleCancel}>
+            Cancel
           </button>
         </div>
       </form>

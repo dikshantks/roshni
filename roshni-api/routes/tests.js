@@ -68,34 +68,39 @@ router.post("/create", async (req, res) => {
 router.delete("/delete/:testID", async (req, res) => {
   try {
     const { testID } = req.params;
-    // Ensure pin is provided
+    // Ensure testID is provided
     if (!testID) {
       return res.status(400).json({
         error: "No testID given in request path."
       });
     }
-    //check if pin in db
+    // Fetch all questions associated with the test
     const testDoc = await db.collection("tests").doc(testID).get();
     if (!testDoc.exists) {
       return res.status(404).json({ error: "Test not found" });
-
     }
-    // Delete test document using pin
-    else {
-      await db.collection("tests").doc(testID).delete();
+    const questions = testDoc.data().questions || [];
 
-      // Customize response message
-      const response = {
-        message: `Test deleted successfully`
-      };
-      res.json(response);
-    }
-    
+    // Delete test document using testID
+    await db.collection("tests").doc(testID).delete();
+
+    // Delete all questions associated with the test
+    const deleteQuestions = questions.map(async (questionID) => {
+      await db.collection("questions").doc(questionID).delete();
+    });
+    await Promise.all(deleteQuestions);
+
+    // Customize response message
+    const response = {
+      message: `Test and associated questions deleted successfully`
+    };
+    res.json(response);
   } catch (error) {
-    console.error("Error deleting test:", error);
-    res.status(500).json({ error: "Failed to delete test" });
+    console.error("Error deleting test and associated questions:", error);
+    res.status(500).json({ error: "Failed to delete test and associated questions" });
   }
 });
+
 
 //update a test
 router.put("/update/:testID", async (req, res) => {
