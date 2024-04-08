@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 router.post("/create", async (req, res) => {
   try {
     const {subject, time, expiry, createDate, imageUrl } = req.body;
-    if (!subject || !time || !expiry || !createDate || !imageUrl) {
+    if (!subject || !time || !expiry || !createDate) {
       return res.status(400).json({
         error: "Missing required fields"
       });

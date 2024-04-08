@@ -18,6 +18,13 @@ const Dashboard = () => {
         <Link to="/view-funders"> 
           <button>View Funders</button>
         </Link>
+        <Link to="/createTest">
+          <button>Create Test</button>
+        </Link>
+        <Link to="/view-tests">
+          <button>View Tests</button>
+        </Link>
+
       </div>
     </div>
   );

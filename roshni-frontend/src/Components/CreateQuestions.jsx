@@ -31,7 +31,7 @@ const CreateQuestions = () => {
   };
 
   const handleDone = () => {
-    window.location.href = '/createTest';
+    window.location.href = '/showTest';
   }
   
   const handleOptionChange = (index, value) => {

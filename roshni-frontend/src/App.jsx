@@ -8,7 +8,8 @@ import ViewEvaluator from "./Components/EvalView"; // Assuming the ViewEvaluator
 import ViewFunder from "./Components/FundView"; // Assuming the ViewFunder component is in ViewFunder.jsx
 import CreateTest from "./Components/CreateTest"; 
 import CreateQuestions from "./Components/CreateQuestions";
-import Landing from "./Components/Landing";
+import TestView from "./Components/TestView";
+import QuesView from "./Components/QuesView";
 
 function App() {
   return (
@@ -20,9 +21,11 @@ function App() {
         <Route path="/add-funder" element={<AddFunder />} />
         <Route path="/view-evaluators" element={<ViewEvaluator />} />
         <Route path="/view-funders" element={<ViewFunder />} />
-        <Route path="/login" element={<Login />} /> {/* Login route at root */}
         <Route path="/createTest" element={<CreateTest />} /> 
         <Route path="/createQuestions" element={<CreateQuestions />} />
+        <Route path="/view-tests" element={<TestView />} />
+        <Route path="/view-questions/:testID" element={<QuesView />} />
+
       </Routes>
     </BrowserRouter>
   );
