@@ -61,7 +61,7 @@ class AuthProvider extends ChangeNotifier {
     required BuildContext context,
   }) async {
     try {
-      _status = AuthStatus.authenticated; // Indicate authentication in progress
+      _status = AuthStatus.unknown; // Indicate authentication in progress
       notifyListeners();
       print("provider pin : $pin");
 
@@ -69,6 +69,9 @@ class AuthProvider extends ChangeNotifier {
 
       if (student != null) {
         _student = student;
+        _status =
+            AuthStatus.authenticated; // Indicate authentication in progress
+        print(_status);
 
         notifyListeners();
         // Navigate to Student dashboard (implementation below)

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:roshni_app/models/question_model.dart';
+import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
@@ -9,7 +12,10 @@ import 'package:roshni_app/themes/themes.dart';
 
 const String baseurl = "https://roshni-api.onrender.com/api";
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(TestAdapter());
+  Hive.registerAdapter(QuestionAdapter());
   runApp(
     MultiProvider(
       providers: [

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:roshni_app/models/exams_model.dart'; // For JSON handling
+import 'package:roshni_app/models/test_model.dart'; // For JSON handling
 import 'package:roshni_app/models/facilitator_model.dart';
+import 'package:roshni_app/models/question_model.dart';
 import '../models/student_model.dart';
 
 class TestService {
@@ -12,16 +14,17 @@ class TestService {
   Future<List<Test>> fetchAllTests() async {
     final url = Uri.parse('$_baseUrl/tests');
     print("init fetch all test api service ");
+    print(url);
     final response = await http.get(url);
-    // print(response.body);
+    print(response);
     if (response.statusCode == 200) {
-      print("status fine: ${response.statusCode} \n ${response.body}");
+      print("status fine: ${response.statusCode} -> ${response.body}");
 
       final jsonData = jsonDecode(response.body) as List;
-      print(jsonData[0]);
+      // print(jsonData[0]);
       final one = Test.fromJson(jsonData[0]);
-      print("printinig one");
-      print(one);
+      // print("printinig one");
+      print(" prinit one : $one");
 
       return jsonData.map((data) => Test.fromJson(data)).toList();
     } else {
@@ -40,14 +43,19 @@ class QuestionService {
     print("init question api service");
     final url = Uri.parse('$_baseUrl/tests/$testID/questions');
     final response = await http.get(url);
-
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      final questionsData = jsonData['questions'] as List;
 
-      return questionsData.map((q) => Question.fromJson(q)).toList();
+      final questionsData = jsonData['questions'] as List;
+      final one = questionsData.map((q) => Question.fromJson(q)).toList();
+
+      print("question api done");
+      return one;
     } else {
       // Handle errors (consider throwing an exception)
+      if (kDebugMode) {
+        print("fetch question issue");
+      }
       throw Exception('Failed to fetch questions');
     }
   }
@@ -98,9 +106,13 @@ class AuthService {
       final url = Uri.parse('$_baseUrl/students/login');
       print(url);
       print(pin);
-      final response = await http.post(url,
-          headers: {"Content-Type": "application/json"},
-          body: json.encode({'pin': pin}));
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(
+          {'pin': pin},
+        ),
+      );
       print(response.body);
 
       if (response.statusCode == 200) {

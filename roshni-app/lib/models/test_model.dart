@@ -1,14 +1,28 @@
 // import 'package:intl/intl.dart'; // Import this for date/time handling
 
+import 'package:hive/hive.dart';
+
+part 'test_model.g.dart';
+
+@HiveType(typeId: 0)
 class Test {
+  @HiveField(0)
   String createDate;
+  @HiveField(1)
   String expiry;
+  @HiveField(2)
   String imageUrl;
-  List<Question>
-      questions; // Use dynamic if you're unsure of the question structure
+  @HiveField(3)
+  List<dynamic> questions;
+  @HiveField(4)
   String subject;
+  @HiveField(5)
   String testID;
-  int time;
+  @HiveField(6)
+  String time;
+  @HiveField(7)
+  @override
+  int get key => testID.hashCode;
 
   Test({
     required this.createDate,
@@ -22,11 +36,6 @@ class Test {
 
   // Factory method to create a Test object from JSON
   factory Test.fromJson(Map<String, dynamic> json) {
-    // Parse the expiry date/time
-    // final dateFormat = DateFormat('yyyy-MM-ddTHH:mm');
-
-    print("working test.fromjson");
-    print(json);
     return Test(
       subject: json['subject'],
       imageUrl: json['imageUrl'],
@@ -50,37 +59,5 @@ class Test {
       'testID': testID,
       'time': time,
     };
-  }
-}
-
-class Question {
-  String questionID;
-  String testID;
-  String text;
-  String type;
-  String correct;
-  String difficulty;
-  List<String> options;
-
-  Question({
-    required this.questionID,
-    required this.testID,
-    required this.text,
-    required this.type,
-    required this.correct,
-    required this.difficulty,
-    required this.options,
-  });
-
-  factory Question.fromJson(Map<String, dynamic> json) {
-    return Question(
-      questionID: json['questionID'],
-      testID: json['testID'],
-      text: json['text'],
-      type: json['type'],
-      correct: json['correct'],
-      difficulty: json['difficulty'],
-      options: json['options'],
-    );
   }
 }

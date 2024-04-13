@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:roshni_app/screen/facilitator_examscreen_screen.dart';
 import 'package:roshni_app/screen/facilitator_students_screen.dart';
@@ -34,7 +35,9 @@ class _FacilitatorScreen extends State<FacilitatorScreen> {
               curve: Curves.ease,
             );
 
-            print("$value , $selectedindex , ${_pageController.page}");
+            if (kDebugMode) {
+              print("$value , $selectedindex , ${_pageController.page}");
+            }
           });
         },
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,

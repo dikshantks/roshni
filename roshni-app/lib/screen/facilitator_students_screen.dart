@@ -81,7 +81,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
-      child: Container(
+      child: SizedBox(
         height: 500, // Adjust if needed
         child: SingleChildScrollView(
           // To prevent overflow if content is large

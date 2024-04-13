@@ -5,6 +5,7 @@ import 'package:roshni_app/screen/facilitator_examscreen_screen.dart';
 import 'package:roshni_app/screen/facilitator_students_screen.dart';
 import 'package:roshni_app/screen/onboarding_screen.dart';
 import 'package:roshni_app/screen/student_login_screen.dart';
+import 'package:roshni_app/screen/student_profile_screen.dart';
 import 'package:roshni_app/screen/student_screen.dart';
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -27,20 +28,25 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (_) => const FacilitatorScreen(),
       );
+    case '/facilitator/register':
+      return MaterialPageRoute(
+        builder: (_) => const StudentRegisterScreen(),
+      );
+
+    case '/facilitator/exams':
+      // final examId = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (_) => const FacilitatorExamScreen(),
+      );
+
     case '/student':
       return MaterialPageRoute(
         builder: (_) => const StudentScreen(),
       );
-
-    case '/facilitator/register':
-      return MaterialPageRoute(builder: (_) => const StudentRegisterScreen());
-
-    case '/facilitator/exams':
-      // final examId = settings.arguments as String;
-      return MaterialPageRoute(builder: (_) => const FacilitatorExamScreen());
-
-    // case '/student/home':
-    //   return MaterialPageRoute(builder: (_) => StudentHome());
+    case '/student/profile':
+      return MaterialPageRoute(
+        builder: (_) => const StudentProfileScreen(),
+      );
 
     // case '/student/past-results':
     //   return MaterialPageRoute(builder: (_) => StudentPastResults());

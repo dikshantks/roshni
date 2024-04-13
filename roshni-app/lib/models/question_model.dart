@@ -1,67 +1,50 @@
-// class Question {
-//   final int uid;
+import 'package:hive/hive.dart';
 
-//   Question({required this.uid});
+part 'question_model.g.dart';
 
-//   factory Question.fromJson(Map<String, dynamic> json) {
-//     return Question(uid: json["uid"]);
-//   }
+@HiveType(typeId: 1)
+class Question {
+  @HiveField(0)
+  String questionID;
 
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = <String, dynamic>{};
-
-//     return data;
-//   }
-// }
-
-import 'package:intl/intl.dart'; // Import this for date/time handling
-
-class Test {
-  String createDate;
-  String expiry;
-  String imageUrl;
-  List<dynamic>
-      questions; // Use dynamic if you're unsure of the question structure
-  String subject;
+  @HiveField(1)
   String testID;
-  int time;
-
-  Test({
-    required this.createDate,
-    required this.expiry,
-    required this.imageUrl,
-    required this.questions,
-    required this.subject,
+  @HiveField(2)
+  String text;
+  @HiveField(3)
+  String type;
+  @HiveField(4)
+  String correct;
+  @HiveField(5)
+  String difficulty;
+  @HiveField(6)
+  List<dynamic> options;
+  @HiveField(7)
+  String? useranswer;
+  @HiveField(8)
+  @override
+  int get key => questionID.hashCode;
+  Question({
+    required this.questionID,
     required this.testID,
-    required this.time,
+    required this.text,
+    required this.type,
+    required this.correct,
+    required this.difficulty,
+    required this.options,
+    this.useranswer,
   });
 
-  // Factory method to create a Test object from JSON
-  factory Test.fromJson(Map<String, dynamic> json) {
-    // Parse the expiry date/time
-    final dateFormat = DateFormat('yyyy-MM-ddTHH:mm');
-
-    return Test(
-      createDate: json['createDate'],
-      expiry: dateFormat.parse(json['expiry']).toString(), // Parse and reformat
-      imageUrl: json['imageUrl'],
-      questions: json['questions'],
-      subject: json['subject'],
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
+      questionID: json['questionID'],
       testID: json['testID'],
-      time: json['time'],
+      text: json['text'],
+      type: json['type'],
+      correct: json['correct'],
+      difficulty: json['difficulty'],
+      options: json['options'],
+      useranswer: null,
     );
-  }
-
-  // Method to convert a Test object to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'createDate': createDate,
-      'expiry': expiry,
-      'imageUrl': imageUrl,
-      'questions': questions,
-      'subject': subject,
-      'testID': testID,
-      'time': time,
-    };
   }
 }
