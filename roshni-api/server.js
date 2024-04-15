@@ -5,6 +5,7 @@ const evaluatorsRoutes = require("./routes/evaluators");
 const adminRoutes = require("./routes/admin");
 const testRoutes = require("./routes/tests");
 const fundRoutes = require("./routes/funder");
+const resultRoutes = require("./routes/results");
 
 const cors = require('cors');
 const corsOptions ={
@@ -21,6 +22,7 @@ app.use("/api/evaluators", evaluatorsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/funder", fundRoutes);
+app.use("/api/results", resultRoutes)
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
