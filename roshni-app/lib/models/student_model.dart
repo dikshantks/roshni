@@ -1,11 +1,22 @@
-class Student {
-  String firstName;
-  String lastName;
-  String gender;
-  String dob;
-  String location;
-  String pin;
+import 'package:hive/hive.dart';
+part 'student_model.g.dart';
 
+@HiveType(typeId: 2)
+class Student {
+  @HiveField(0)
+  String firstName;
+  @HiveField(1)
+  String lastName;
+  @HiveField(2)
+  String gender;
+  @HiveField(3)
+  String dob;
+  @HiveField(4)
+  String location;
+  @HiveField(5)
+  String pin;
+  @HiveField(6)
+  int get key => pin.hashCode;
   Student({
     required this.firstName,
     required this.lastName,

@@ -5,6 +5,9 @@ import 'package:roshni_app/models/test_model.dart'; // For JSON handling
 import 'package:roshni_app/models/facilitator_model.dart';
 import 'package:roshni_app/models/question_model.dart';
 import '../models/student_model.dart';
+import 'package:logger/logger.dart';
+
+var logger = Logger();
 
 class TestService {
   final String _baseUrl;
@@ -13,18 +16,18 @@ class TestService {
 
   Future<List<Test>> fetchAllTests() async {
     final url = Uri.parse('$_baseUrl/tests');
-    print("init fetch all test api service ");
+    logger.i("init fetch all test api service ");
     print(url);
     final response = await http.get(url);
-    print(response);
+    // print("response : $response");
     if (response.statusCode == 200) {
       print("status fine: ${response.statusCode} -> ${response.body}");
 
       final jsonData = jsonDecode(response.body) as List;
       // print(jsonData[0]);
-      final one = Test.fromJson(jsonData[0]);
-      // print("printinig one");
-      print(" prinit one : $one");
+      // final one = Test.fromJson(jsonData[0]);
+
+      print(" prinit one : ${jsonData.length}");
 
       return jsonData.map((data) => Test.fromJson(data)).toList();
     } else {
@@ -40,7 +43,7 @@ class QuestionService {
   QuestionService(this._baseUrl);
 
   Future<List<Question>> fetchQuestionsForTest(String testID) async {
-    print("init question api service");
+    // print("init question api service");
     final url = Uri.parse('$_baseUrl/tests/$testID/questions');
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -48,8 +51,7 @@ class QuestionService {
 
       final questionsData = jsonData['questions'] as List;
       final one = questionsData.map((q) => Question.fromJson(q)).toList();
-
-      print("question api done");
+      print("question api done : ${questionsData.length} ${one.length}");
       return one;
     } else {
       // Handle errors (consider throwing an exception)
@@ -135,13 +137,12 @@ class AuthService {
   }
 }
 
-// In 'api_service.dart'
-class ApiService {
+class FacApiService {
   final String _baseUrl;
 
-  ApiService(this._baseUrl);
+  FacApiService(this._baseUrl);
 
-  Future<void> registerStudent(Map<String, dynamic> studentData) async {
+  Future<String> registerStudent(Map<String, dynamic> studentData) async {
     final url = Uri.parse('$_baseUrl/students/signup');
     print("init register student api service : $studentData");
     final response = await http.post(
@@ -154,6 +155,8 @@ class ApiService {
     if (response.statusCode != 200) {
       throw Exception('Failed to register student: ${response.body}');
     } // else registration successful (consider handling detailed responses)
+
+    return response.body;
   }
 
   Future<List<Student>> fetchStudents() async {

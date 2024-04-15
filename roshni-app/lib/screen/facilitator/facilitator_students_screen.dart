@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
@@ -124,7 +126,6 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                     decoration: const InputDecoration(labelText: 'Grade'),
                     validator: (value) => value!.isEmpty ? 'Required' : null,
                   ),
-
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
@@ -135,11 +136,6 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                           listen: false,
                         );
 
-                        // Map<String, dynamic> studentData = {
-                        //   'firstName': _firstNameController.text,
-                        //   'lastName': _lastNameController.text,
-                        //   // ... add other fields: dob, gender, location, grade
-                        // };
                         Map<String, dynamic> studentData = {
                           'firstName': _firstNameController.text,
                           'lastName': _lastNameController.text,
@@ -150,8 +146,23 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                         };
 
                         try {
-                          await facilitatorProvider
+                          var responseBody = await facilitatorProvider
                               .registerStudent(studentData);
+                          var one = jsonDecode(responseBody);
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Registration Response'),
+                              content: Text(
+                                  " ${one['message']} \n Student ID: ${one['studentId']}"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
                           // Success! (Handle as needed)
                         } catch (error) {
                           // Handle registration error

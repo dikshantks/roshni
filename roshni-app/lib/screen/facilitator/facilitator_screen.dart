@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:roshni_app/screen/facilitator_examscreen_screen.dart';
-import 'package:roshni_app/screen/facilitator_students_screen.dart';
+import 'package:roshni_app/screen/facilitator/facilitator_examscreen_screen.dart';
+
+import 'package:roshni_app/screen/facilitator/facilitator_students_screen.dart';
 
 class FacilitatorScreen extends StatefulWidget {
   static const routeName = '/facilitator';

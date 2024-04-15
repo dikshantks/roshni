@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:roshni_app/screen/facilitator_login_screen.dart';
-import 'package:roshni_app/screen/facilitator_screen.dart';
-import 'package:roshni_app/screen/facilitator_examscreen_screen.dart';
-import 'package:roshni_app/screen/facilitator_students_screen.dart';
-import 'package:roshni_app/screen/onboarding_screen.dart';
-import 'package:roshni_app/screen/student_login_screen.dart';
-import 'package:roshni_app/screen/student_profile_screen.dart';
-import 'package:roshni_app/screen/student_screen.dart';
+import 'package:roshni_app/screen/facilitator/facilitator_login_screen.dart';
+import 'package:roshni_app/screen/facilitator/facilitator_screen.dart';
+import 'package:roshni_app/screen/facilitator/facilitator_examscreen_screen.dart';
+import 'package:roshni_app/screen/facilitator/facilitator_students_screen.dart';
+import 'package:roshni_app/screen/common/onboarding_screen.dart';
+import 'package:roshni_app/screen/common/quiz_screen.dart';
+import 'package:roshni_app/screen/student/student_login_screen.dart';
+import 'package:roshni_app/screen/student/student_profile_screen.dart';
+import 'package:roshni_app/screen/student/student_scan_screen.dart';
+import 'package:roshni_app/screen/student/student_screen.dart';
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-  print('Routing: ${settings.name}');
+  print('Routing: ${settings.name} with arguments: ${settings.arguments}');
 
   switch (settings.name) {
     case '/':
@@ -34,7 +36,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
       );
 
     case '/facilitator/exams':
-      // final examId = settings.arguments as String;
       return MaterialPageRoute(
         builder: (_) => const FacilitatorExamScreen(),
       );
@@ -47,6 +48,19 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (_) => const StudentProfileScreen(),
       );
+    case '/student/tests':
+      print(settings.arguments);
+      final testId = settings.arguments as List<dynamic>;
+      print('testId: $testId');
+      return MaterialPageRoute(
+        builder: (_) => QuestionsScreen(
+          testId: testId,
+        ),
+      );
+    case '/student/scan':
+      return MaterialPageRoute(
+        builder: (_) => const StudentScanScreen(),
+      );
 
     // case '/student/past-results':
     //   return MaterialPageRoute(builder: (_) => StudentPastResults());
@@ -54,11 +68,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     // case '/student/give-exam':
     //   final testId = settings.arguments as String;
     //   return MaterialPageRoute(builder: (_) => StudentTakeTest(testId: testId));
-
-    // case '/student/results/:testId':
-    //   final testId = settings.arguments as String;
-    //   return MaterialPageRoute(
-    //       builder: (_) => StudentTestResult(testId: testId));
 
     default:
       return _errorRoute(message: 'Route not found: ${settings.name}');

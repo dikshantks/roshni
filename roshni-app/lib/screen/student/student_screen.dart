@@ -1,9 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
-import 'package:roshni_app/screen/student_profile_screen.dart';
+import 'package:roshni_app/screen/quiz_list_screen.dart';
+import 'package:roshni_app/screen/student/student_profile_screen.dart';
+import 'package:roshni_app/screen/student/student_scan_screen.dart';
 
 class StudentScreen extends StatefulWidget {
   static const routeName = '/student';
@@ -14,9 +16,11 @@ class StudentScreen extends StatefulWidget {
 }
 
 class _StudentScreen extends State<StudentScreen> {
+  final _pageController = PageController();
+  int selectedindex = 0;
+
   @override
   void initState() {
-    print("studet screen ");
     super.initState();
     _fetchData();
   }
@@ -25,18 +29,15 @@ class _StudentScreen extends State<StudentScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final testProvider = Provider.of<TestProvider>(context, listen: false);
 
-    // if (authProvider.status == AuthStatus.authenticated &&
-    //     authProvider.ngoId != null) {
-    testProvider.fetchTests();
-    // }
+    if (authProvider.status == AuthStatus.authenticated &&
+        authProvider.ngoId != null) {
+      testProvider.fetchTests();
+    }
   }
-
-  int selectedindex = 0;
-  final _pageController = PageController();
 
   List<Widget> widgetList = [
     const StudentProfileScreen(),
-    // const FacilitatorExamScreen(),
+    const QuizListScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -44,27 +45,14 @@ class _StudentScreen extends State<StudentScreen> {
       extendBody: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Logger().i("route");
+          Navigator.of(context).pushNamed(StudentScanScreen.routeName);
+        },
         child: const Icon(Icons.camera_enhance),
       ),
       backgroundColor: Colors.transparent,
       bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (value) {
-          setState(() {
-            selectedindex = value;
-            _pageController.animateToPage(
-              value,
-              duration: const Duration(
-                milliseconds: 300,
-              ),
-              curve: Curves.ease,
-            );
-
-            if (kDebugMode) {
-              print("$value , $selectedindex , ${_pageController.page}");
-            }
-          });
-        },
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: selectedindex,
         destinations: const [
@@ -74,12 +62,6 @@ class _StudentScreen extends State<StudentScreen> {
             ),
             label: "Profile",
           ),
-          // NavigationDestination(
-          //   icon: Icon(
-          //     Icons.pie_chart,
-          //   ),
-          //   label: "Circle Chart",
-          // ),
           NavigationDestination(
             icon: Icon(
               Icons.book,
@@ -87,16 +69,38 @@ class _StudentScreen extends State<StudentScreen> {
             label: "Open Book",
           ),
         ],
-      ),
-      body: PageView(
-        controller: _pageController,
-        children: widgetList,
-        onPageChanged: (value) {
-          setState(() {
-            selectedindex = value;
-          });
+        onDestinationSelected: (index) {
+          setState(
+            () => selectedindex = index,
+          );
+          _pageController.animateToPage(
+              curve: Curves.ease,
+              duration: Duration(milliseconds: 300),
+              selectedindex);
         },
       ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widgetList.length,
+        itemBuilder: (context, index) => widgetList[index],
+        onPageChanged: (index) {
+          setState(() => selectedindex = index); // Update selected tab
+        },
+
+        // children: widgetList,
+        // onPageChanged: (value) {
+        //   setState(() {
+        //     selectedindex = value;
+        //   });
+        //   _pageController.jumpToPage(selectedindex);
+        // },
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

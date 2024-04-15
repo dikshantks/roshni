@@ -4,7 +4,7 @@ import 'package:roshni_app/models/student_model.dart';
 import 'package:roshni_app/services/api_service.dart';
 
 class FacilitatorProvider extends ChangeNotifier {
-  final ApiService _apiService;
+  final FacApiService _apiService;
   List<Student> _students = [];
   bool _isLoading = false;
   String? _error;
@@ -17,14 +17,15 @@ class FacilitatorProvider extends ChangeNotifier {
   String? get error => _error;
 
   // Registration function
-  Future<void> registerStudent(Map<String, dynamic> studentData) async {
+  Future<String> registerStudent(Map<String, dynamic> studentData) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
+    String responseBody = '';
 
     try {
-      print('Registering student... provider ');
-      await _apiService.registerStudent(studentData);
+      logger.i('Registering student... provider ');
+      responseBody = await _apiService.registerStudent(studentData);
       // Optionally refetch students if you want an immediate update:
       // await fetchStudents();
     } catch (error) {
@@ -34,6 +35,7 @@ class FacilitatorProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+    return responseBody;
   }
 
   // Fetch Students

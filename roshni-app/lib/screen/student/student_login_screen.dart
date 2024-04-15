@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
-import 'package:roshni_app/screen/facilitator_screen.dart';
-import '../utils/button-1.dart';
+import 'package:roshni_app/screen/student/student_screen.dart';
+import '../../utils/button-1.dart';
 
-class FacilitatorLoginScreen extends StatefulWidget {
-  static const routeName = '/facilitator/login';
-  const FacilitatorLoginScreen({super.key});
+class StudentLoginScreen extends StatefulWidget {
+  static const routeName = '/student/login';
+  const StudentLoginScreen({super.key});
 
   @override
-  State<FacilitatorLoginScreen> createState() => _FacilitatorLoginScreen();
+  State<StudentLoginScreen> createState() => _StudentLoginScreen();
 }
 
-class _FacilitatorLoginScreen extends State<FacilitatorLoginScreen> {
+class _StudentLoginScreen extends State<StudentLoginScreen> {
   final _pinController = TextEditingController();
-  final _passwordcontroller = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,14 +29,8 @@ class _FacilitatorLoginScreen extends State<FacilitatorLoginScreen> {
                 hintText: "PIN",
               ),
             ),
-            TextField(
-              controller: _passwordcontroller,
-              decoration: const InputDecoration(
-                hintText: "Password",
-              ),
-            ),
             RoundButton1(
-              text: "Login ",
+              text: "Log in",
               onPressed: () async {
                 await _handleLogin(context);
               },
@@ -52,17 +44,12 @@ class _FacilitatorLoginScreen extends State<FacilitatorLoginScreen> {
   Future<void> _handleLogin(BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final pin = _pinController.text;
-    final password = _passwordcontroller.text;
 
-    await authProvider.signInEvaluator(
-      evalID: pin,
-      password: password,
-      context: context,
-    );
+    await authProvider.signInStudent(pin: pin, context: context);
 
     // Navigate if login successful
     if (authProvider.status == AuthStatus.authenticated) {
-      Navigator.of(context).pushReplacementNamed(FacilitatorScreen.routeName);
+      Navigator.of(context).pushReplacementNamed(StudentScreen.routeName);
     }
   }
 }
