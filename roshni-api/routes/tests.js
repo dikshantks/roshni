@@ -170,15 +170,17 @@ router.post('/:testID/questions', async (req, res) => {
     //   return res.status(400).json({ error: error.details[0].message });
     // }
 
-    const {text, type, difficulty, options = [""], correct } = req.body;
+    const {text, type, difficulty, options = [""], correct, imageUrl, marks } = req.body;
 
-    if (!text || !type || !difficulty || !options || !correct) {
+    // image url is optional
+    if (!text || !type || !difficulty || !options || !correct || !marks) {
       let missingFields = [];
       if (!text) missingFields.push('text');
       if (!type) missingFields.push('type');
       if (!difficulty) missingFields.push('difficulty');
       if (!options) missingFields.push('options');
       if (!correct) missingFields.push('correct');
+      if (!marks) missingFields.push('marks');
     
       return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
     }
@@ -211,7 +213,9 @@ router.post('/:testID/questions', async (req, res) => {
       difficulty,
       options,
       correct,
-      testID,
+      imageUrl,
+      marks,
+      testID
     });
     const response = { message: 'Question added successfully',
       questionID: questionID,
@@ -220,6 +224,8 @@ router.post('/:testID/questions', async (req, res) => {
       difficulty,
       options,
       correct,
+      imageUrl,
+      marks,
       testID
     };
 
@@ -275,7 +281,7 @@ router.delete('/:testID/questions/:questionID', async (req, res) => {
 router.put('/:testID/questions/:questionID', async (req, res) => {
   try {
     const { testID, questionID } = req.params;
-    const whitelist = ['text', 'type', 'difficulty', 'options','correct'];
+    const whitelist = ['text', 'type', 'difficulty', 'options','correct', 'imageUrl', 'marks'];
     // Filter allowed fields and retrieve existing test
     const keys = Object.keys(req.body);
 
