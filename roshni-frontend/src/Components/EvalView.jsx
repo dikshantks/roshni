@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { Link } from "react-router-dom";
+import DataTable from 'react-data-table-component';
+import './EvalView.css';
 const ViewEval = () => {
   const [evaluators, setEvaluators] = useState([]);
   const [error, setError] = useState("");
@@ -37,44 +39,74 @@ const ViewEval = () => {
   const handleBackToDashboard = () => {
     window.location.href = "/dashboard";
   };
+  const columns = [
+    {
+      name: "First Name",
+      selector: (row) => row.firstname,
+      sortable: true
+    },
+    {
+      name: "Last Name",
+      selector: (row) => row.lastname,
+      sortable: true
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email
+    },
+    {
+      name: "Date of Birth",
+      selector: (row) => row.DOB
+    },
+    {
+      name: "Location",
+      selector: (row) => row.loc,
+      sortable: true
+    },
+    {
+      name: "Action",
+      cell: (row) => <button className="buttonss" style={{ marginLeft: "10px", marginTop: "2px" }} onClick={() => handleDelete(row.evalID)}>Delete</button>
+    }
+  ]
+
+  const [records, setRecords] = useState(evaluators);
+  function handleFilter(e) {
+    const value = e.target.value.trim(); // Trim whitespace from input value
+    if (value === "") {
+      setRecords(evaluators); // Set records back to original evaluators array
+    } else {
+      const filtered = evaluators.filter((evaluator) => {
+        return evaluator.firstname.toLowerCase().includes(value.toLowerCase());
+      });
+      setRecords(filtered);
+    }
+  }
+  
+  useEffect(() => {
+    setRecords(evaluators); // Update records whenever evaluators changes
+  }, [evaluators]);
 
   return (
-    <div>
+    <div className="table-container">
       <h3>View Evaluators</h3>
 
       {error && <p className="error-message">{error}</p>}
+      <div className="text-end"><input type='text' onChange={handleFilter}/></div>
+      <DataTable
+        columns={columns}
+        data={records}
+        noHeader
+        pagination
+        highlightOnHover
+        paginationPerPage={10}
+      />
 
-      
-
-      <table className="table">
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Date of Birth</th>
-            <th>Location</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {evaluators.map((evaluator) => (
-            <tr key={evaluator.evalID}>
-              <td>{evaluator.firstname}</td>
-              <td>{evaluator.lastname}</td>
-              <td>{evaluator.email}</td>
-              <td>{evaluator.DOB}</td>
-              <td>{evaluator.loc}</td>
-              <td>
-                <button onClick={() => handleDelete(evaluator.evalID)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button onClick={handleBackToDashboard}>Back to Dashboard</button>
+      <Link to="/add-evaluator">
+        <button className="buttonss" style={{ marginLeft: "10px", marginTop: "2px" }}>Add Evaluator</button>
+      </Link>
     </div>
   );
 };
+
 
 export default ViewEval;

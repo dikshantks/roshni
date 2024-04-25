@@ -1,0 +1,24 @@
+.buttonss {
+    /* display: inline-block; */
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    background-color: #005b93;
+    color: #fff;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+.table-container {
+margin: 50px auto;
+text-align: center;
+margin-left: 50px;
+margin-right: 50px;
+}
+
+.dataTable {
+font-weight: bold;
+}

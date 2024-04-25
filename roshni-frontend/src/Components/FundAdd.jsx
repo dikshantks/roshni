@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { Row, Col } from "react-bootstrap";
+import {Card,Button,Form,FloatingLabel } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "./FundAdd.css"
 const FundAdd = () => {
   const [organizationName, setOrganizationName] = useState("");
   const [email, setEmail] = useState("");
@@ -79,71 +82,88 @@ const FundAdd = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} method="POST">
-        <h3>Add Funder</h3>
-
-        {error && <div className="alert alert-danger">{error}</div>}
-
-        <div className="mb-3">
-          <label>Organization Name</label>
-          <input
+    <div className="imc">
+      <div className="bgg">
+      <Card className="containerr"> 
+          <Card.Body>
+            <Card.Title as="h3" className="text">Add Facilitator</Card.Title>
+            <br/>
+        <Form onSubmit={handleSubmit}>
+        <Row>
+            {error && <p className="error-message">{error}</p>}
+        <Form.Group as={Col} controlId="organizationName">
+        <FloatingLabel className="mbb-4" 
+            controlId="floatingInput" 
+            label="Organization Name">
+          <Form.Control
             type="text"
-            className="form-control"
+            className="fieldss"
             placeholder="Enter organization name"
             value={organizationName}
             onChange={(e) => setOrganizationName(e.target.value)}
           />
-        </div>
-
-        <div className="mb-3">
-          <label>Email</label>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Password</label>
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Locations</label>
-          <input
+          </FloatingLabel>
+        </Form.Group>
+        < br/>
+        <Form.Group as={Col} controlId="email">
+          <FloatingLabel className="mbb-4" controlId="floatingInput" label="Email">
+            <Form.Control
+              type="email"
+              className="fieldss"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </FloatingLabel>
+        </Form.Group>
+        </Row>
+        <br />
+        <Row>
+        <Form.Group as={Col} controlId="password">
+          <FloatingLabel className="mbb-4" controlId="floatingInput" label="Password">
+            <Form.Control
+              type="password"
+              className="fieldss"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </FloatingLabel>
+        </Form.Group>
+        <br />
+        <Form.Group as={Col} controlId="locations">
+        <FloatingLabel className="mbb-4" controlId="floatingInput" label="Locations">
+          <Form.Control
             type="text"
-            className="form-control"
+            className="fieldss"
             placeholder="Enter locations separated by commas"
             value={locations}
             onChange={(e) => setLocations(e.target.value.split(","))}
           />
-        </div>
+        </FloatingLabel>
+        </Form.Group>
+        </Row>
+        <br />
 
-        <div className="d-grid">
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-          <button type="button" className="btn btn-secondary" onClick={handleCancel}>
-            Cancel
-          </button>
-        </div>
-      </form>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button variant="success" className="btttn" type="submit" style={{ marginRight: '1rem' }}>
+              Submit
+            </Button>
+            <br />
+            <Button type="button" className="btttn" onClick={handleCancel} style={{ marginRight: '1rem' }}>
+              Cancel
+            </Button>
+          </div>
+          </Form>
+        </Card.Body>
+      </Card>
 
       {message && (
         <div className="alert alert-success">
           <pre>{message}</pre>
         </div>
       )}
+    </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const ViewFunder = () => {
   const [funders, setFunders] = useState([]);
@@ -102,7 +103,9 @@ const ViewFunder = () => {
   };
 
   return (
+    
     <div>
+
       <h3>View Funders</h3>
 
       {error && <p className="error-message">{error}</p>}
@@ -132,7 +135,9 @@ const ViewFunder = () => {
       </table>
       
       <button onClick={handleBackToDashboard}>Back to Dashboard</button>
-
+      <Link to="/add-funder">
+          <button>Add Funder</button>
+      </Link>
       {selectedFunder && (
         <div>
           <h3>Edit Funder</h3>
