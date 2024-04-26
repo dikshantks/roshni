@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:roshni_app/models/question_model.dart';
 import 'package:roshni_app/models/test_model.dart';
+import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
 
 class StudentProfileScreen extends StatefulWidget {
-  // static const routeName = '/student/profile';
   const StudentProfileScreen({super.key});
 
   @override
@@ -18,59 +18,156 @@ class _StudentProfileScreen extends State<StudentProfileScreen> {
   void initState() {
     super.initState();
     tests = Provider.of<TestProvider>(context, listen: false).tests;
-    print("tests: $tests");
   }
 
   @override
   Widget build(BuildContext context) {
-    tests = Provider.of<TestProvider>(context, listen: true).tests;
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Available Tests'),
-      ),
-    );
-  }
-
-  void _showQuestionPopup(BuildContext context, Test test) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Questions for ${test.subject}'),
-          content: FutureBuilder<List<Question>>(
-            future: Provider.of<TestProvider>(context)
-                .fetchQuestionsFromHive(test.questions), // Fetch from Hive
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                print("waiting");
-                return const Center(child: Text('Loading...'));
-              }
-              if (snapshot.hasError) {
-                print("error");
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              if (snapshot.hasData) {
-                print(
-                    " hereeererer he${snapshot.data!.length}"); // Print number of questions
-                return Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // Important for scrollable list
-                  children: snapshot.data!
-                      .map((question) => Text(question.questionID))
-                      .toList(),
-                );
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
-            },
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context), child: Text('Close')),
+      backgroundColor: Colors.transparent,
+      body: Consumer<AuthProvider>(builder: (context, authprovider, child) {
+        final student = authprovider.student;
+        return Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  color: Colors.redAccent,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 75, left: 20, right: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${student!.firstName} ${student.lastName}',
+                        style: GoogleFonts.openSans(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        student.pin,
+                        style: GoogleFonts.openSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ProfileRow(
+                        field: "Gender",
+                        detail: student.gender == 'M' ? "Male" : 'Female',
+                      ),
+                      ProfileRow(
+                        field: "date of birth",
+                        detail: student.dob,
+                      ),
+                      ProfileRow(
+                        field: "Center",
+                        detail: student.location,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              top: 120,
+              child: CircleAvatar(
+                radius:
+                    75, // Adjust this value to change the size of the CircleAvatar
+                backgroundImage: NetworkImage(
+                    'https://example.com/image.jpg'), // Replace with your image URL
+              ),
+            ),
           ],
         );
-      },
+      }),
     );
   }
 }
+
+class ProfileRow extends StatelessWidget {
+  const ProfileRow({
+    super.key,
+    required this.field,
+    required this.detail,
+  });
+  final String field;
+
+  final String detail;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            field,
+            style: GoogleFonts.openSans(
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            detail,
+            style: GoogleFonts.openSans(
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+  // void _showQuestionPopup(BuildContext context, Test test) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text('Questions for ${test.subject}'),
+  //         content: FutureBuilder<List<Question>>(
+  //           future: Provider.of<TestProvider>(context)
+  //               .fetchQuestionsFromHive(test.questions), // Fetch from Hive
+  //           builder: (context, snapshot) {
+  //             if (snapshot.connectionState == ConnectionState.waiting) {
+  //               print("waiting");
+  //               return const Center(child: Text('Loading...'));
+  //             }
+  //             if (snapshot.hasError) {
+  //               print("error");
+  //               return Center(child: Text('Error: ${snapshot.error}'));
+  //             }
+  //             if (snapshot.hasData) {
+  //               print(
+  //                   " hereeererer he${snapshot.data!.length}"); // Print number of questions
+  //               return Column(
+  //                 mainAxisSize:
+  //                     MainAxisSize.min, // Important for scrollable list
+  //                 children: snapshot.data!
+  //                     .map((question) => Text(question.questionID))
+  //                     .toList(),
+  //               );
+  //             } else {
+  //               return Center(child: CircularProgressIndicator());
+  //             }
+  //           },
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //               onPressed: () => Navigator.pop(context), child: Text('Close')),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }

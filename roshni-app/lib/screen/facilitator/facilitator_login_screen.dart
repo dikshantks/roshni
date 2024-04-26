@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_screen.dart';
-import '../../utils/button-1.dart';
+
+import 'package:roshni_app/widgets/form_field.dart';
+import '../../widgets/buttons.dart';
 
 class FacilitatorLoginScreen extends StatefulWidget {
   static const routeName = '/facilitator/login';
@@ -18,32 +20,48 @@ class _FacilitatorLoginScreen extends State<FacilitatorLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _pinController,
-              decoration: const InputDecoration(
-                hintText: "PIN",
+      body: Container(
+        margin: const EdgeInsets.only(
+          top: 30,
+          left: 10.0,
+          right: 10.0,
+          bottom: 10.0,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: screenSize.height * .15,
               ),
-            ),
-            TextField(
-              controller: _passwordcontroller,
-              decoration: const InputDecoration(
-                hintText: "Password",
+              SizedBox(
+                width: screenSize.width,
+                height: screenSize.width * .7,
+                child: Image.asset(
+                    "assets/images/roshni_black-removebg-preview.png"),
               ),
-            ),
-            RoundButton1(
-              text: "Login ",
-              onPressed: () async {
-                await _handleLogin(context);
-              },
-            ),
-          ],
+              FormFields(
+                pinController: _pinController,
+                text: "PIN",
+                txtinp: TextInputType.number,
+              ),
+              FormFields(
+                pinController: _passwordcontroller,
+                text: "PASSWORD",
+                txtinp: TextInputType.visiblePassword,
+              ),
+              RoundButton1(
+                text: "Log in",
+                onPressed: () async {
+                  await _handleLogin(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

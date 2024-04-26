@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/screen/student/student_screen.dart';
-import '../../utils/button-1.dart';
+import 'package:roshni_app/widgets/form_field.dart';
+import '../../widgets/buttons.dart';
 
 class StudentLoginScreen extends StatefulWidget {
   static const routeName = '/student/login';
@@ -16,18 +17,27 @@ class _StudentLoginScreen extends State<StudentLoginScreen> {
   final _pinController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
+      body: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _pinController,
-              decoration: const InputDecoration(
-                hintText: "PIN",
+            SizedBox(
+              width: screenSize.width,
+              height: screenSize.width * .7,
+              child: Image.asset(
+                "assets/images/roshni_black-removebg-preview.png",
               ),
+            ),
+            FormFields(
+              txtinp: TextInputType.number,
+              pinController: _pinController,
+              text: 'Pin',
             ),
             RoundButton1(
               text: "Log in",

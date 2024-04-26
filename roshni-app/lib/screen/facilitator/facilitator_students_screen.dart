@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
+import 'package:roshni_app/services/api_service.dart';
 
 class StudentRegisterScreen extends StatefulWidget {
   static String routename = '/facilitator/register';
@@ -14,11 +15,20 @@ class StudentRegisterScreen extends StatefulWidget {
 
 class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FacilitatorProvider>(context, listen: false).fetchStudents();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print('Add Student');
+          logger.i('Add Student');
           showModalBottomSheet(
             isScrollControlled: true,
             context: context,
@@ -29,38 +39,49 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: const Center(
-        child: Text('Student Register Screen'),
+      body: Consumer<FacilitatorProvider>(
+        builder: (context, facilitatorProvider, child) {
+          if (facilitatorProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (facilitatorProvider.error != null) {
+            return const Center(child: Text('An error occurred!'));
+          } else {
+            return DataTable(
+              columns: const [
+                DataColumn(label: Text('Name')),
+                DataColumn(label: Text('Unique ID')),
+                DataColumn(label: Text('Class')),
+              ],
+              rows: facilitatorProvider.students
+                  .map(
+                    (student) => DataRow(
+                      cells: [
+                        DataCell(
+                          Text(
+                            student.firstName,
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            student.pin,
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            student.location,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+            );
+          }
+        },
       ),
     );
   }
 }
-
-// class BottomSheetWidget extends StatelessWidget {
-//   const BottomSheetWidget({
-//     super.key,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final MediaQueryData mediaQueryData = MediaQuery.of(context);
-//     return Padding(
-
-//       padding: mediaQueryData.viewInsets,
-//       child: SizedBox(
-//         height: 500,
-//         child: Center(
-//           child: ElevatedButton(
-//             child: Text("sdf"),
-//             onPressed: () {
-//               print("sdf");
-//             },
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class BottomSheetWidget extends StatefulWidget {
   const BottomSheetWidget({Key? key}) : super(key: key);
@@ -69,15 +90,15 @@ class BottomSheetWidget extends StatefulWidget {
   State<BottomSheetWidget> createState() => _BottomSheetWidgetState();
 }
 
+//
 class _BottomSheetWidgetState extends State<BottomSheetWidget> {
-  final _formKey = GlobalKey<FormState>(); // For form validation
+  final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _dobController = TextEditingController();
   final _genderController = TextEditingController();
   final _locationController = TextEditingController();
   final _gradeController = TextEditingController();
-  // ... controllers for dob, gender, location, grade
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +107,6 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
       child: SizedBox(
         height: 500, // Adjust if needed
         child: SingleChildScrollView(
-          // To prevent overflow if content is large
           child: Form(
             key: _formKey,
             child: Padding(
@@ -150,15 +170,16 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                               .registerStudent(studentData);
                           var one = jsonDecode(responseBody);
                           showDialog(
+                            // ignore: use_build_context_synchronously
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: Text('Registration Response'),
+                              title: const Text('Registration Response'),
                               content: Text(
                                   " ${one['message']} \n Student ID: ${one['studentId']}"),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(),
-                                  child: Text('OK'),
+                                  child: const Text('OK'),
                                 ),
                               ],
                             ),
@@ -180,13 +201,6 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
     );
   }
 
-  // @override
-  // void dispose() {
-  //   _firstNameController.dispose();
-  //   _lastNameController.dispose();
-  //   // ... dispose other controllers
-  //   super.dispose();
-  // }
   @override
   void dispose() {
     _firstNameController.dispose();

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_examscreen_screen.dart';
 
 import 'package:roshni_app/screen/facilitator/facilitator_students_screen.dart';
+import 'package:roshni_app/screen/facilitator/quiz_list_screen.dart';
 
 class FacilitatorScreen extends StatefulWidget {
   static const routeName = '/facilitator';
@@ -18,6 +19,7 @@ class _FacilitatorScreen extends State<FacilitatorScreen> {
 
   List<Widget> widgetList = [
     const StudentRegisterScreen(),
+    const QuizListScreen(),
     const FacilitatorExamScreen(),
   ];
   @override
@@ -52,7 +54,7 @@ class _FacilitatorScreen extends State<FacilitatorScreen> {
           ),
           NavigationDestination(
             icon: Icon(
-              Icons.pie_chart,
+              Icons.menu_book_outlined,
             ),
             label: "Circle Chart",
           ),

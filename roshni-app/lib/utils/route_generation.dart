@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:roshni_app/screen/common/after_quiz_screen.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_login_screen.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_screen.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_examscreen_screen.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_students_screen.dart';
 import 'package:roshni_app/screen/common/onboarding_screen.dart';
 import 'package:roshni_app/screen/common/quiz_screen.dart';
+import 'package:roshni_app/screen/student/results_screen.dart';
 import 'package:roshni_app/screen/student/student_login_screen.dart';
 import 'package:roshni_app/screen/student/student_profile_screen.dart';
 import 'package:roshni_app/screen/student/student_scan_screen.dart';
@@ -49,9 +51,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
         builder: (_) => const StudentProfileScreen(),
       );
     case '/student/tests':
-      print(settings.arguments);
       final testId = settings.arguments as List<dynamic>;
-      print('testId: $testId');
       return MaterialPageRoute(
         builder: (_) => QuestionsScreen(
           testId: testId,
@@ -61,14 +61,14 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (_) => const StudentScanScreen(),
       );
-
-    // case '/student/past-results':
-    //   return MaterialPageRoute(builder: (_) => StudentPastResults());
-
-    // case '/student/give-exam':
-    //   final testId = settings.arguments as String;
-    //   return MaterialPageRoute(builder: (_) => StudentTakeTest(testId: testId));
-
+    case '/student/results':
+      return MaterialPageRoute(
+        builder: (_) => const ResultsScreen(),
+      );
+    case '/quiz/result':
+      return MaterialPageRoute(
+        builder: (_) => const AfterQuizScreen(),
+      );
     default:
       return _errorRoute(message: 'Route not found: ${settings.name}');
   }

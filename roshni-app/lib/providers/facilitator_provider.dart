@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:hive/hive.dart';
 import 'package:roshni_app/models/student_model.dart';
 import 'package:roshni_app/services/api_service.dart';
 
@@ -38,17 +38,20 @@ class FacilitatorProvider extends ChangeNotifier {
     return responseBody;
   }
 
-  // Fetch Students
   Future<void> fetchStudents() async {
     _isLoading = true;
     _error = null;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    notifyListeners();
+
+    final box = await Hive.openBox<Student>('students');
 
     try {
       final fetchedStudents = await _apiService.fetchStudents();
+      for (var student in fetchedStudents) {
+        box.put(student.pin, student);
+      }
       _students = fetchedStudents;
+
       _isLoading = false;
       notifyListeners();
     } catch (error) {

@@ -1,15 +1,28 @@
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart'; // Import for date handling
 
-class Evaluator {
-  String firstname;
-  String lastname;
-  String dob;
-  String email;
-  String evalID;
-  String loc;
-  String password;
+part 'facilitator_model.g.dart';
 
-  Evaluator({
+@HiveType(typeId: 4)
+class Facilitator {
+  @HiveField(0)
+  String firstname;
+  @HiveField(1)
+  String lastname;
+  @HiveField(2)
+  String dob;
+  @HiveField(3)
+  String email;
+  @HiveField(4)
+  String evalID;
+  @HiveField(5)
+  String loc;
+  @HiveField(6)
+  String password;
+  @HiveField(7)
+  int get key => evalID.hashCode;
+
+  Facilitator({
     required this.firstname,
     required this.lastname,
     required this.dob,
@@ -19,11 +32,11 @@ class Evaluator {
     required this.password,
   });
 
-  factory Evaluator.fromJson(Map<String, dynamic> json) {
+  factory Facilitator.fromJson(Map<String, dynamic> json) {
     // Parse the DOB date string
     final dateFormat = DateFormat('dd-MM-yyyy');
 
-    return Evaluator(
+    return Facilitator(
       firstname: json['firstname'],
       lastname: json['lastname'],
       dob: dateFormat.parse(json['DOB']).toString(),

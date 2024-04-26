@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:roshni_app/models/question_model.dart';
+import 'package:roshni_app/models/result_model.dart';
 import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/services/api_service.dart';
 
@@ -8,10 +9,11 @@ class TestProvider extends ChangeNotifier {
   final TestService testService;
   final QuestionService questionService;
 
-  TestProvider(this.testService, this.questionService);
-
   Box<Test>? _testBox;
   Box<Question>? _questionBox;
+  Box<Result>? _resultsBox;
+
+  TestProvider(this.testService, this.questionService);
 
   List<Test> _tests = [];
   List<Test> get tests => _tests;
@@ -34,9 +36,12 @@ class TestProvider extends ChangeNotifier {
   Future<void> openHiveBoxes() async {
     _testBox = await Hive.openBox<Test>('testBox');
     _questionBox = await Hive.openBox<Question>('questionBox');
+    _resultsBox = await Hive.openBox<Result>('resultBox');
   }
 
   Future<void> fetchTests() async {
+    await Hive.openBox<Test>('testBox');
+
     _isLoading = true;
     _error = null;
     try {
@@ -52,11 +57,50 @@ class TestProvider extends ChangeNotifier {
     }
   }
 
+  void saveResult(String testID, String studentPin) {
+    openHiveBoxes();
+    final score = calculateScore();
+    final timestamp = DateTime.now();
+    final answers = _questions.asMap().map((index, question) =>
+        MapEntry(question.questionID, question.useranswer ?? ""));
+
+    final resultKey = (testID + studentPin).hashCode;
+    final existingResult = _resultsBox!.get(resultKey);
+
+    if (existingResult != null) {
+      // Update the existing result
+      existingResult
+        ..score = score
+        ..timestamp = timestamp
+        ..answers = answers;
+
+      _resultsBox!.put(resultKey, existingResult);
+    } else {
+      // Add a new result
+      final result = Result(
+        testID: testID,
+        studentPin: studentPin,
+        score: score,
+        timestamp: timestamp,
+        answers: answers,
+      );
+
+      _resultsBox!.put(resultKey, result);
+    }
+
+    logger.i("saved result $resultKey");
+
+    notifyListeners();
+  }
+
   Future<void> _loadCachedTests() async {
+    _testBox = await Hive.openBox<Test>('testBox');
+
     List<Test> cachedTests = _testBox?.values.toList() ?? [];
     if (cachedTests.isNotEmpty) {
       _tests = cachedTests;
     }
+    logger.i("cached tests ${_tests.length}  , ${cachedTests.length}");
   }
 
   Future<void> _fetchAndStoreTestsFromApi() async {
@@ -75,6 +119,11 @@ class TestProvider extends ChangeNotifier {
     if (kDebugMode) {
       print("error in fetch test provider : $error");
     }
+  }
+
+  List<Result>? getAllResults() {
+    openHiveBoxes();
+    return _resultsBox?.values.toList();
   }
 
   Future<void> fetchAndStoreQuestionsForTest(Test test) async {
@@ -130,11 +179,12 @@ class TestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Question? get currentQuestion =>
+  //     (_questions.isNotEmpty) ? _questions[_currentQuestionIndex] : null;
   Question? get currentQuestion =>
-      (_questions.isNotEmpty) ? _questions[_currentQuestionIndex] : null;
-
-  // Question get currentQuestion => _questions[_currentQuestionIndex];
-
+      (_questions.isNotEmpty && _currentQuestionIndex < _questions.length)
+          ? _questions[_currentQuestionIndex]
+          : null;
   void previousQuestion() {
     if (_currentQuestionIndex > 0) {
       _currentQuestionIndex--;
@@ -147,8 +197,38 @@ class TestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calculateScore() {
+  int calculateScore() {
     _score = _questions.where((q) => q.correct == q.useranswer).length;
+    notifyListeners();
+    return _score;
+  }
+
+  Test? _currentTest; // Variable for the currently selected test
+
+  // Function to select a test given a test id
+  void selectTest(String testId) {
+    openHiveBoxes();
+    for (var element in _testBox?.values ?? _tests) {
+      logger.i(
+          "selcted test from : ${element.subject} ${element.testID} ,   length = ${_testBox!.values.length} , ${_tests.length}");
+    }
+    try {
+      _currentTest = _tests.firstWhere((element) => element.testID == testId);
+    } catch (e) {
+      _currentTest = null;
+    }
+    notifyListeners();
+  }
+
+  // Getter for the currently selected test
+  Test? get currentTest => _currentTest;
+  set currentTest(Test? test) {
+    _currentTest = test;
+    notifyListeners();
+  }
+
+  set currentQuestionIndex(int idx) {
+    _currentQuestionIndex = idx;
     notifyListeners();
   }
 }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
-import 'package:roshni_app/screen/quiz_list_screen.dart';
+import 'package:roshni_app/screen/student/results_screen.dart';
 import 'package:roshni_app/screen/student/student_profile_screen.dart';
 import 'package:roshni_app/screen/student/student_scan_screen.dart';
 
@@ -37,22 +36,40 @@ class _StudentScreen extends State<StudentScreen> {
 
   List<Widget> widgetList = [
     const StudentProfileScreen(),
-    const QuizListScreen(),
+    const ResultsScreen(),
   ];
   @override
   Widget build(BuildContext context) {
+    const size1 = 75.0;
     return Scaffold(
-      extendBody: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Logger().i("route");
-          Navigator.of(context).pushNamed(StudentScanScreen.routeName);
-        },
-        child: const Icon(Icons.camera_enhance),
+      floatingActionButton: SizedBox(
+        width: size1,
+        height: size1,
+        child: FloatingActionButton(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(size1 / 2),
+            ),
+          ),
+          onPressed: () {
+            Navigator.of(context).pushNamed(StudentScanScreen.routeName);
+          },
+          elevation: 1,
+          backgroundColor: Colors.redAccent,
+          child: const Icon(
+            Icons.linked_camera_rounded,
+            size: size1 * .5,
+          ),
+        ),
       ),
       backgroundColor: Colors.transparent,
       bottomNavigationBar: NavigationBar(
+        indicatorShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(20),
+          ),
+        ),
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: selectedindex,
         destinations: const [
@@ -75,7 +92,7 @@ class _StudentScreen extends State<StudentScreen> {
           );
           _pageController.animateToPage(
               curve: Curves.ease,
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               selectedindex);
         },
       ),
@@ -86,14 +103,6 @@ class _StudentScreen extends State<StudentScreen> {
         onPageChanged: (index) {
           setState(() => selectedindex = index); // Update selected tab
         },
-
-        // children: widgetList,
-        // onPageChanged: (value) {
-        //   setState(() {
-        //     selectedindex = value;
-        //   });
-        //   _pageController.jumpToPage(selectedindex);
-        // },
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:roshni_app/models/facilitator_model.dart';
 import 'package:roshni_app/models/question_model.dart';
+import 'package:roshni_app/models/result_model.dart';
 import 'package:roshni_app/models/student_model.dart';
 import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
@@ -18,6 +20,8 @@ void main() async {
   Hive.registerAdapter(TestAdapter());
   Hive.registerAdapter(QuestionAdapter());
   Hive.registerAdapter(StudentAdapter());
+  Hive.registerAdapter(ResultAdapter());
+  Hive.registerAdapter(FacilitatorAdapter());
   runApp(
     MultiProvider(
       providers: [

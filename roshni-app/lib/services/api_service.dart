@@ -68,7 +68,7 @@ class AuthService {
 
   AuthService(this._baseUrl);
 
-  Future<Evaluator?> loginEvaluator(String evalID, String password) async {
+  Future<Facilitator?> loginEvaluator(String evalID, String password) async {
     try {
       print("init login evaluator api service");
       print("evalID : $evalID , password : $password ");
@@ -89,7 +89,7 @@ class AuthService {
           responseData['evaluatorData']['password'] = password;
 
           print(responseData['evaluatorData']);
-          final evaluator = Evaluator.fromJson(responseData['evaluatorData']);
+          final evaluator = Facilitator.fromJson(responseData['evaluatorData']);
           return evaluator;
         } else {
           return null; // Indicate login failure in other cases
