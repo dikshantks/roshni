@@ -170,27 +170,38 @@ router.post('/:testID/questions', async (req, res) => {
     //   return res.status(400).json({ error: error.details[0].message });
     // }
 
-    const {text, type, difficulty, options = [""], correct, imageUrl, marks } = req.body;
+    const {text, type, difficulty, options = [], correct=[], imageUrl='', marks } = req.body;
 
-    // image url is optional
-    if (!text || !type || !difficulty || !options || !correct || !marks) {
-      let missingFields = [];
-      if (!text) missingFields.push('text');
-      if (!type) missingFields.push('type');
-      if (!difficulty) missingFields.push('difficulty');
-      if (!options) missingFields.push('options');
-      if (!correct) missingFields.push('correct');
-      if (!marks) missingFields.push('marks');
-    
-      return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
+    if (type === 'multiple'){
+      if (!text || !type || !difficulty || !options || !correct || !marks) {
+        let missingFields = [];
+        if (!text) missingFields.push('text');
+        if (!type) missingFields.push('type');
+        if (!difficulty) missingFields.push('difficulty');
+        if (!options) missingFields.push('options');
+        if (!correct) missingFields.push('correct');
+        if (!marks) missingFields.push('marks');
+      
+        return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
+      }
+
+      else if(!options.includes(correct)){
+        return res.status(403).json({ error: 'Correct answer not in options' });
+      }}
+
+    else if (type === 'text'){
+      if (!text || !type || !difficulty || !correct || !marks) {
+        let missingFields = [];
+        if (!text) missingFields.push('text');
+        if (!type) missingFields.push('type');
+        if (!difficulty) missingFields.push('difficulty');
+        if (!correct) missingFields.push('correct');
+        if (!marks) missingFields.push('marks');
+      
+        return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
+      }
     }
-    
-    // else if(options.length < 4){
-    //   return res.status(402).json({ error: 'Minimum 4 options required' });
-    // }
-    else if(!options.includes(correct)){
-      return res.status(403).json({ error: 'Correct answer not in options' });
-    }
+
     async function generateUniquePin() {
       let questionID;
       let pinExists = true;
@@ -206,6 +217,7 @@ router.post('/:testID/questions', async (req, res) => {
     await db.collection('tests').doc(testID).update({
       questions: admin.firestore.FieldValue.arrayUnion(questionID)
     });
+
     await db.collection('questions').doc(questionID).set({
       questionID,
       text,
