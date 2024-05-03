@@ -1,39 +1,49 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { Button, Card, Form, Modal, Nav} from "react-bootstrap";
+import CreateQuestions from './CreateQuestions'; // Import CreateQuestions component
+import { useLocation } from "react-router-dom"; // Add this line
 
 const TestQuestions = () => {
-    const { testID } = useParams();
-    const [questions, setQuestions] = useState([]);
-    const [error, setError] = useState("");
-    const [selectedQuestion, setSelectedQuestion] = useState(null);
-    const [updateData, setUpdateData] = useState({
-        text: "",
-        type: "",
-        difficulty: "",
-        options: [],
-        correct: ""
-    });
+  const { testID } = useParams();
+  const [questions, setQuestions] = useState([]);
+  const [error, setError] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const location = useLocation();
+  const initialTestData = location.state.data.questions;
+  const testDet = location.state.testDetails;
+  const [testData, setTestData] = useState(initialTestData);
+  const [newQuestion, setNewQuestion] = useState({
+    text: "",
+    type: "",
+    difficulty: "",
+    options: [],
+    correct: '',
+    image:null,
+    marks: ""
+  });
+  const [updateData, setUpdateData] = useState({
+      text: "",
+      type: "",
+      difficulty: "",
+      options: [],
+      correct: '',
+      image:null,
+      marks: ""
+  });
+  const [ID, setID] = useState(null);
+  const [modifiedQuestion, setModifiedQuestion] = useState(null);
+  const [lastModifiedQuestion, setLastModifiedQuestion] = useState(null);
+  
 
-  useEffect(() => {
-    fetchQuestions();
-  }, []);
-
-  const fetchQuestions = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/tests/${testID}/questions`);
-      setQuestions(response.data.questions);
-    } catch (error) {
-      console.error("Error fetching questions:", error);
-      setError("An error occurred while fetching questions.");
-    }
-  };
 
   const handleDelete = async (questionID) => {
     try {
+      console.log("Deleting question with ID:", questionID);
       const response = await axios.delete(`http://localhost:5000/api/tests/${testID}/questions/${questionID}`);
-      if (response.status === 200) {
-        setQuestions((prevQuestions) => prevQuestions.filter((question) => question.questionID !== questionID));
+      if (response.data.message === "Question deleted successfully") {
+        setTestData(testData.filter(question => question.questionID !== questionID)); 
         console.log("Question deleted successfully");
       } else {
         console.error("Failed to delete question");
@@ -43,44 +53,27 @@ const TestQuestions = () => {
       setError("An error occurred while deleting the question.");
     }
   };
-
-  const handleUpdate = (question) => {
+  const handleUpdate = async (question) => {
+    console.log(question);
     setSelectedQuestion(question);
     setUpdateData({
       text: question.text,
       type: question.type,
       difficulty: question.difficulty,
-      options: question.options,
-      correct: question.correct
+      options: question.options.join(", "),
+      correct: question.correct.join(","),
+      image: question.image,
+      marks: question.marks
     });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "options") {
-      // Split the comma-separated string into an array
-      setUpdateData((prevData) => ({
-        ...prevData,
-        [name]: value.split(", ")
-      }));
-    } else {
-      setUpdateData((prevData) => ({
-        ...prevData,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  
     try {
-      const response = await axios.put(`http://localhost:5000/api/tests/${testID}/questions/${selectedQuestion.questionID}`, updateData);
-      if (response.status === 200) {
-        const updatedQuestions = questions.map((question) => {
-          if (question.questionID === selectedQuestion.questionID) {
-            return { ...question, ...updateData };
+      const response = await axios.put(`http://localhost:5000/api/tests/${testID}/questions/${question.questionID}`, updateData);
+      if (response.data.message === "Question updated successfully") {
+        const updatedQuestions = questions.map((q) => {
+          if (q.questionID === question.questionID) {
+            return { ...q, ...updateData };
           }
-          return question;
+          return q;
         });
         setQuestions(updatedQuestions);
         setSelectedQuestion(null);
@@ -94,77 +87,87 @@ const TestQuestions = () => {
     }
   };
 
+  const getQuestions = async () => {
+    try {
+        console.log("Fetching questions for test ID in QuesView:", testID);
+        const response = await axios.get(`http://localhost:5000/api/tests/${testID}/questions`);
+
+        // Logging data 
+        const quesData = response.data;
+        console.log("Data to be passed to quesData", quesData);
+        setQuestions(response.data);
+        setTestData(response.data.questions);
+    } catch (error) {
+        console.error("Error fetching questions:", error);
+        setError("An error occurred while fetching questions.");
+    }
+};
+  const addQuestion = (newQuestion, message) => {
+    // Update the testData state with the new question
+    setTestData([...testData, newQuestion]);
+    // Close the modal after successful addition
+    if (message === "Question added successfully") {
+      handleAddCloseModal();
+    }
+};
+
+  useEffect(() => {
+    getQuestions();
+  }, [testID]);
+  
+  const handleQuestionNavigation = (question,index) => {
+    setActiveQuestion(index);
+    const questionElement = document.getElementById(question.questionID);
+    questionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]; // Get the first file from the selected files
+    setNewQuestion((prevQuestion) => ({
+      ...prevQuestion,
+      image: file, // Update the image property with the selected file
+    }));
+  };
+  const handleAddCloseModal = () => setShowAddModal(false);
+  const handleAddModal = (testID) => {
+    setID(testID); // Set the testID
+    setShowAddModal(true);
+  };
   return (
-    <div>
-      <h3>Questions for Test</h3>
+    <>
+      <Button variant="primary" onClick={() => handleAddModal(testID)}>
+        Add Question
+      </Button>
 
-      {error && <p className="error-message">{error}</p>}
-
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Text</th>
-            <th>Type</th>
-            <th>Difficulty</th>
-            <th>Options</th>
-            <th>Correct</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {questions.map((question) => (
-            <tr key={question.questionID}>
-              <td>{question.text}</td>
-              <td>{question.type}</td>
-              <td>{question.difficulty}</td>
-              <td>{Array.isArray(question.options) ? question.options.join(", ") : question.options}</td>
-              <td>{question.correct}</td>
-              <td>
-                <button onClick={() => handleDelete(question.questionID)}>Delete</button>
-                <button onClick={() => handleUpdate(question)}>Update</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {selectedQuestion && (
-        <div>
-          <h3>Edit Question</h3>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label>Text:</label>
-              <input type="text" name="text" value={updateData.text} onChange={handleChange} />
-            </div>
-            <div>
-              <label>Type:</label>
-              <input type="text" name="type" value={updateData.type} onChange={handleChange} />
-            </div>
-            <div>
-              <label>Difficulty:</label>
-              <input type="text" name="difficulty" value={updateData.difficulty} onChange={handleChange} />
-            </div>
-            <div>
-              <label>Options:</label>
-              <input 
-                type="text" 
-                name="options" 
-                value={Array.isArray(updateData.options) ? updateData.options.join(", ") : updateData.options} 
-                onChange={handleChange} 
-                />
-
-            </div>
-            <div>
-              <label>Correct:</label>
-              <input type="text" name="correct" value={updateData.correct} onChange={handleChange} />
-            </div>
-            <div>
-              <button type="submit">Update Question</button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
+      <Modal show={showAddModal} onHide={handleAddCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Question</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <CreateQuestions closeModal={addQuestion} testID={testID}/> {/* Pass handleCloseModal function as prop */}
+        </Modal.Body>
+      </Modal>
+      <div className="row">
+        {testData.map((question, index) => (
+          <div className="col-md-4 mb-3" key={index}>
+            <Card>
+              <Card.Body>
+                <Card.Title>{question.text}</Card.Title>
+                <Card.Subtitle className="mb-2 text-muted">Type: {question.type}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Difficulty: {question.difficulty}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Options: {question.options}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Correct: {question.correct}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Marks: {question.marks}</Card.Subtitle>
+                <div className="mt-3">
+                  <Button variant="primary" onClick={() => handleUpdate(question)}>Update</Button>
+                  <Button variant="danger" onClick={() => handleDelete(question.questionID)} className="ml-2">Delete</Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 

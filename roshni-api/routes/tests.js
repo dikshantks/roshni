@@ -3,6 +3,10 @@ const router = express.Router();
 const { admin, db } = require('../config/firebase'); // Import Firestore instance and Firestore Admin (optional)
 const crypto = require('crypto'); // For secure random ID generation
 const bcrypt = require("bcrypt"); // Password hashing
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+const sharp = require('sharp');
 
 //get all tests
 router.get("/", async (req, res) => {
@@ -161,18 +165,21 @@ router.put("/update/:testID", async (req, res) => {
 });
 
 // Add a question to a test (POST /tests/:testId/questions)
-router.post('/:testID/questions', async (req, res) => {
+router.post('/:testID/questions', upload.single('image'), async (req, res) => {
   try {
     const { testID } = req.params;
-    // const { error } = questionSchema.validate(req.body);
+    const { text, type, difficulty, options = [""], correct= [""], marks } = req.body;
+    let imageUrl = null;
+    if (req.file) {
+      // Compress image using sharp
+      const compressedImageBuffer = await sharp(req.file.buffer)
+        .resize({ fit: 'inside', width: 100, height: 100 }) // Adjust dimensions as needed
+        .toBuffer();
 
-    // if (error) {
-    //   return res.status(400).json({ error: error.details[0].message });
-    // }
-
-    const {text, type, difficulty, options = [""], correct, imageUrl, marks } = req.body;
-
-    // image url is optional
+      // Convert compressed image buffer to base64 string
+      imageUrl = `data:${req.file.mimetype};base64,${compressedImageBuffer.toString('base64')}`;
+    }
+    // Check if required fields are missing
     if (!text || !type || !difficulty || !options || !correct || !marks) {
       let missingFields = [];
       if (!text) missingFields.push('text');
@@ -184,28 +191,32 @@ router.post('/:testID/questions', async (req, res) => {
     
       return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
     }
-    
-    // else if(options.length < 4){
-    //   return res.status(402).json({ error: 'Minimum 4 options required' });
+
+    // Check if correct answer is in options
+    // if (!options.includes(correct)) {
+    //   return res.status(403).json({ error: 'Correct answer not in options' });
     // }
-    else if(!options.includes(correct)){
-      return res.status(403).json({ error: 'Correct answer not in options' });
-    }
+
+    // Generate unique question ID
     async function generateUniquePin() {
       let questionID;
       let pinExists = true;
-      // Keep generating PINs until a unique one is found
       while (pinExists) {
-          questionID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
-          const questionDoc = await db.collection("questions").doc(questionID).get();
-          pinExists = questionDoc.exists;
+        questionID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
+        const questionDoc = await db.collection("questions").doc(questionID).get();
+        pinExists = questionDoc.exists;
       }
       return questionID;
     }
+
     const questionID = await generateUniquePin();
+
+    // Update test document with question ID
     await db.collection('tests').doc(testID).update({
       questions: admin.firestore.FieldValue.arrayUnion(questionID)
     });
+
+    // Create question document in Firestore
     await db.collection('questions').doc(questionID).set({
       questionID,
       text,
@@ -217,8 +228,11 @@ router.post('/:testID/questions', async (req, res) => {
       marks,
       testID
     });
-    const response = { message: 'Question added successfully',
-      questionID: questionID,
+
+    // Send response
+    const response = {
+      message: 'Question added successfully',
+      questionID,
       text,
       type,
       difficulty,
@@ -228,9 +242,7 @@ router.post('/:testID/questions', async (req, res) => {
       marks,
       testID
     };
-
     res.json(response);
-    // res.send({ message: 'Question added successfully' });
   } catch (error) {
     console.error('Error adding question:', error);
     res.status(500).json({ error: 'Failed to add question' });
@@ -278,10 +290,10 @@ router.delete('/:testID/questions/:questionID', async (req, res) => {
 })
 
 //update a question
-router.put('/:testID/questions/:questionID', async (req, res) => {
+router.put('/:testID/questions/:questionID', upload.single('image'), async (req, res) => {
   try {
     const { testID, questionID } = req.params;
-    const whitelist = ['text', 'type', 'difficulty', 'options','correct', 'imageUrl', 'marks'];
+    const whitelist = ['text', 'type', 'difficulty', 'options','correct', 'marks'];
     // Filter allowed fields and retrieve existing test
     const keys = Object.keys(req.body);
 
@@ -299,6 +311,19 @@ router.put('/:testID/questions/:questionID', async (req, res) => {
     //check if request fields in DB
     if (Object.keys(updatedData).length === 0) {
       return res.status(400).json({ error: "No fields to update" });
+    }
+
+    // Check if an image was uploaded
+    let imageUrl = null;
+    if (req.file) {
+      // Compress image using sharp
+      const compressedImageBuffer = await sharp(req.file.buffer)
+        .resize({ fit: 'inside', width: 100, height: 100 }) // Adjust dimensions as needed
+        .toBuffer();
+
+      // Convert compressed image buffer to base64 string
+      imageUrl = `data:${req.file.mimetype};base64,${compressedImageBuffer.toString('base64')}`;
+      updatedData.imageUrl = imageUrl; // Update imageUrl in updatedData
     }
 
     const quesDoc = await db.collection('questions').doc(questionID).get();

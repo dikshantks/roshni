@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Alert, Button, Card, Form, Modal, Badge } from "react-bootstrap";
+import { Button, Card, Form, Modal} from "react-bootstrap";
 import "./dash.css"
 function Dash() {
     const [tests, setTests] = useState([]);
@@ -36,12 +36,12 @@ function Dash() {
             // Logging data before navigating
             const testData = response.data;
             const testDetails = tests.find((test) => test.testID === ID);
-            console.log("Data to be passed to /createQuestions:", testData);
-            console.log("Test details to be passed to /createQuestions:", testDetails);
+            console.log("Data to be passed to ", testData);
+            console.log("Test details to be passed to ", testDetails);
     
             // Setting state and navigating
             setQuestions(response.data);
-            navigate("/createQuestions", {
+            navigate(`/view-questions/${ID}`, {
                 state: {
                     data: testData,
                     testdetails: testDetails
@@ -52,6 +52,18 @@ function Dash() {
             setError("An error occurred while fetching questions.");
         }
     };
+    const getResults = async (testPin) => {
+        try {
+            const response = await axios.get("http://localhost:5000/api/results");
+            const filteredResults = response.data.filter(result => result.testScores[0] === testPin);
+            navigate(`/view-results` ,{state: {data: testPin}});
+            return filteredResults;
+        } catch (error) {
+            console.error("Error fetching results:", error);
+            throw error;
+        }
+    };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -129,6 +141,13 @@ function Dash() {
                                         {new Date(test.expiry).toLocaleDateString()}
                                     </Card.Text>
                                     <Button
+                                            variant="primary"
+                                            className="buttonss"
+                                            onClick={() => getResults(test.testID)}
+                                        >
+                                            View Results
+                                        </Button>                                    
+                                        <Button
                                         variant="primary"
                                         className="buttonss"
                                         onClick={() => fetchQuestions(test.testID)}
