@@ -15,6 +15,7 @@ function Dash() {
     const [testCreated, setTestCreated] = useState(false);
     const [questions,setQuestions] = useState([]);
     const navigate = useNavigate();
+    
     useEffect(() => {
         fetchTests();
     }, [modalIsOpen]);
@@ -100,67 +101,50 @@ function Dash() {
     };
 
     return (
+        <>
+      <header className="bg-white shadow">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Questions</h1>
+              <div>
+                  <a href="#" onClick={() => setModalIsOpen(true)} className="flex items-center justify-center px-3 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-base md:px-8">
+                      Add Test
+                  </a>
+              </div>
+          </div>
+      </header>
         <div>
             <hr className="hr-custom" />
 
             <div className="containerrr mt-5">
                 <div className="d-flex justify-content-end mb-4">
-                    <Button
-                        variant="custom"
-                        className="buttong"
-                        onClick={() => setModalIsOpen(true)}
-                    >
-                        + Add Test
-                    </Button>
                 </div>
-                <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {tests.map((test, index) => (
-                        <div className="col" key={test.id}>
-                            <Card className="marginforCard">
-                                {/* Add Card Image */}
-                                <Card.Img
-                                    variant="top"
-                                    style={{ width: "100%", height: "20vh" }}
-                                    src={test.imageUrl}
-                                    alt="Test Image"
-                                />
-
-                                <Card.Body>
-                                    <Card.Title className="modallabels">
-                                        {test.subject}
-                                    </Card.Title>
-                                    <hr />
-                                    <Card.Text>
-                                        <strong>Pin:</strong> {test.testID}
-                                        <br />
-                                        {/* <strong>Number of Questions:</strong> {test.amount}
-                                        <br /> */}
-                                        <strong>Time Duration (Mins):</strong> {test.time}
-                                        <br />
-                                        <strong>Expiry:</strong>{" "}
-                                        {new Date(test.expiry).toLocaleDateString()}
-                                    </Card.Text>
-                                    <Button
-                                            variant="primary"
-                                            className="buttonss"
-                                            onClick={() => getResults(test.testID)}
-                                        >
-                                            View Results
-                                        </Button>                                    
-                                        <Button
-                                        variant="primary"
-                                        className="buttonss"
-                                        onClick={() => fetchQuestions(test.testID)}
-                                        style={{ marginLeft: "10px", marginTop: "2px" }}
-                                    >
+                <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 gap-6">
+                        {tests.map((test, index) => (
+                            <div key={test.testID} className="bg-white shadow-md rounded-md p-6">
+                                <div className="flex flex-col h-full">
+                                    <div className="flex-1">
+                                        <p className="text-lg font-semibold leading-6 text-gray-900">{test.subject}</p>
+                                        <p className="mt-1 truncate text-base leading-5 text-gray-500">{test.testID}</p>
+                                    </div>
+                                    <div className="mt-2 flex flex-col sm:flex-row sm:items-end justify-between">
+                                        <p className="text-sm leading-6 text-gray-900">Duration: {test.time} minutes</p>
+                                        <p className="text-sm leading-6 text-gray-900">Expiry: {new Date(test.expiry).toLocaleDateString()}</p>
+                                    </div>
+                                    <div className="mt-2 flex gap-4">
+                                    <a href="#" onClick={() => getResults(test.testID)} className="flex items-center justify-center px-3 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-base md:px-8">
+                                        View Results
+                                    </a>
+                                    <a href="#" onClick={() => fetchQuestions(test.testID)} className="flex items-center justify-center px-3 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-base md:px-8">
                                         Edit Test
-                                    </Button>
-                                </Card.Body>
-                            </Card>
+                                    </a>
+                                </div>
+
                         </div>
-                    ))}
-                </div>
-            </div>
+                    </div>
+                   ))}
+                </div>         
+            </div>                                 
+   
             <Modal show={modalIsOpen} onHide={() => setModalIsOpen(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title className="modallabels">Add Test</Modal.Title>
@@ -217,6 +201,7 @@ function Dash() {
                 </Modal.Body>
             </Modal>
         </div>
+        </>
     );
 }
 

@@ -53,6 +53,8 @@ const TestQuestions = () => {
       setError("An error occurred while deleting the question.");
     }
   };
+
+  
   const handleUpdate = async (question) => {
     console.log(question);
     setSelectedQuestion(question);
@@ -129,15 +131,23 @@ const TestQuestions = () => {
     }));
   };
   const handleAddCloseModal = () => setShowAddModal(false);
-  const handleAddModal = (testID) => {
+  const handleAddModal = (event, testID) => {
+    event.preventDefault();
     setID(testID); // Set the testID
     setShowAddModal(true);
   };
   return (
     <>
-      <Button variant="primary" onClick={() => handleAddModal(testID)}>
-        Add Question
-      </Button>
+      <header className="bg-white shadow">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Questions</h1>
+              <div>
+                  <a href="#" onClick={(event) => handleAddModal(event, testID)} className="flex items-center justify-center px-3 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-base md:px-8">
+                      Add Question
+                  </a>
+              </div>
+          </div>
+      </header>
 
       <Modal show={showAddModal} onHide={handleAddCloseModal}>
         <Modal.Header closeButton>
@@ -147,26 +157,32 @@ const TestQuestions = () => {
           <CreateQuestions closeModal={addQuestion} testID={testID}/> {/* Pass handleCloseModal function as prop */}
         </Modal.Body>
       </Modal>
-      <div className="row">
-        {testData.map((question, index) => (
-          <div className="col-md-4 mb-3" key={index}>
-            <Card>
-              <Card.Body>
-                <Card.Title>{question.text}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">Type: {question.type}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Difficulty: {question.difficulty}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Options: {question.options}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Correct: {question.correct}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Marks: {question.marks}</Card.Subtitle>
-                <div className="mt-3">
-                  <Button variant="primary" onClick={() => handleUpdate(question)}>Update</Button>
-                  <Button variant="danger" onClick={() => handleDelete(question.questionID)} className="ml-2">Delete</Button>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-        ))}
-      </div>
+
+      <div className="grid grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-10">
+    {testData.map((question, index) => (
+        <div className="dark:bg-grey-500 m-5 dark:text-black rounded-lg px-6 py-8 ring-1 ring-slate-900/5 shadow-xl" key={index}>
+            <div className="font-semibold text-lg mb-4">Question {index + 1}: <span className="text-black">{question.text}</span></div>
+            <div><span className="font-semibold">Type:</span> <span className="text-black">{question.type}</span></div>
+            <div><span className="font-semibold">Difficulty:</span> <span className="text-black">{question.difficulty}</span></div>
+            <div><span className="font-semibold">Options: </span>
+                {question.options.map((option, idx) => (
+                    <span key={idx} className="text-black">{option}{idx !== question.options.length - 1 && ", "}</span>
+                ))}
+            </div>            
+            <div><span className="font-semibold">Correct Answer:</span> <span className="text-black">{question.correct}</span></div>
+            <div><span className="font-semibold">Marks:</span> <span className="text-black">{question.marks}</span></div>
+            <div className="mt-4 flex gap-4">
+              <a href="#" onClick={() => handleUpdate(question)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg">
+                  Update
+              </a>
+              <a href="#" onClick={() => handleDelete(question.questionID)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 md:text-lg">
+                  Delete
+              </a>
+            </div>
+        </div>
+    ))}
+</div>
+
     </>
   );
 };

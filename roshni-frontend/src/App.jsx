@@ -11,7 +11,6 @@ import QuesView from "./Components/QuesView";
 import Dash from "./Components/dash";
 import Navbar from "./Components/Navbar";
 import Results from "./Components/ResultsView";
-import EditTest from "./Components/Edittest";
 function App() {
   
   return (
@@ -30,7 +29,6 @@ function App() {
         <Route path="/view-questions/:testID" element={<QuesView />} />
         <Route path="/dash" element={<Dash/>} />
         <Route path="/view-results" element={<Results/>} />
-        <Route path="/edit-test/:testID" element={<EditTest/>} />
 
 
       </Routes>
