@@ -293,7 +293,7 @@ router.delete('/:testID/questions/:questionID', async (req, res) => {
 router.put('/:testID/questions/:questionID', upload.single('image'), async (req, res) => {
   try {
     const { testID, questionID } = req.params;
-    const whitelist = ['text', 'type', 'difficulty', 'options','correct', 'marks'];
+    const whitelist = ['text', 'type', 'difficulty', 'options','correct', 'marks', 'image'];
     // Filter allowed fields and retrieve existing test
     const keys = Object.keys(req.body);
 
@@ -330,12 +330,21 @@ router.put('/:testID/questions/:questionID', upload.single('image'), async (req,
     if (!quesDoc.exists) {
       return res.status(404).json({ error: 'Question not found' });
     }
-
+    
+    //remove options if type=text
+    if (updatedData.type === 'text') {
+      // Remove existing options
+      updatedData.options = [];    
+    }
     const finalData = {
       ...quesDoc.data(),
       ...updatedData
     };
-
+    //remove all correct if type=multiple-choice
+    if (updatedData.type === 'multiple-choice') {
+      // Remove existing correct and append current correct
+      
+    }
     await db.collection('questions').doc(questionID).update(finalData);
     res.send({ message: 'Question updated successfully' });
   } catch (error) {

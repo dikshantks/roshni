@@ -7,6 +7,7 @@ import AddFunder from "./Components/FundAdd"; // Assuming the AddFunder componen
 import ViewEvaluator from "./Components/EvalView"; // Assuming the ViewEvaluator component is in ViewEvaluator.jsx
 import ViewFunder from "./Components/FundView"; // Assuming the ViewFunder component is in ViewFunder.jsx
 import CreateQuestions from "./Components/CreateQuestions";
+import UpdateQuestions from "./Components/UpdateQuestions";
 import QuesView from "./Components/QuesView";
 import Dash from "./Components/dash";
 import Navbar from "./Components/Navbar";
@@ -27,6 +28,7 @@ function App() {
         <Route path="/view-evaluators" element={<ViewEvaluator />} />
         <Route path="/view-funders" element={<ViewFunder />} />
         <Route path="/createQuestions" element={<CreateQuestions />} />
+        <Route path="/updateQuestions" element={<UpdateQuestions />} />
         <Route path="/view-questions/:testID" element={<QuesView />} />
         <Route path="/dash" element={<Dash/>} />
         <Route path="/view-results" element={<Results/>} />
