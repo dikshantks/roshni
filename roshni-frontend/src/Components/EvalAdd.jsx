@@ -1,5 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate} from "react-router-dom";
 import axios from "axios";
+import './EvalAdd.css'
+import {Card,Button,Form,FloatingLabel } from 'react-bootstrap';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddEval = () => {
   const [firstname, setfirstname] = useState("");
@@ -9,7 +15,7 @@ const AddEval = () => {
   const [loc, setLocation] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
+  const navigate = useNavigate();
   const validateForm = () => {
     let error = "";
 
@@ -62,6 +68,7 @@ const AddEval = () => {
           console.log("Teacher added successfully!", response.data);
           setError("");
           setMessage(formatMessage(response.data));
+          window.alert("Signup successful!");
         })
         .catch((error) => {
           console.error("API error:", error);
@@ -83,87 +90,108 @@ const AddEval = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} method="POST">
-        <h3>Add Teacher</h3>
+    <div className="imc">
+      <div className="bgg">
+      <Card className="containerr"> 
+          <Card.Body>
+            <Card.Title as="h3" className="text">Add Facilitator</Card.Title>
+            <br/>
+        <Form onSubmit={handleSubmit}>
+          <Row>
 
-        {error && <p className="error-message">{error}</p>}
+          {error && <p className="error-message">{error}</p>}
 
-        <div className="mb-3">
-          <label>First Name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter first name"
-            value={firstname}
-            onChange={(e) => setfirstname(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Last Name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter last name"
-            value={lastname}
-            onChange={(e) => setlastname(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Email</label>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Date of Birth</label>
-          <input
-            type="date"
-            className="form-control"
-            value={DOB}
-            onChange={(e) => setDOB(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Location</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter location"
-            value={loc}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </div>
-
-        <div className="d-grid">
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-          <button type="button" className="btn btn-secondary" onClick={handleCancel}>
-            Cancel
-          </button>
-        </div>
-      </form>
-
-      {error && (
-        <div className="alert alert-danger">
-          {error}
-        </div>
-      )}
-
-      {message && (
-        <div className="alert alert-success">
-          <pre>{message}</pre>
-        </div>
-      )}
+          <Form.Group as={Col} controlId="firstName" >
+            <FloatingLabel className="mbb-4" 
+            controlId="floatingInput" 
+            label="First Name">
+              
+            <Form.Control
+              className="fieldss"
+              type="text"
+              placeholder="Enter first name"
+              value={firstname}
+              onChange={(e) => setfirstname(e.target.value)}
+            />
+            </FloatingLabel>
+          </Form.Group>
+          <br />
+          <Form.Group as={Col} controlId="lastName">
+            <FloatingLabel controlId="floatingInput"
+                  label="Last Name"
+                  className="mbb-4">
+            <Form.Control
+              className="fieldss"
+              type="text"
+              placeholder="Enter last name"
+              value={lastname}
+              onChange={(e) => setlastname(e.target.value)}
+            />
+            </FloatingLabel>
+          </Form.Group>
+          </Row>
+          <br />
+          <Row>
+          <Form.Group as={Col} controlId="email">
+            <FloatingLabel 
+                  controlId="floatingInput"
+                  label="Email"
+                  className="mbb-4">
+            <Form.Control
+              className="fieldss"
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </FloatingLabel>
+          </Form.Group>
+          <br />
+          <Form.Group controlId="DOB" >
+            <Form.Label>Date of Birth</Form.Label>
+            <Form.Control
+              className="fieldss"
+              type="date"
+              value={DOB}
+              placeholder="Enter date of birth"
+              onChange={(e) => setDOB(e.target.value)}
+              style={{fontSize:"small"}}
+            />
+          </Form.Group>
+          </Row>
+          <br />
+          <Row>
+          <Form.Group as={Col} controlId="loc">
+          <FloatingLabel
+                  controlId="floatingInput"
+                  label="State"
+                  className="mbb-4"
+                >
+            <Form.Control
+              className="fieldss"
+              type="text"
+              placeholder="Enter location"
+              value={loc}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+            </FloatingLabel>
+          </Form.Group>
+          </Row>
+          <br />
+          
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button variant="success" className="btttn" type="submit" style={{ marginRight: '1rem' }}>
+              Submit
+            </Button>
+            <br />
+            <Button type="button" className="btttn" onClick={handleCancel} style={{ marginRight: '1rem' }}>
+              Cancel
+            </Button>
+          </div>
+        </Form>
+        </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 };

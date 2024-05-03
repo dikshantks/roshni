@@ -1,0 +1,158 @@
+.imc{
+  min-height: 100vh;
+  width:100vw;
+  background-image: url('../resources/s1.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  display: flex;
+}
+
+/* .bgg {
+  background-image: url('../resources/s1.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  display: flex;
+  
+} */
+
+.containerr {
+  margin-left: 8vw !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 60vw;
+  max-width: 600px;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 2vw;
+  margin-top: 5vh;
+  margin-bottom: 10vh;
+  box-sizing: border-box;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  border-radius: 17px;
+}
+
+
+
+.image-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+}
+
+.fieldss {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 15px;
+  border-color: transparent;
+  
+}
+
+.btttn {
+  min-width: fit-content;
+  width: fit-content;
+  height: fit-content;
+  background-color: #00896B;
+  border-color: #00896B;
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  margin-top: 2vh;
+  align-self: center;
+}
+.btttn1 {
+  min-width: fit-content;
+  width: fit-content;
+  height: fit-content;
+  background-color: #00896B;
+  border-color: #00896B;
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  margin-top: 2vh;
+  align-self: center;
+}
+.btttn:hover {
+  background-color: #4e9e8d;
+  border-color: #4e9e8d;
+  color: #FFFFFF;
+}
+
+.text {
+  color: #0d421f;
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2vh;
+}
+
+.mbb-4{
+  font-size: medium;
+  overflow: hidden;
+  /* text-overflow: ellipsis; */
+}
+
+
+
+/* Media Queries */
+@media only screen and (max-width: 768px) {
+  .imc {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .containerr {
+    width: 80vw;
+    margin-left: 0;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+  }
+}
+
+
+@media only screen and (max-width: 540px) {
+  .imc {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10vh;
+  }
+  .containerr {
+    margin-left: 5vw !important;
+    width: 80vw;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+  }
+  .text-change{
+    font-size: x-small;
+  }
+  
+ .mbb-4{
+  font-size: x-small;
+ }
+  .text {
+    font-size: 1.5rem;
+  }
+  
+  .btttn {
+    font-size: 1rem;
+  }
+  
+}
+
+/* Adjustments for very small screens */
+@media only screen and (max-width: 320px) {
+  .imc {
+    padding-top: 15vh;
+  }
+  .mbb-4{
+    font-size: x-small;
+    overflow: hidden;
+   }
+  .containerr {
+    margin-top: 3vh;
+    margin-bottom: 3vh;
+    padding: 5vw;
+  }
+ 
+}
+
