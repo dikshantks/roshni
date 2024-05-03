@@ -85,22 +85,21 @@ router.put("/update/:resultID", async (req, res) => {
         const { resultID } = req.params;
         const { testScores, studentID } = req.body;
 
-        // Ensure testScores and studentID are provided
-        if (!testScores || !studentID) {
-            return res.status(400).json({
-                error: "Missing required fields: testScores, studentID."
-            });
-        }
-
         const resultDoc = await db.collection("results").doc(resultID).get();
         if (!resultDoc.exists) {
             return res.status(404).json({ error: "Test result not found" });
         }
 
+        // Get existing test scores
+        let existingTestScores = resultDoc.data().testScores || {};
+
+        // Merge new test scores with existing scores
+        const updatedTestScores = { ...existingTestScores, ...testScores };
+
         // Update fields
         await db.collection("results").doc(resultID).update({
-            testScores,
-            studentID
+            testScores: updatedTestScores,
+            studentID: studentID !== undefined ? studentID : resultDoc.data().studentID // Keep existing studentID if not provided
         });
 
         res.json({ message: "Test result updated successfully" });
@@ -109,6 +108,5 @@ router.put("/update/:resultID", async (req, res) => {
         res.status(500).json({ error: "Failed to update test result" });
     }
 });
-
 
 module.exports = router;

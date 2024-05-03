@@ -9,7 +9,7 @@ const CreateQuestions = ({ testID, closeModal }) => {
     difficulty: '',
     options: [],
     correct: [],
-    marks: '',
+    marks: 0,
     image: null
   });
   const navigate = useNavigate();
@@ -17,20 +17,16 @@ const CreateQuestions = ({ testID, closeModal }) => {
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append('text', newQuestion.text);
-      formData.append('type', newQuestion.type);
-      formData.append('difficulty', newQuestion.difficulty);
-      formData.append('options', JSON.stringify(newQuestion.options));
-      formData.append('correct',JSON.stringify(newQuestion.correct));
-      formData.append('marks', newQuestion.marks);
-      formData.append('image', newQuestion.image); // Append image to FormData
-      console.log(testID)
-      const response = await axios.post(`http://localhost:5000/api/tests/${testID}/questions`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await axios.post(`http://localhost:5000/api/tests/${testID}/questions`, {
+        text: newQuestion.text,
+        type: newQuestion.type,
+        difficulty: newQuestion.difficulty,
+        options: newQuestion.options,
+        correct: newQuestion.correct,
+        marks: parseInt(newQuestion.marks),
+        image: newQuestion.image
+      }
+      );
       console.log('Question added successfully:', response.data);
       setNewQuestion({
         text: '',
@@ -38,7 +34,7 @@ const CreateQuestions = ({ testID, closeModal }) => {
         difficulty: '',
         options: [],
         correct: '',
-        marks: '',
+        marks: 0,
         image: null // Reset image state
       });
       closeModal(newQuestion, "Question added successfully");      // Reset form fields after successful submission
@@ -141,18 +137,6 @@ const CreateQuestions = ({ testID, closeModal }) => {
         )}
 {newQuestion.type === 'text' && (
           <div>
-            <label htmlFor="options">Options:</label>
-            {newQuestion.options.map((option, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  required
-                />
-              </div>
-            ))}
-            <button type="button" onClick={handleAddOption}>Add Option</button>
             <label htmlFor="correct">Correct Options:</label>
             {newQuestion.correct.map((correct, index) => (
               <div key={index}>
@@ -173,14 +157,14 @@ const CreateQuestions = ({ testID, closeModal }) => {
           id="image"
           accept="image/*"
           onChange={handleFileChange}
-          required
+          
         />
         <label htmlFor="text">Marks: </label>
         <input
-          type="text"
-          id="text"
+          type="number"
+          id="marks"
           value={newQuestion.marks}
-          onChange={(e) => setNewQuestion({ ...newQuestion, marks: e.target.value })}
+          onChange={(e) => setNewQuestion({ ...newQuestion, marks: parseInt(e.target.value) })}
           required
         />
         <button type="submit">Submit</button>

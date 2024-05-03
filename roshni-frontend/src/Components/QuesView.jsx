@@ -4,12 +4,14 @@ import { useParams } from "react-router-dom";
 import { Button, Card, Form, Modal, Nav} from "react-bootstrap";
 import CreateQuestions from './CreateQuestions'; // Import CreateQuestions component
 import { useLocation } from "react-router-dom"; // Add this line
+import UpdateQuestions from "./UpdateQuestions";
 
 const TestQuestions = () => {
   const { testID } = useParams();
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);  
   const location = useLocation();
   const initialTestData = location.state.data.questions;
   const testDet = location.state.testDetails;
@@ -21,7 +23,7 @@ const TestQuestions = () => {
     options: [],
     correct: '',
     image:null,
-    marks: ""
+    marks: 0
   });
   const [updateData, setUpdateData] = useState({
       text: "",
@@ -30,13 +32,29 @@ const TestQuestions = () => {
       options: [],
       correct: '',
       image:null,
-      marks: ""
+      marks: 0
   });
   const [ID, setID] = useState(null);
-  const [modifiedQuestion, setModifiedQuestion] = useState(null);
-  const [lastModifiedQuestion, setLastModifiedQuestion] = useState(null);
-  
-
+   // State variable for selected question to update
+   const [selectedQuestion, setSelectedQuestion] = useState(null);
+   // State variable to control the visibility of the update modal for each question
+   const [showUpdateModals, setShowUpdateModals] = useState({});
+   useEffect(() => {
+     // Initialize the showUpdateModals state with false for each question
+     const initialShowUpdateModals = testData.reduce((acc, question) => {
+       acc[question.questionID] = false;
+       return acc;
+     }, {});
+     setShowUpdateModals(initialShowUpdateModals);
+   }, [testData]);
+ 
+   // Function to toggle the visibility of the update modal for a specific question
+   const toggleUpdateModal = (questionID) => {
+     setShowUpdateModals((prevShowUpdateModals) => ({
+       ...prevShowUpdateModals,
+       [questionID]: !prevShowUpdateModals[questionID],
+     }));
+   };
 
   const handleDelete = async (questionID) => {
     try {
@@ -55,39 +73,39 @@ const TestQuestions = () => {
   };
 
   
-  const handleUpdate = async (question) => {
-    console.log(question);
-    setSelectedQuestion(question);
-    setUpdateData({
-      text: question.text,
-      type: question.type,
-      difficulty: question.difficulty,
-      options: question.options.join(", "),
-      correct: question.correct.join(","),
-      image: question.image,
-      marks: question.marks
-    });
+  // const handleUpdate = async (question) => {
+  //   console.log(question);
+  //   setSelectedQuestion(question);
+  //   setUpdateData({
+  //     text: question.text,
+  //     type: question.type,
+  //     difficulty: question.difficulty,
+  //     options: question.options.join(", "),
+  //     correct: question.correct.join(","),
+  //     image: question.image,
+  //     marks: question.marks
+  //   });
   
-    try {
-      const response = await axios.put(`http://localhost:5000/api/tests/${testID}/questions/${question.questionID}`, updateData);
-      if (response.data.message === "Question updated successfully") {
-        const updatedQuestions = questions.map((q) => {
-          if (q.questionID === question.questionID) {
-            return { ...q, ...updateData };
-          }
-          return q;
-        });
-        setQuestions(updatedQuestions);
-        setSelectedQuestion(null);
-        console.log("Question updated successfully");
-      } else {
-        console.error("Failed to update question");
-      }
-    } catch (error) {
-      console.error("Error updating question:", error);
-      setError("An error occurred while updating the question.");
-    }
-  };
+  //   try {
+  //     const response = await axios.put(`http://localhost:5000/api/tests/${testID}/questions/${question.questionID}`, updateData);
+  //     if (response.data.message === "Question updated successfully") {
+  //       const updatedQuestions = questions.map((q) => {
+  //         if (q.questionID === question.questionID) {
+  //           return { ...q, ...updateData };
+  //         }
+  //         return q;
+  //       });
+  //       setQuestions(updatedQuestions);
+  //       setSelectedQuestion(null);
+  //       console.log("Question updated successfully");
+  //     } else {
+  //       console.error("Failed to update question");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating question:", error);
+  //     setError("An error occurred while updating the question.");
+  //   }
+  // };
 
   const getQuestions = async () => {
     try {
@@ -112,6 +130,20 @@ const TestQuestions = () => {
       handleAddCloseModal();
     }
 };
+  const updateQuestion = (updatedQuestion, message) => {
+    // Update the testData state with the updated question
+    const updatedQuestions = testData.map((question) => {
+      if (question.questionID === updatedQuestion.questionID) {
+        return updatedQuestion;
+      }
+      return question;
+    });
+    setTestData(updatedQuestions);
+    // Close the modal after successful update
+    if (message === "Question updated successfully") {
+      handleUpdateCloseModal();
+    }
+  };
 
   useEffect(() => {
     getQuestions();
@@ -136,6 +168,14 @@ const TestQuestions = () => {
     setID(testID); // Set the testID
     setShowAddModal(true);
   };
+
+  const handleUpdateCloseModal = () => setShowUpdateModal(false);
+     // Function to open the update modal for a specific question and set the selected question
+     const handleUpdateModal = (question) => {
+      setSelectedQuestion(question);
+      toggleUpdateModal(question.questionID);
+    };
+  
   return (
     <>
       <header className="bg-white shadow">
@@ -157,32 +197,26 @@ const TestQuestions = () => {
           <CreateQuestions closeModal={addQuestion} testID={testID}/> {/* Pass handleCloseModal function as prop */}
         </Modal.Body>
       </Modal>
-
-      <div className="grid grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-10">
-    {testData.map((question, index) => (
-        <div className="dark:bg-grey-500 m-5 dark:text-black rounded-lg px-6 py-8 ring-1 ring-slate-900/5 shadow-xl" key={index}>
-            <div className="font-semibold text-lg mb-4">Question {index + 1}: <span className="text-black">{question.text}</span></div>
-            <div><span className="font-semibold">Type:</span> <span className="text-black">{question.type}</span></div>
-            <div><span className="font-semibold">Difficulty:</span> <span className="text-black">{question.difficulty}</span></div>
-            <div><span className="font-semibold">Options: </span>
-                {question.options.map((option, idx) => (
-                    <span key={idx} className="text-black">{option}{idx !== question.options.length - 1 && ", "}</span>
-                ))}
-            </div>            
-            <div><span className="font-semibold">Correct Answer:</span> <span className="text-black">{question.correct}</span></div>
-            <div><span className="font-semibold">Marks:</span> <span className="text-black">{question.marks}</span></div>
-            <div className="mt-4 flex gap-4">
-              <a href="#" onClick={() => handleUpdate(question)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg">
-                  Update
-              </a>
-              <a href="#" onClick={() => handleDelete(question.questionID)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 md:text-lg">
-                  Delete
-              </a>
-            </div>
-        </div>
-    ))}
-</div>
-
+      <div className="row">
+        {testData.map((question, index) => (
+          <div className="col-md-4 mb-3" key={index}>
+            <Card>
+              <Card.Body>
+                <Card.Title>{question.text}</Card.Title>
+                <Card.Subtitle className="mb-2 text-muted">Type: {question.type}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Difficulty: {question.difficulty}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Options: {question.options}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Correct: {question.correct}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">Marks: {question.marks}</Card.Subtitle>
+                <div className="mt-3">
+                  <Button variant="primary" onClick={() => handleUpdate(question)}>Update</Button>
+                  <Button variant="danger" onClick={() => handleDelete(question.questionID)} className="ml-2">Delete</Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
+        ))}
+      </div>
     </>
   );
 };
