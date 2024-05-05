@@ -3,6 +3,10 @@ const router = express.Router();
 const { admin, db } = require('../config/firebase'); // Import Firestore instance and Firestore Admin (optional)
 const crypto = require('crypto'); // For secure random ID generation
 const bcrypt = require("bcrypt"); // Password hashing
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+const sharp = require('sharp');
 
 //get all tests
 router.get("/", async (req, res) => {
@@ -20,7 +24,7 @@ router.get("/", async (req, res) => {
 router.post("/create", async (req, res) => {
   try {
     const {subject, time, expiry, createDate, imageUrl } = req.body;
-    if (!subject || !time || !expiry || !createDate || !imageUrl) {
+    if (!subject || !time || !expiry || !createDate) {
       return res.status(400).json({
         error: "Missing required fields"
       });
@@ -45,6 +49,7 @@ router.post("/create", async (req, res) => {
       createDate,
       imageUrl,
       questions: []
+
   });
 
     const response = {
@@ -54,7 +59,8 @@ router.post("/create", async (req, res) => {
       time,
       expiry,
       createDate,
-      imageUrl
+      imageUrl,
+      success: true
     };
 
     res.json(response);} 
@@ -68,34 +74,39 @@ router.post("/create", async (req, res) => {
 router.delete("/delete/:testID", async (req, res) => {
   try {
     const { testID } = req.params;
-    // Ensure pin is provided
+    // Ensure testID is provided
     if (!testID) {
       return res.status(400).json({
         error: "No testID given in request path."
       });
     }
-    //check if pin in db
+    // Fetch all questions associated with the test
     const testDoc = await db.collection("tests").doc(testID).get();
     if (!testDoc.exists) {
       return res.status(404).json({ error: "Test not found" });
-
     }
-    // Delete test document using pin
-    else {
-      await db.collection("tests").doc(testID).delete();
+    const questions = testDoc.data().questions || [];
 
-      // Customize response message
-      const response = {
-        message: `Test deleted successfully`
-      };
-      res.json(response);
-    }
-    
+    // Delete test document using testID
+    await db.collection("tests").doc(testID).delete();
+
+    // Delete all questions associated with the test
+    const deleteQuestions = questions.map(async (questionID) => {
+      await db.collection("questions").doc(questionID).delete();
+    });
+    await Promise.all(deleteQuestions);
+
+    // Customize response message
+    const response = {
+      message: `Test and associated questions deleted successfully`
+    };
+    res.json(response);
   } catch (error) {
-    console.error("Error deleting test:", error);
-    res.status(500).json({ error: "Failed to delete test" });
+    console.error("Error deleting test and associated questions:", error);
+    res.status(500).json({ error: "Failed to delete test and associated questions" });
   }
 });
+
 
 //update a test
 router.put("/update/:testID", async (req, res) => {
@@ -154,41 +165,58 @@ router.put("/update/:testID", async (req, res) => {
 });
 
 // Add a question to a test (POST /tests/:testId/questions)
-router.post('/:testID/questions', async (req, res) => {
+router.post('/:testID/questions', upload.single('image'), async (req, res) => {
   try {
     const { testID } = req.params;
-    // const { error } = questionSchema.validate(req.body);
+    const { text, type, difficulty, options = [""], correct= [""], marks } = req.body;
+    let imageUrl = null;
+    if (req.file) {
+      // Compress image using sharp
+      const compressedImageBuffer = await sharp(req.file.buffer)
+        .resize({ fit: 'inside', width: 100, height: 100 }) // Adjust dimensions as needed
+        .toBuffer();
 
-    // if (error) {
-    //   return res.status(400).json({ error: error.details[0].message });
+      // Convert compressed image buffer to base64 string
+      imageUrl = `data:${req.file.mimetype};base64,${compressedImageBuffer.toString('base64')}`;
+    }
+    // Check if required fields are missing
+    if (!text || !type || !difficulty || !options || !correct || !marks) {
+      let missingFields = [];
+      if (!text) missingFields.push('text');
+      if (!type) missingFields.push('type');
+      if (!difficulty) missingFields.push('difficulty');
+      if (!options) missingFields.push('options');
+      if (!correct) missingFields.push('correct');
+      if (!marks) missingFields.push('marks');
+    
+      return res.status(400).json({ error: 'Missing required fields: ' + missingFields.join(', ') });
+    }
+
+    // Check if correct answer is in options
+    // if (!options.includes(correct)) {
+    //   return res.status(403).json({ error: 'Correct answer not in options' });
     // }
 
-    const {text, type, difficulty, options = [], correct } = req.body;
-
-    if (!text || !type || !difficulty || !options || !correct) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    else if(options.length < 4){
-      return res.status(402).json({ error: 'Minimum 4 options required' });
-    }
-    else if(!options.includes(correct)){
-      return res.status(403).json({ error: 'Correct answer not in options' });
-    }
+    // Generate unique question ID
     async function generateUniquePin() {
       let questionID;
       let pinExists = true;
-      // Keep generating PINs until a unique one is found
       while (pinExists) {
-          questionID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
-          const questionDoc = await db.collection("questions").doc(questionID).get();
-          pinExists = questionDoc.exists;
+        questionID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
+        const questionDoc = await db.collection("questions").doc(questionID).get();
+        pinExists = questionDoc.exists;
       }
       return questionID;
     }
+
     const questionID = await generateUniquePin();
+
+    // Update test document with question ID
     await db.collection('tests').doc(testID).update({
       questions: admin.firestore.FieldValue.arrayUnion(questionID)
     });
+
+    // Create question document in Firestore
     await db.collection('questions').doc(questionID).set({
       questionID,
       text,
@@ -196,10 +224,25 @@ router.post('/:testID/questions', async (req, res) => {
       difficulty,
       options,
       correct,
+      imageUrl,
+      marks,
       testID
     });
 
-    res.send({ message: 'Question added successfully' });
+    // Send response
+    const response = {
+      message: 'Question added successfully',
+      questionID,
+      text,
+      type,
+      difficulty,
+      options,
+      correct,
+      imageUrl,
+      marks,
+      testID
+    };
+    res.json(response);
   } catch (error) {
     console.error('Error adding question:', error);
     res.status(500).json({ error: 'Failed to add question' });
@@ -247,10 +290,10 @@ router.delete('/:testID/questions/:questionID', async (req, res) => {
 })
 
 //update a question
-router.put('/:testID/questions/:questionID', async (req, res) => {
+router.put('/:testID/questions/:questionID', upload.single('image'), async (req, res) => {
   try {
     const { testID, questionID } = req.params;
-    const whitelist = ['text', 'type', 'difficulty', 'options','correct'];
+    const whitelist = ['text', 'type', 'difficulty', 'options','correct', 'marks', 'image'];
     // Filter allowed fields and retrieve existing test
     const keys = Object.keys(req.body);
 
@@ -270,16 +313,38 @@ router.put('/:testID/questions/:questionID', async (req, res) => {
       return res.status(400).json({ error: "No fields to update" });
     }
 
+    // Check if an image was uploaded
+    let imageUrl = null;
+    if (req.file) {
+      // Compress image using sharp
+      const compressedImageBuffer = await sharp(req.file.buffer)
+        .resize({ fit: 'inside', width: 100, height: 100 }) // Adjust dimensions as needed
+        .toBuffer();
+
+      // Convert compressed image buffer to base64 string
+      imageUrl = `data:${req.file.mimetype};base64,${compressedImageBuffer.toString('base64')}`;
+      updatedData.imageUrl = imageUrl; // Update imageUrl in updatedData
+    }
+
     const quesDoc = await db.collection('questions').doc(questionID).get();
     if (!quesDoc.exists) {
       return res.status(404).json({ error: 'Question not found' });
     }
-
+    
+    //remove options if type=text
+    if (updatedData.type === 'text') {
+      // Remove existing options
+      updatedData.options = [];    
+    }
     const finalData = {
       ...quesDoc.data(),
       ...updatedData
     };
-
+    //remove all correct if type=multiple-choice
+    if (updatedData.type === 'multiple-choice') {
+      // Remove existing correct and append current correct
+      
+    }
     await db.collection('questions').doc(questionID).update(finalData);
     res.send({ message: 'Question updated successfully' });
   } catch (error) {

@@ -20,16 +20,15 @@ router.get("/", async (req, res) => {
 // Signup endpoint
 router.post("/signup", async (req, res) => {
     try {
-        console.log("req.body", req.body);
-        const { firstname, lastname, email, DOB, loc} = req.body;
+        const { adminId, firstname, lastname, email, DOB, loc} = req.body;
 
         // Validate user input
-        if (!firstname ||!lastname || !email || !DOB || !loc) {
-            return res.status(400).json({
+        if (!adminId || !firstname ||!lastname || !email || !DOB || !loc) {
+            return res.status(404).json({
                 error: "Missing required fields",
             });
         }
-        const dobRegex = /^\d{2}-\d{2}-\d{4}$/;
+        const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dobRegex.test(DOB)) {
         return res.status(401).json({
           error: "Invalid DOB format. Please use DD-MM-YYYY."
@@ -41,7 +40,6 @@ router.post("/signup", async (req, res) => {
         async function generateUniquePin() {
             let evalID;
             let pinExists = true;
-            // Keep generating PINs until a unique one is found
             while (pinExists) {
                 evalID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
                 const evaluatorDoc = await db.collection("evaluators").doc(evalID).get();
@@ -63,6 +61,7 @@ router.post("/signup", async (req, res) => {
             loc,
             evalID: evalID,
             password: hashedPassword, // Store only the hashed PIN
+            adminId
         });
 
         // Customize response JSON according to requirements
@@ -75,11 +74,13 @@ router.post("/signup", async (req, res) => {
             loc,
             evalID: evalID,
             password: password,
+            adminId: adminId
         };
 
         // Optionally, return only relevant details or omit certain fields
 
         res.json(response);
+        // console.log(response);
     } catch (error) {
         console.error("error at signup:", error);
         // Handle specific errors (e.g., duplicate document ID)
@@ -128,8 +129,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-module.exports = router;
-
 //Delete evaluator
 router.delete("/delete/:evalID", async (req, res) => {
     try {
@@ -150,3 +149,44 @@ router.delete("/delete/:evalID", async (req, res) => {
     }
 });
 
+// Change password endpoint
+router.post("/changepassword", async (req, res) => {
+    try {
+        const { evalID, oldPassword, newPassword } = req.body;
+
+        if (!evalID || !oldPassword || !newPassword) {
+            return res.status(400).json({ error: "Missing ID, old password, or new password" });
+        }
+
+        const evaluatorDoc = await db.collection("evaluators").doc(evalID).get();
+
+        if (!evaluatorDoc.exists) {
+            return res.status(404).json({ error: "Evaluator not found" });
+        }
+
+        const evaluatorData = evaluatorDoc.data();
+        const hashedPassword = evaluatorData.password;
+
+        // Compare the provided old password with the hashed password from the database
+        const passwordMatch = await bcrypt.compare(oldPassword, hashedPassword);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ error: "Invalid old password" });
+        }
+
+        // Hash the new password securely
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the password in the database
+        await db.collection("evaluators").doc(evalID).update({
+            password: newHashedPassword
+        });
+
+        res.json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("error at changepassword:", error);
+        res.status(500).json({ error: "Failed to change password" });
+    }
+});
+
+module.exports = router;
