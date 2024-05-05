@@ -15,7 +15,11 @@ const devorigin = ["http://localhost:5173", "http://localhost:5000"];
 const allowedorigin =
     process.env.NODE_ENV === "production" ? prodorigins : devorigin;
 const corsOptions = {
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://roshni-api.onrender.com",
+    ],
 
     // origin: (origin, callback) => {
     //     console.log("Incoming Request Origin:", origin);
