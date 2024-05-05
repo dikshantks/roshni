@@ -43,7 +43,7 @@ const Login = () => {
       const userCredentials = { adminID, password };
       console.log("User credentials:", userCredentials  )
       // const apiEndpoint = "http://localhost:5000/api/admin/login";
-      const apiEndpoint = "https:/roshni-api.onrender.com/api/admin/login";
+      const apiEndpoint = "https://roshni-api.onrender.com/api/admin/login";
       
       axios.post(apiEndpoint, userCredentials)
         .then((response) => {
