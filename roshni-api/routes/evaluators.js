@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 // Signup endpoint
 router.post("/signup", async (req, res) => {
     try {
-        const { adminId, firstname, lastname, email, DOB, loc} = req.body;
+        const { adminId, firstname, lastname, email, password, DOB, loc} = req.body;
 
         // Validate user input
         if (!adminId || !firstname ||!lastname || !email || !DOB || !loc) {
@@ -34,12 +34,11 @@ router.post("/signup", async (req, res) => {
           error: "Invalid DOB format. Please use DD-MM-YYYY."
         });
       }
-        // Generate a unique password
-        const password = crypto.randomBytes(5).toString('hex');
 
         async function generateUniquePin() {
             let evalID;
             let pinExists = true;
+            // Keep generating PINs until a unique one is found
             while (pinExists) {
                 evalID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
                 const evaluatorDoc = await db.collection("evaluators").doc(evalID).get();
@@ -80,7 +79,6 @@ router.post("/signup", async (req, res) => {
         // Optionally, return only relevant details or omit certain fields
 
         res.json(response);
-        // console.log(response);
     } catch (error) {
         console.error("error at signup:", error);
         // Handle specific errors (e.g., duplicate document ID)

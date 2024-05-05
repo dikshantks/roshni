@@ -50,7 +50,8 @@ router.post("/signup", async (req, res) => {
             organizationName,
             email,
             adminID: adminID,
-            password: hashedPassword, // Store only the hashed PIN
+            password: hashedPassword,
+            // Store only the hashed PIN
         });
 
         // Customize response JSON according to requirements
@@ -59,6 +60,7 @@ router.post("/signup", async (req, res) => {
             organizationName,
             email,
             adminID: adminID,
+            success: true
         };
 
         // Optionally, return only relevant details or omit certain fields
@@ -103,6 +105,7 @@ router.post("/login", async (req, res) => {
         res.json({
             message: "Login successful",
             adminData,
+            success: true
         });
     } catch (error) {
         console.error("error at login:", error);
@@ -175,9 +178,12 @@ router.post('/:adminID/funders', async (req, res) => {
         adminID
       });
   
-      res.send({ 
-        message: 'Funder added successfully' ,
-        fundID: fundID
+      res.json({ message: 'Funder added successfully',
+      fundID,
+      organizationName,
+      email,
+      locations,
+      adminID
      });
     } catch (error) {
       console.error('Error adding Funder:', error);
@@ -229,8 +235,7 @@ router.post('/:adminID/funders', async (req, res) => {
   router.put('/:adminID/funders/:fundID', async (req, res) => {
     try {
         const { adminID, fundID } = req.params;
-        const whitelist = ['locations'];
-        // Filter allowed fields and retrieve existing test
+        const whitelist = ['organizationName','email','locations'];
         const keys = Object.keys(req.body);
 
         // Check if any key is not in the whitelist

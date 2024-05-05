@@ -19,36 +19,44 @@ router.get("/", async (req, res) => {
 router.post("/add", async (req, res) => {
     try {
         // Destructure required fields from request body
-        const { studentID, testScores } = req.body;  
+        const { testID, testScores } = req.body;  
 
-        async function generateUniquePin() {
-            let resultID;
-            let pinExists = true;
-            // Keep generating PINs until a unique one is found
-            while (pinExists) {
-                resultID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
-                const resultDoc = await db.collection("results").doc(resultID).get();
-                pinExists = resultDoc.exists;
-            }
-            return resultID;
-          }
-        const resultID = await generateUniquePin();
         // Validate all required fields
-        if (!studentID || !testScores) {
+        if (!testID || !testScores) {
             return res.status(400).json({
-                error: "Missing required fields: studentID, testScores."
+                error: "Missing required fields."
             });
         }
 
-        // Create a test result document in Firestore
-        const resultRef = await db.collection("results").doc(resultID).set({
-            studentID,
-            testScores,
-            resultID: resultID
-        });
+        // Check if all student IDs exist in the students collection
+        const studentIDs = Object.keys(testScores);
+        const studentsQuery = await db.collection("students").where("pin", "in", studentIDs).get();
+        const existingStudents = studentsQuery.docs.map(doc => doc.data().pin);
 
+        const missingStudents = studentIDs.filter(id => !existingStudents.includes(id));
+        if (missingStudents.length > 0) {
+            return res.status(404).json({ error: `Students with IDs ${missingStudents.join(', ')} not found` });
+        }
+
+
+        const testRef = await db.collection("tests").doc(testID).get();
+        if (!testRef.exists) {
+            return res.status(404).json({ error: "Test not found" });
+        }
+        
+        const testName = testRef.data().subject;
+        
+        // Create a test result document in Firestore
+        const resultRef = await db.collection("results").doc(testID).set({
+            resultID: testID,
+            testScores,
+            testID: testID,
+            testName: testName
+        });
+    
         res.json({ message: "Test result added successfully" });
-    } catch (error) {
+    } 
+        catch (error) {
         console.error("Error adding test result:", error);
         res.status(500).json({ error: "Failed to add test result" });
     }
@@ -79,34 +87,70 @@ router.delete("/delete/:resultID", async (req, res) => {
     }
 });
 
-// PUT endpoint to update a test result
+
+//PUT endpoint to update a test result
 router.put("/update/:resultID", async (req, res) => {
     try {
         const { resultID } = req.params;
-        const { testScores, studentID } = req.body;
+        const { testScores={}, testID } = req.body;
 
+        // Check if all student IDs exist in the students collection
+        const studentIDs = Object.keys(testScores);
+        const studentsQuery = await db.collection("students").where("pin", "in", studentIDs).get();
+        const existingStudents = studentsQuery.docs.map(doc => doc.data().pin);
+
+        const missingStudents = studentIDs.filter(id => !existingStudents.includes(id));
+        if (missingStudents.length > 0) {
+            return res.status(404).json({ error: `Students with PINs ${missingStudents.join(', ')} not found` });
+        }
+   
         const resultDoc = await db.collection("results").doc(resultID).get();
         if (!resultDoc.exists) {
             return res.status(404).json({ error: "Test result not found" });
         }
 
         // Get existing test scores
-        let existingTestScores = resultDoc.data().testScores || {};
+        const existingTestScores = resultDoc.data().testScores;
 
-        // Merge new test scores with existing scores
+        // Merge existing test scores with new scores (if any)
         const updatedTestScores = { ...existingTestScores, ...testScores };
 
-        // Update fields
-        await db.collection("results").doc(resultID).update({
-            testScores: updatedTestScores,
-            studentID: studentID !== undefined ? studentID : resultDoc.data().studentID // Keep existing studentID if not provided
-        });
+        // Prepare updated fields
+        const updateFields = {};
+        updateFields.testScores = updatedTestScores;
 
+        // If testID is provided, update the resultID, testID, and testName
+        if (testID) {
+            const testRef = await db.collection("tests").doc(testID).get();
+            if (!testRef.exists) {
+                return res.status(404).json({ error: "Test not found" });
+            }
+            const testName = testRef.data().subject;
+
+            // Update the fields with new metadata
+            updateFields.resultID = testID;
+            updateFields.testID = testID;
+            updateFields.testName = testName;
+        
+             // Create a new document with updated metadata and data
+            const newDocRef = db.collection("results").doc(testID);
+            await newDocRef.set(updateFields);
+        
+         // Delete the old document if needed
+         if (testID !== resultID) {
+             await db.collection("results").doc(resultID).delete();
+         }
+        }
+        else {
+            // Update the test scores only
+            await db.collection("results").doc(resultID).update(updateFields);
+        }
         res.json({ message: "Test result updated successfully" });
     } catch (error) {
         console.error("Error updating test result:", error);
         res.status(500).json({ error: "Failed to update test result" });
     }
 });
+
 
 module.exports = router;
