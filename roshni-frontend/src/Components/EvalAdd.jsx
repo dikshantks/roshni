@@ -60,7 +60,7 @@ const AddEval = () => {
     if (validateForm()) {
       const adminId = localStorage.getItem("accessToken");
       const evaluatorData = { adminId, firstname, lastname, email, DOB, loc };
-      const apiEndpoint = `${import.meta.env.VITE_API_URL}/evaluators/signup/`;
+      const apiEndpoint = `https://roshni-api.onrender.com/api/evaluators/signup/`;
 
       axios
         .post(apiEndpoint, evaluatorData)

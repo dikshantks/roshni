@@ -53,7 +53,7 @@ const FundAdd = () => {
     if (validateForm()) {
       const funderData = { organizationName, email, password, locations };
       const adminId = localStorage.getItem("accessToken"); // Replace with actual admin ID
-      const apiEndpoint = `${import.meta.env.VITE_API_URL}/admin/${adminId}/funders`;
+      const apiEndpoint = `https://roshni-api.onrender.com/api/admin/${adminId}/funders`;
 
       axios
         .post(apiEndpoint, funderData)

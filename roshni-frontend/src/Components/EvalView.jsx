@@ -19,7 +19,7 @@ const ViewEval = () => {
 
   const fetchEvaluators = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/evaluators`);
+      const response = await axios.get(`https://roshni-api.onrender.com/api/evaluators`);
       setEvaluators(response.data);
     } catch (error) {
       console.error("Error fetching evaluators:", error);
@@ -29,7 +29,7 @@ const ViewEval = () => {
 
   const handleDelete = async (evalID) => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/evaluators/delete/${evalID}`);
+      const response = await axios.delete(`https://roshni-api.onrender.com/api/evaluators/delete/${evalID}`);
       if (response.status === 200) {
         setEvaluators((prevEvaluators) => prevEvaluators.filter((evaluator) => evaluator.evalID !== evalID));
         console.log("Evaluator deleted successfully");

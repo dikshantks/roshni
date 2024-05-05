@@ -19,7 +19,7 @@ const ResultsView = () => {
     const fetchResults = async () => {
         console.log(testPin);
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/results`);
+        const response = await axios.get(`https://roshni-api.onrender.com/api/results`);
         const filteredResults = response.data.filter(result => result.testScores[0] === testPin);
         console.log("Filtered results:", filteredResults);
         setFilteredResults(filteredResults);

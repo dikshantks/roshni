@@ -41,7 +41,7 @@ const Login = () => {
       const userCredentials = { adminID, password };
       console.log("User credentials:", userCredentials  )
       // const apiEndpoint = "https://roshni-api.onrender.com/api/admin/login";
-      const apiEndpoint = `${import.meta.env.VITE_API_URL}/admin/login`;
+      const apiEndpoint = `https://roshni-api.onrender.com/api/admin/login`;
 
       axios.post(apiEndpoint, userCredentials)
         .then((response) => {

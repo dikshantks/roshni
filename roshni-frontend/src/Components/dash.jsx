@@ -30,7 +30,7 @@ function Dash() {
 
     const fetchTests = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/tests`);
+            const response = await axios.get(`https://roshni-api.onrender.com/api/tests`);
             setTests(response.data);
         } catch (error) {
             console.error("Error fetching tests:", error);
@@ -42,7 +42,7 @@ function Dash() {
         event.preventDefault();
 
         try {
-            await axios.delete(`${import.meta.env.VITE_API_URL}/tests/delete/${testID}`);
+            await axios.delete(`https://roshni-api.onrender.com/api/tests/delete/${testID}`);
             // Filter out the deleted test from the state
             setTests(tests.filter(test => test.testID !== testID));
             setOpen(true);        
@@ -56,7 +56,7 @@ function Dash() {
     const fetchQuestions = async (ID) => {
         try {
             console.log("Fetching questions for test ID:", ID);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/tests/${ID}/questions`);
+            const response = await axios.get(`https://roshni-api.onrender.com/api/tests/${ID}/questions`);
     
             // Logging data before navigating
             const testData = response.data;
@@ -79,7 +79,7 @@ function Dash() {
     };
     const getResults = async (testPin) => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/results`);
+            const response = await axios.get(`https://roshni-api.onrender.com/api/results`);
             const filteredResults = response.data.filter(result => result.testScores[0] === testPin);
             navigate(`/view-results` ,{state: {data: testPin}});
             return filteredResults;
@@ -101,7 +101,7 @@ function Dash() {
         setError('');
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/tests/create`, {
+            const response = await axios.post(`https://roshni-api.onrender.com/api/tests/create`, {
                 subject,
                 time,
                 expiry,

@@ -39,7 +39,7 @@ const CreateQuestions = ({ onSuccess, testID, closeModal }) => {
         formData.append('image', newQuestion.image);
       }
   
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/tests/${testID}/questions`, formData);
+      const response = await axios.post(`https://roshni-api.onrender.com/api/tests/${testID}/questions`, formData);
       console.log('Question added successfully:', response.data);
   
       onSuccess(); // Invoke the success callback

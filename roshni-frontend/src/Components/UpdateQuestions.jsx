@@ -35,7 +35,7 @@ const UpdateQuestions = ({ testID, quesID, selectedQuestion, closeModal }) => {
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/tests/${testID}/questions/${quesID}`, {
+      const response = await axios.put(`https://roshni-api.onrender.com/api/tests/${testID}/questions/${quesID}`, {
         text: questionData.text,
         type: questionData.type,
         difficulty: questionData.difficulty,
