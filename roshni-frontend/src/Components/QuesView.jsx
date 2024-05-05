@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Button, Card, Form, Modal, Nav} from "react-bootstrap";
 import CreateQuestions from './CreateQuestions'; // Import CreateQuestions component
 import { useLocation } from "react-router-dom"; // Add this line
 import UpdateQuestions from "./UpdateQuestions";
+import { Dialog, Transition } from '@headlessui/react'
+import { CheckIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 const TestQuestions = () => {
   const { testID } = useParams();
@@ -14,7 +16,7 @@ const TestQuestions = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);  
   const location = useLocation();
   const initialTestData = location.state.data.questions;
-  const testDet = location.state.testDetails;
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);  
   const [testData, setTestData] = useState(initialTestData);
   const [newQuestion, setNewQuestion] = useState({
     text: "",
@@ -39,6 +41,16 @@ const TestQuestions = () => {
    const [selectedQuestion, setSelectedQuestion] = useState(null);
    // State variable to control the visibility of the update modal for each question
    const [showUpdateModals, setShowUpdateModals] = useState({});
+   const [open, setOpen] = useState(false);
+   const  cancelButtonRef = useRef(null)
+   
+   const handleSuccess = () => {
+    setShowSuccessMessage(true);
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 3000); // Hide the success message after 3 seconds (3000 milliseconds)
+  };
+
    useEffect(() => {
      // Initialize the showUpdateModals state with false for each question
      const initialShowUpdateModals = testData.reduce((acc, question) => {
@@ -56,13 +68,16 @@ const TestQuestions = () => {
      }));
    };
 
-  const handleDelete = async (questionID) => {
+  const handleDelete = async (event, questionID) => {
+    event.preventDefault();
     try {
       console.log("Deleting question with ID:", questionID);
       const response = await axios.delete(`http://localhost:5000/api/tests/${testID}/questions/${questionID}`);
+      console.log(response.data, response.data.message)
       if (response.data.message === "Question deleted successfully") {
         setTestData(testData.filter(question => question.questionID !== questionID)); 
         console.log("Question deleted successfully");
+        setOpen(true);
       } else {
         console.error("Failed to delete question");
       }
@@ -149,19 +164,7 @@ const TestQuestions = () => {
     getQuestions();
   }, [testID]);
   
-  const handleQuestionNavigation = (question,index) => {
-    setActiveQuestion(index);
-    const questionElement = document.getElementById(question.questionID);
-    questionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]; // Get the first file from the selected files
-    setNewQuestion((prevQuestion) => ({
-      ...prevQuestion,
-      image: file, // Update the image property with the selected file
-    }));
-  };
   const handleAddCloseModal = () => setShowAddModal(false);
   const handleAddModal = (event, testID) => {
     event.preventDefault();
@@ -188,33 +191,112 @@ const TestQuestions = () => {
               </div>
           </div>
       </header>
+    <Transition.Root show={open} as={Fragment}>
+      <Dialog className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterTo="opacity-100 translate-y-0 sm:scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            >
+            <Dialog.Panel className="py-3 relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                      <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+            </div>              
+            <div className="py-4 text-center text-base font-semibold leading-6 text-gray-900">Question Deleted Successfully!</div>
+            <div class="flex items-center justify-center">
+              <button
+                type="button"
+                class="mt-3 inline-flex w-full place-items-center justify-center rounded-md bg-green-100 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                onClick={() => setOpen(false)}
+                ref={cancelButtonRef}
+              >
+                Dismiss
+              </button>
+            </div>
+            </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition.Root>
 
       <Modal show={showAddModal} onHide={handleAddCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Add New Question</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <CreateQuestions closeModal={addQuestion} testID={testID}/> {/* Pass handleCloseModal function as prop */}
+          <CreateQuestions closeModal={addQuestion} onSuccess={handleSuccess} testID={testID}/> 
         </Modal.Body>
       </Modal>
-      <div className="row">
-        {testData.map((question, index) => (
-          <div className="col-md-4 mb-3" key={index}>
-            <Card>
-              <Card.Body>
-                <Card.Title>{question.text}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">Type: {question.type}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Difficulty: {question.difficulty}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Options: {question.options}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Correct: {question.correct}</Card.Subtitle>
-                <Card.Subtitle className="mb-2 text-muted">Marks: {question.marks}</Card.Subtitle>
-                <div className="mt-3">
-                  <Button variant="primary" onClick={() => handleUpdate(question)}>Update</Button>
-                  <Button variant="danger" onClick={() => handleDelete(question.questionID)} className="ml-2">Delete</Button>
+      {showSuccessMessage && (
+                <div className="bg-green-500 py-2 px-4 rounded-md text-white text-center fixed bottom-4 right-4 flex gap-4">
+                  <p>Success! Your question has been added.</p>
+                  <span
+                    className="cursor-pointer font-bold"
+                    onClick={() => setShowSuccessMessage(false)}
+                  >
+                    <sup>X</sup>
+                  </span>
                 </div>
-              </Card.Body>
-            </Card>
-          </div>
+              )}
+      <div className="grid grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-10">
+      {testData.map((question, index) => (
+                <div className="dark:bg-grey-500 m-5 dark:text-black rounded-lg px-6 py-8 ring-1 ring-slate-900/5 shadow-xl" key={index}>
+                {question.imageUrl && (
+                        <img
+                          src={`data:image/png;base64;,${question.imageUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")}`}
+                          alt="Question Image"
+                          className="mb-4"
+                        />
+                      )}                  
+                    <div className="font-semibold text-lg mb-4">Question {index + 1}: <span className="text-black">{question.text}</span></div>
+                  <div><span className="font-semibold">Type:</span> <span className="text-black">{question.type}</span></div>
+                  <div><span className="font-semibold">Difficulty:</span> <span className="text-black">{question.difficulty}</span></div>
+                  <div><span className="font-semibold">Options: </span>
+                    {question.options.map((option, idx) => (
+                      <span key={idx} className="text-black">{option}{idx !== question.options.length - 1 && ", "}</span>
+                    ))}
+                  </div>                   
+              <div><span className="font-semibold">Correct Answer:</span> <span className="text-black">{question.correct}</span></div>
+                  <div><span className="font-semibold">Marks:</span> <span className="text-black">{question.marks}</span></div>
+                {/* Update modal */}
+                    <Modal show={showUpdateModals[question.questionID]} onHide={() => toggleUpdateModal(question.questionID)}>
+                    <Modal.Header closeButton>
+                      <Modal.Title>Update Question {question.questionID}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <UpdateQuestions selectedQuestion={selectedQuestion} quesID={question.questionID} testID={testID} closeModal={updateQuestion} />
+                    </Modal.Body>
+                    </Modal>
+                    <Button variant="primary" onClick={() => handleUpdateModal(question)}>Update</Button> 
+
+                <div className="mt-4 flex gap-4">
+              {/* <a href="#" onClick={() => handleUpdate(question)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg">
+                  Update
+              </a> */}
+              <a href="#" onClick={(event) => handleDelete(event,question.questionID)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 md:text-lg">
+                  Delete
+              </a>
+            </div>
+        </div>
         ))}
       </div>
     </>

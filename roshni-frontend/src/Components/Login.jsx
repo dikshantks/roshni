@@ -54,7 +54,9 @@ const Login = () => {
             console.log("Token stored successfully!", accessToken);
 
             setLoggedIn(true);
-            navigate('/dashboard'); // Set loggedIn state to true upon successful login
+            navigate('/dashboard',
+              { state: { adminID: response.data.adminData.adminID } }
+            ); // Set loggedIn state to true upon successful login
           } else {
             setError(response.data.error || "Login failed."); // Handle API-specific error messages
           }

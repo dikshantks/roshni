@@ -1,9 +1,10 @@
 import React, { useState, useEffect, Fragment, useRef } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import './EvalView.css';
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
+
 const ViewFunder = () => {
   const [funders, setFunders] = useState([]);
   const [error, setError] = useState("");
@@ -15,6 +16,10 @@ const ViewFunder = () => {
   });
   const [open, setOpen] = useState(false);
   const cancelButtonRef = useRef(null)
+  const location = useLocation();
+
+
+
   useEffect(() => {
     fetchFunders();
   }, []);
@@ -43,8 +48,9 @@ const ViewFunder = () => {
         console.error("Failed to delete funder");
       }
     } catch (error) {
-      console.error("Error deleting funder:", error);
       setError("An error occurred while deleting the funder.");
+
+      console.error("Error deleting funder:", error);
     }
   };
 
@@ -103,9 +109,6 @@ const ViewFunder = () => {
     }
   };
 
-  const handleBackToDashboard = () => {
-    window.location.href = "/dashboard";
-  };
   const columns = [
     {
       name: "Organization Name",
@@ -128,7 +131,7 @@ const ViewFunder = () => {
       name: "Action",
       cell: (row) => (
         <div className="flex justify-center items-center">
-          <TrashIcon className="cursor-pointer h-6 w-6" onClick={() => handleDelete(row.evalID)} />
+          <TrashIcon className="cursor-pointer h-6 w-6" onClick={() => handleDelete(row.fundID)} />
         </div>
       )    }
   ]

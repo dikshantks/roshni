@@ -65,9 +65,10 @@ const AddEval = () => {
       axios
         .post(apiEndpoint, evaluatorData)
         .then((response) => {
-          console.log("Teacher added successfully!", response.data);
+          // console.log("Teacher added successfully!", response.data);
           setError("");
           setMessage(formatMessage(response.data));
+          console.log("Message:", message);
           window.alert("Signup successful!");
         })
         .catch((error) => {

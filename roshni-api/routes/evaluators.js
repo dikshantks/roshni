@@ -40,7 +40,6 @@ router.post("/signup", async (req, res) => {
         async function generateUniquePin() {
             let evalID;
             let pinExists = true;
-            // Keep generating PINs until a unique one is found
             while (pinExists) {
                 evalID = crypto.randomInt(1000, 9999).toString().padStart(4, "0");
                 const evaluatorDoc = await db.collection("evaluators").doc(evalID).get();
@@ -81,6 +80,7 @@ router.post("/signup", async (req, res) => {
         // Optionally, return only relevant details or omit certain fields
 
         res.json(response);
+        // console.log(response);
     } catch (error) {
         console.error("error at signup:", error);
         // Handle specific errors (e.g., duplicate document ID)
