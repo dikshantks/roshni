@@ -6,7 +6,7 @@ import CreateQuestions from './CreateQuestions'; // Import CreateQuestions compo
 import { useLocation } from "react-router-dom"; // Add this line
 import UpdateQuestions from "./UpdateQuestions";
 import { Dialog, Transition } from '@headlessui/react'
-import { CheckIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { CheckIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 const TestQuestions = () => {
   const { testID } = useParams();
@@ -37,13 +37,26 @@ const TestQuestions = () => {
       marks: 0
   });
   const [ID, setID] = useState(null);
-   // State variable for selected question to update
    const [selectedQuestion, setSelectedQuestion] = useState(null);
-   // State variable to control the visibility of the update modal for each question
    const [showUpdateModals, setShowUpdateModals] = useState({});
    const [open, setOpen] = useState(false);
    const  cancelButtonRef = useRef(null)
-   
+   const [editModalOpen, setEditModalOpen] = useState(false);
+   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+   const [quesToDelete, setQuesToDelete] = useState(null);
+ 
+
+   const handleDelete = (questionID) => {
+    // Set the funder to delete and open the confirmation dialog
+    setQuesToDelete(testData.find((question) => question.questionID === questionID));
+    setDeleteConfirmationOpen(true);
+  };
+
+
+
+
+
+
    const handleSuccess = () => {
     setShowSuccessMessage(true);
     setTimeout(() => {
@@ -68,8 +81,7 @@ const TestQuestions = () => {
      }));
    };
 
-  const handleDelete = async (event, questionID) => {
-    event.preventDefault();
+  const handleConfirmDelete = async ( questionID) => {
     try {
       console.log("Deleting question with ID:", questionID);
       const response = await axios.delete(`http://localhost:5000/api/tests/${testID}/questions/${questionID}`);
@@ -191,6 +203,70 @@ const TestQuestions = () => {
               </div>
           </div>
       </header>
+      <Transition.Root show={deleteConfirmationOpen} as={Fragment}>
+  <Dialog
+    as="div"
+    className="fixed inset-0 z-10 overflow-y-auto"
+    onClose={() => setDeleteConfirmationOpen(false)}
+  >
+    <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <Transition.Child
+        as={Fragment}
+        enter="ease-out duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="ease-in duration-200"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <Dialog.Overlay className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+      </Transition.Child>
+      <Transition.Child
+        as={Fragment}
+        enter="ease-out duration-300"
+        enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        enterTo="opacity-100 translate-y-0 sm:scale-100"
+        leave="ease-in duration-200"
+        leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+        leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+      >
+        <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+          <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+            Delete Question
+          </Dialog.Title>
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete <span className="font-medium">{quesToDelete?.questionID}</span>?
+            </p>
+          </div>
+          <div className="mt-4 flex justify-end space-x-4">
+            <button
+              type="button"
+              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              onClick={(e) => {
+                handleConfirmDelete(quesToDelete?.questionID);
+                setDeleteConfirmationOpen(false);
+              }}
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              onClick={() => setDeleteConfirmationOpen(false)}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      </Transition.Child>
+    </div>
+  </Dialog>
+</Transition.Root>
+
+
+
+
     <Transition.Root show={open} as={Fragment}>
       <Dialog className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
         <Transition.Child
@@ -286,15 +362,10 @@ const TestQuestions = () => {
                       <UpdateQuestions selectedQuestion={selectedQuestion} quesID={question.questionID} testID={testID} closeModal={updateQuestion} />
                     </Modal.Body>
                     </Modal>
-                    <Button variant="primary" onClick={() => handleUpdateModal(question)}>Update</Button> 
-
                 <div className="mt-4 flex gap-4">
-              {/* <a href="#" onClick={() => handleUpdate(question)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg">
-                  Update
-              </a> */}
-              <a href="#" onClick={(event) => handleDelete(event,question.questionID)} className="flex items-center justify-center px-3 py-2 md:px-4 md:py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 md:text-lg">
-                  Delete
-              </a>
+              <TrashIcon className="cursor-pointer h-6 w-6" onClick={() => handleDelete(question.questionID)} />
+              <PencilSquareIcon className="cursor-pointer h-6 w-6" onClick={() => handleUpdateModal(question)}/>
+
             </div>
         </div>
         ))}

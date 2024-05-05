@@ -88,6 +88,49 @@ router.post("/signup", async (req, res) => {
         res.status(500).json({ error: "Failed to register evaluator" });
     }
 });
+// Update evaluator
+router.put("/update/:evalID", async (req, res) => {
+    try {
+        const { evalID } = req.params;
+        const { firstname, lastname, email, DOB, loc } = req.body;
+
+        // Check if evalID is provided
+        if (!evalID) {
+            return res.status(400).json({ error: "Missing evaluator ID" });
+        }
+
+        // Check if at least one field to update is provided
+        if (!firstname && !lastname && !email && !DOB && !loc) {
+            return res.status(400).json({ error: "No fields to update" });
+        }
+
+        const evaluatorRef = db.collection("evaluators").doc(evalID);
+
+        // Check if the evaluator exists
+        const evaluatorDoc = await evaluatorRef.get();
+        if (!evaluatorDoc.exists) {
+            return res.status(404).json({ error: "Evaluator not found" });
+        }
+
+        // Prepare the update data
+        const updateData = {};
+        if (firstname) updateData.firstname = firstname;
+        if (lastname) updateData.lastname = lastname;
+        if (email) updateData.email = email;
+        if (DOB) updateData.DOB = DOB;
+        if (loc) updateData.loc = loc;
+
+        // Perform the update
+        await evaluatorRef.update(updateData);
+
+        res.send({ message: "Evaluator updated successfully" });
+    } catch (error) {
+        console.error("Error at update:", error);
+        res.status(500).json({ error: "Failed to update evaluator" });
+    }
+});
+
+
 
 // Login endpoint
 router.post("/login", async (req, res) => {

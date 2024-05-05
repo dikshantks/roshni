@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Dashboard from "./Dashboard"; // Import the Dashboard component
 import { FaUser, FaLock } from "react-icons/fa";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+
 const Login = () => {
   const [adminID, setadminID] = useState("");
   const [password, setPassword] = useState("");
@@ -11,14 +12,17 @@ const Login = () => {
   const [loggedIn, setLoggedIn] = useState(false); // New state to track login status
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Clear token from localStorage when component mounts
+    localStorage.removeItem("accessToken");
+  }, []);
+
   const validateForm = (e) => {
     let error = "";
 
     // Validate adminID
     if (!adminID) {
       error = "Please enter your adminID address.";
-    // } else if (!/\S+@\S+\.\S+/.test(adminID)) {
-    //   error = "Please enter a valid adminID address.";
     }
 
     // Validate password
@@ -78,9 +82,7 @@ const Login = () => {
       {loggedIn ? ( // Conditionally render Dashboard component if loggedIn is true
         <Dashboard />
       ) : (
-        
         <div className="wrapper">
-                
           <form onSubmit={handleSubmit} method="POST">
             <h1>Login</h1>
             <div className="input-box">

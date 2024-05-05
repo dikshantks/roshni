@@ -59,6 +59,7 @@ const FundAdd = () => {
         .post(apiEndpoint, funderData)
         .then((response) => {
           console.log("Funder added successfully!", response.data);
+          window.location.href = "/view-funders";
           setError("");
           setMessage(formatMessage(response.data));
         })
@@ -78,7 +79,7 @@ const FundAdd = () => {
   };
 
   const handleCancel = () => {
-    window.location.href = "/dashboard";
+    window.location.href = "/view-funders";
   };
 
   return (
@@ -86,7 +87,7 @@ const FundAdd = () => {
       <div className="bgg">
       <Card className="containerr"> 
           <Card.Body>
-            <Card.Title as="h3" className="text">Add Facilitator</Card.Title>
+            <Card.Title as="h3" className="text">Add Funder</Card.Title>
             <br/>
         <Form onSubmit={handleSubmit}>
         <Row>

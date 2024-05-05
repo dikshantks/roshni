@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route} from "react-router-dom";
+import { Navigate,BrowserRouter, Routes, Route} from "react-router-dom";
 import Login from "./Components/Login"; // Assuming the login component is in Login.jsx
 import Dashboard from "./Components/Dashboard"; // Assuming the Dashboard component is in Dashboard.jsx
 import AddEvaluator from "./Components/EvalAdd"; // Assuming the AddEvaluator component is in AddEvaluator.jsx
@@ -20,18 +20,17 @@ function App() {
         <Navbar />
       </React.Fragment>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add-evaluator" element={<AddEvaluator />} />
-        <Route path="/add-funder" element={<AddFunder />} />
-        <Route path="/view-evaluators" element={<ViewEvaluator />} />
-        <Route path="/view-funders" element={<ViewFunder />} />
-        <Route path="/createQuestions" element={<CreateQuestions />} />
-        <Route path="/updateQuestions" element={<UpdateQuestions />} />
-        <Route path="/view-questions/:testID" element={<QuesView />} />
-        <Route path="/dash" element={<Dash/>} />
-        <Route path="/view-results" element={<Results/>} />
-
+        <Route path="/" element={<ProtectedRoute><Login /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/add-evaluator" element={<PrivateRoute><AddEvaluator /></PrivateRoute>} />
+        <Route path="/add-funder" element={<PrivateRoute><AddFunder /></PrivateRoute>} />
+        <Route path="/view-evaluators" element={<PrivateRoute><ViewEvaluator /></PrivateRoute>} />
+        <Route path="/view-funders" element={<PrivateRoute><ViewFunder /></PrivateRoute>} />
+        <Route path="/createQuestions" element={<PrivateRoute><CreateQuestions /></PrivateRoute>} />
+        <Route path="/updateQuestions" element={<PrivateRoute><UpdateQuestions /></PrivateRoute>} />
+        <Route path="/view-questions/:testID" element={<PrivateRoute><QuesView /></PrivateRoute>} />
+        <Route path="/dash" element={<PrivateRoute><Dash/></PrivateRoute>} />
+        <Route path="/view-results" element={<PrivateRoute><Results/></PrivateRoute>} />
 
       </Routes>
 
@@ -40,3 +39,23 @@ function App() {
 }
 
 export default App;
+
+export function ProtectedRoute(props) {
+  const auth = JSON.parse(localStorage.getItem('accessToken'));
+
+  if (auth) {
+    return <Navigate to="/dashboard" replace />;
+  } else {
+    return props.children;
+  }
+}
+
+export function PrivateRoute(props) {
+  const auth = JSON.parse(localStorage.getItem('accessToken'));
+
+  if (!auth) {
+    return <Navigate to="/" replace />;
+  } else {
+    return props.children;
+  }
+}
