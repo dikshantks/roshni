@@ -65,6 +65,7 @@ class _StudentScreen extends State<StudentScreen> {
       ),
       backgroundColor: Colors.transparent,
       bottomNavigationBar: NavigationBar(
+        indicatorColor: const Color.fromARGB(255, 255, 120, 120),
         indicatorShape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(20),

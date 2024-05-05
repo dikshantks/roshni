@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:logger/logger.dart';
 
 part 'question_model.g.dart';
 
@@ -14,7 +15,7 @@ class Question {
   @HiveField(3)
   String type;
   @HiveField(4)
-  String correct;
+  List<dynamic> correct;
   @HiveField(5)
   String difficulty;
   @HiveField(6)
@@ -22,19 +23,24 @@ class Question {
   @HiveField(7)
   String? useranswer;
   @HiveField(8)
+  String? img;
+  @HiveField(9)
+  int? marks;
+  @HiveField(10)
   int get key => questionID.hashCode;
   Question({
     required this.questionID,
     required this.testID,
     required this.text,
     required this.type,
-    required this.correct,
+    required dynamic correct,
     required this.difficulty,
     required this.options,
     this.useranswer,
-  });
+  }) : this.correct = correct is List<dynamic> ? correct : [correct];
 
   factory Question.fromJson(Map<String, dynamic> json) {
+    Logger().i("question json $json");
     return Question(
       questionID: json['questionID'],
       testID: json['testID'],
@@ -43,7 +49,6 @@ class Question {
       correct: json['correct'],
       difficulty: json['difficulty'],
       options: json['options'],
-      useranswer: null,
     );
   }
 }

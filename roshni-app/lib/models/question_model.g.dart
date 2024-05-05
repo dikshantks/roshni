@@ -21,17 +21,19 @@ class QuestionAdapter extends TypeAdapter<Question> {
       testID: fields[1] as String,
       text: fields[2] as String,
       type: fields[3] as String,
-      correct: fields[4] as String,
+      correct: fields[4] as dynamic,
       difficulty: fields[5] as String,
       options: (fields[6] as List).cast<dynamic>(),
       useranswer: fields[7] as String?,
-    );
+    )
+      ..img = fields[8] as String?
+      ..marks = fields[9] as int?;
   }
 
   @override
   void write(BinaryWriter writer, Question obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.questionID)
       ..writeByte(1)
@@ -49,6 +51,10 @@ class QuestionAdapter extends TypeAdapter<Question> {
       ..writeByte(7)
       ..write(obj.useranswer)
       ..writeByte(8)
+      ..write(obj.img)
+      ..writeByte(9)
+      ..write(obj.marks)
+      ..writeByte(10)
       ..write(obj.key);
   }
 

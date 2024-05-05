@@ -68,10 +68,44 @@ class AuthProvider extends ChangeNotifier {
           _status = AuthStatus.unauthenticated;
           notifyListeners();
           // _showErrorSnackBar(context, 'Invalid ID or password');
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: const Text('Invalid ID or Password'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
         }
       } catch (error) {
         _status = AuthStatus.unauthenticated;
         notifyListeners();
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(error.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
         // _showErrorSnackBar(context, error.toString());
       }
     }
@@ -118,6 +152,23 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.unauthenticated;
       notifyListeners();
       // _showErrorSnackBar(context, error.toString());
+    }
+  }
+
+  Future<void> setStudent(String studentId) async {
+    final box = await Hive.openBox<Student>('students');
+    Student? student;
+    try {
+      student = box.values.firstWhere((s) => s.pin == studentId);
+    } catch (e) {
+      student = null;
+    }
+
+    if (student != null) {
+      _student = student;
+      notifyListeners();
+    } else {
+      // Handle the case when the student is not found in the Hive box
     }
   }
 }

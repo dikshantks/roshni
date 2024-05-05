@@ -20,58 +20,100 @@ class _StudentScanScreenState extends State<StudentScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     final testprovider = Provider.of<TestProvider>(context, listen: true);
     void doingsomething(Test test) {
       showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: SizedBox(
-                height: 100,
-                // width: 100,
-                child: Column(
-                  children: [
-                    Text('${test.subject} Exam'),
-                    // const CircularProgressIndicator(),
-                    const Divider(),
-                  ],
-                ),
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: SizedBox(
+              // height: 150,
+              width: size.width * .8,
+              child: Column(
+                children: [
+                  Text('${test.subject} Exam'),
+                  const Divider(),
+                ],
               ),
-              content: const Text('Invalid Exam Code'),
-              // actionsOverflowAlignment: OverflowBar().overflowAlignment,
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); //pop the dialog
-                  },
-                  child: const Text('K'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(
-                      QuestionsScreen.routeName,
-                      arguments: test.questions,
-                    );
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-            // return Dialog(
-            //   child: Container(
-            //     height: 200,
-            //     width: 200,
-            //     child: Column(
-            //       children: [
-            //         const Text('Please wait'),
-            //         const CircularProgressIndicator(),
-            //       ],
-            //     ),
-            //   ),
-            // );
-          });
+            ),
+            content: SizedBox(
+              height: 200.0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        height: 40.0,
+                        width: 110.0,
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Text(
+                          "Questions: ${test.questions.length.toString()}",
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.center,
+                        height: 40.0,
+                        width: 110.0,
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Text(
+                          "Time: ${test.time} min",
+                        ),
+                      ),
+                    ],
+                  ),
+                  // SizedBox(
+                  //   height: 40.0,
+                  // ),
+                  const Center(
+                    child: Text(
+                      "Proceed?",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No'),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          logger.i(" hmssdfsm ${test.questions}");
+                          Navigator.of(context).pushNamed(
+                            QuestionsScreen.routeName,
+                            arguments: test.questions,
+                          );
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            // actions: [
+
+            // ],
+          );
+        },
+      );
     }
 
     return Scaffold(
@@ -87,8 +129,8 @@ class _StudentScanScreenState extends State<StudentScanScreen> {
           children: [
             const SizedBox(height: 100),
             Container(
-              width: Size.width * .7,
-              height: Size.width * .7,
+              width: size.width * .7,
+              height: size.width * .7,
               decoration: const BoxDecoration(
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -114,7 +156,7 @@ class _StudentScanScreenState extends State<StudentScanScreen> {
               onPressed: () {
                 testprovider.selectTest(_pinController.text);
                 final test = testprovider.currentTest;
-                logger.i("${test?.testID ?? testprovider.currentTest}");
+                logger.i(" hmm ${test?.testID ?? testprovider.currentTest}");
                 if (testprovider.currentTest == null) {
                   showDialog(
                     context: context,

@@ -30,8 +30,16 @@ class TestProvider extends ChangeNotifier {
   int _score = 0;
   int get score => _score;
 
+  int _totalMarks = 0;
+  int get totalmarks => _totalMarks;
+
   List<Question> _questions = [];
   List<Question> get questions => _questions;
+  Question? get currentQuestion =>
+      (_questions.isNotEmpty && _currentQuestionIndex < _questions.length)
+          ? _questions[_currentQuestionIndex]
+          : null;
+  Test? get currentTest => _currentTest;
 
   Future<void> openHiveBoxes() async {
     _testBox = await Hive.openBox<Test>('testBox');
@@ -44,25 +52,29 @@ class TestProvider extends ChangeNotifier {
 
     _isLoading = true;
     _error = null;
-    try {
-      await _loadCachedTests();
-      if (_tests.isEmpty) {
-        await _fetchAndStoreTestsFromApi();
-      }
-    } catch (error) {
-      _handleError(error);
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+    // try {
+    await _loadCachedTests();
+    if (_tests.isEmpty) {
+      await _fetchAndStoreTestsFromApi();
     }
+    // } catch (error) {
+    //   _handleError(error);
+    // } finally {
+    _isLoading = false;
+    notifyListeners();
+    // }
   }
 
   void saveResult(String testID, String studentPin) {
     openHiveBoxes();
     final score = calculateScore();
     final timestamp = DateTime.now();
-    final answers = _questions.asMap().map((index, question) =>
-        MapEntry(question.questionID, question.useranswer ?? ""));
+    final answers = _questions.asMap().map(
+          (index, question) => MapEntry(
+            question.questionID,
+            question.useranswer ?? "",
+          ),
+        );
 
     final resultKey = (testID + studentPin).hashCode;
     final existingResult = _resultsBox!.get(resultKey);
@@ -100,6 +112,9 @@ class TestProvider extends ChangeNotifier {
     if (cachedTests.isNotEmpty) {
       _tests = cachedTests;
     }
+    for (final test in cachedTests) {
+      await fetchAndStoreQuestionsForTest(test);
+    }
     logger.i("cached tests ${_tests.length}  , ${cachedTests.length}");
   }
 
@@ -114,33 +129,29 @@ class TestProvider extends ChangeNotifier {
     _tests = fetchedTests;
   }
 
-  void _handleError(dynamic error) {
-    _error = error.toString();
-    if (kDebugMode) {
-      print("error in fetch test provider : $error");
-    }
-  }
-
   List<Result>? getAllResults() {
     openHiveBoxes();
     return _resultsBox?.values.toList();
   }
 
+  List<Result>? getResultsForStudent(String studentPin) {
+    openHiveBoxes();
+    return _resultsBox?.values
+        .where((result) => result.studentPin == studentPin)
+        .toList();
+  }
+
   Future<void> fetchAndStoreQuestionsForTest(Test test) async {
-    try {
-      await openHiveBoxes();
-      final questions =
-          await questionService.fetchQuestionsForTest(test.testID);
-      logger.i("test : ${test.testID} - ${questions.length} ");
-      for (final question in questions) {
-        await _questionBox?.put(
-            question.key, question); // Use the key when adding data
-      }
-      print(
-          "fetched questions -- ${test.testID} - ${questions.length} - ${_questionBox?.length ?? "hk"}");
-    } catch (error) {
-      print("error in fetch question provider : $error");
+    // try {
+    await openHiveBoxes();
+    final questions = await questionService.fetchQuestionsForTest(test.testID);
+    logger.i("test : ${test.testID} - ${questions.length} ");
+    for (final question in questions) {
+      await _questionBox?.put(
+          question.key, question); // Use the key when adding data
     }
+    print(
+        "fetched questions -- ${test.testID} - ${questions.length} - ${_questionBox?.length ?? "hk"}");
   }
 
   Future<List<Question>> fetchQuestionsFromHive(
@@ -161,14 +172,16 @@ class TestProvider extends ChangeNotifier {
     return questions;
   }
 
-  void incrementScore() {
-    _score++;
-    notifyListeners();
-  }
-
   void nextQuestion() {
     if (_currentQuestionIndex < _questions.length - 1) {
       _currentQuestionIndex++;
+      notifyListeners();
+    }
+  }
+
+  void previousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      _currentQuestionIndex--;
       notifyListeners();
     }
   }
@@ -179,41 +192,66 @@ class TestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Question? get currentQuestion =>
-  //     (_questions.isNotEmpty) ? _questions[_currentQuestionIndex] : null;
-  Question? get currentQuestion =>
-      (_questions.isNotEmpty && _currentQuestionIndex < _questions.length)
-          ? _questions[_currentQuestionIndex]
-          : null;
-  void previousQuestion() {
-    if (_currentQuestionIndex > 0) {
-      _currentQuestionIndex--;
-      notifyListeners();
-    }
-  }
-
   void selectAnswer(String answer) {
     _questions[_currentQuestionIndex].useranswer = answer;
     notifyListeners();
   }
 
+  // int calculateScore() {
+  //   _score = _questions.fold(
+  //     0,
+  //     (prev, q) => prev + (q.correct == q.useranswer ? (q.marks ?? 1) : 0),
+  //   );
+
+  //   notifyListeners();
+  //   return _score;
+  // }
   int calculateScore() {
-    _score = _questions.where((q) => q.correct == q.useranswer).length;
+    _score = 0;
+    for (Question q in _questions) {
+      if (q.type == 'text') {
+        // Assuming q.correct is List<String>
+        // double similarityScore = calculateSimilarity(q.useranswer, q.correct);
+        double similarityScore = .5;
+        _score += (similarityScore * (q.marks ?? 0)).toInt();
+      } else {
+        // Assuming q.correct is a String
+        _score += (q.correct[0] == q.useranswer ? q.marks ?? 0 : 0);
+
+        logger.i("score $score");
+      }
+    }
     notifyListeners();
     return _score;
   }
 
-  Test? _currentTest; // Variable for the currently selected test
+  int calculateTotalMarks() {
+    _totalMarks = _questions.fold(0, (prev, q) => prev + (q.marks ?? 1));
+    notifyListeners();
+    return _totalMarks;
+  }
 
-  // Function to select a test given a test id
+  Test? getTestById(String testId) {
+    openHiveBoxes();
+    try {
+      logger.i("test found ${_tests.length}");
+      return _tests.firstWhere((element) => element.testID == testId);
+    } catch (e) {
+      logger.e("error in get test by id $e");
+      return null;
+    }
+  }
+
+  Test? _currentTest;
   void selectTest(String testId) {
     openHiveBoxes();
     for (var element in _testBox?.values ?? _tests) {
       logger.i(
-          "selcted test from : ${element.subject} ${element.testID} ,   length = ${_testBox!.values.length} , ${_tests.length}");
+          "selcted test from: ${element.subject} ${element.testID} , length=${_testBox!.values.length} , ${_tests.length}");
     }
     try {
       _currentTest = _tests.firstWhere((element) => element.testID == testId);
+      logger.i("selefffcted test ${_currentTest?.subject}");
     } catch (e) {
       _currentTest = null;
     }
@@ -221,7 +259,7 @@ class TestProvider extends ChangeNotifier {
   }
 
   // Getter for the currently selected test
-  Test? get currentTest => _currentTest;
+
   set currentTest(Test? test) {
     _currentTest = test;
     notifyListeners();

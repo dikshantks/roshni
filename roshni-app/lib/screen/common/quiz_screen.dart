@@ -23,6 +23,41 @@ class QuestionsScreen extends StatefulWidget {
 }
 
 class _QuestionsScreenState extends State<QuestionsScreen> {
+  void _showBackDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text(
+            'Are you sure you want to leave this page?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Nevermind'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Leave'),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   List<Question> _questions = [];
   String pin = "";
 
@@ -31,7 +66,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     _questions = await Provider.of<TestProvider>(context, listen: false)
         .fetchQuestionsFromHive(widget.testId);
     setState(() {});
-    Logger().i('Questions: ${_questions.length} for ${widget.testId}');
+    Logger().i('Q $pin uestions: ${_questions.length} for ${widget.testId}');
 
     if (_questions.isEmpty) {
       showDialog(
@@ -61,10 +96,11 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   void onQuizFinished() {
     var testProvider = Provider.of<TestProvider>(context, listen: false);
     testProvider.calculateScore();
+    testProvider.calculateTotalMarks();
     logger.i('Score: ${testProvider.score}');
     testProvider.saveResult(testProvider.currentTest!.testID, pin);
     testProvider.currentQuestionIndex = 0;
-    Navigator.of(context).pushNamed(AfterQuizScreen.routeName);
+    Navigator.of(context).pushReplacementNamed(AfterQuizScreen.routeName);
   }
 
   @override
@@ -80,82 +116,96 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     Logger().i("widget is built hmm ${one.length}");
     var testProvider = Provider.of<TestProvider>(context);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(90),
-        child: Container(
-          // alignment: Alignment.center,
-          alignment: Alignment.bottomCenter,
-          height: 100,
-          color: Colors.black12,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SlideCountdown(
-                slideDirection: SlideDirection.none,
-                style: GoogleFonts.roboto(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 20,
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 5,
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(
-                      25,
-                    ),
-                  ),
-                ),
-                duration: Duration(minutes: int.parse(time.time)),
-                separator: ":",
-                onDone: () {
-                  onQuizFinished();
-                },
-                // onChanged: (time) {
-                // },
-              ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  "${testProvider.currentQuestionIndex + 1} of ${_questions.length}",
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          return;
+        }
+        _showBackDialog();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(90),
+          child: Container(
+            // alignment: Alignment.center,
+            alignment: Alignment.bottomCenter,
+            height: 100,
+            color: Colors.black12,
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 10,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SlideCountdown(
+                  slideDirection: SlideDirection.none,
                   style: GoogleFonts.roboto(
-                    // color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 22,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  "ID : $pin",
-                  style: GoogleFonts.roboto(
-                    // color: Colors.white,
+                    color: Colors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 20,
                   ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 5,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(
+                        25,
+                      ),
+                    ),
+                  ),
+                  duration: Duration(minutes: int.parse(time.time)),
+                  separator: ":",
+                  onDone: () {
+                    onQuizFinished();
+                  },
                 ),
-              )
-            ],
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    "${testProvider.currentQuestionIndex + 1} of ${_questions.length}",
+                    style: GoogleFonts.roboto(
+                      // color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 22,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    "ID : $pin",
+                    style: GoogleFonts.roboto(
+                      // color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 20,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
+        body: _questions.isEmpty
+            ? const Center(
+                child: Text(
+                  "_questions.isEmpty",
+                ),
+              )
+            : testProvider.currentQuestion == null
+                ? const Center(
+                    child: Text(
+                      "testProvider.currentQuestion == null",
+                    ),
+                  )
+                : doQuiz(testProvider),
       ),
-      body: _questions.isEmpty
-          ? const Center(child: Text("_questions.isEmpty"))
-          : testProvider.currentQuestion == null
-              ? const Center(
-                  child: Text("testProvider.currentQuestion == null"))
-              : doQuiz(testProvider),
     );
   }
 
@@ -196,81 +246,67 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                   ),
                 ),
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          child: SizedBox(
-                            // color: Colors.red,
-                            width: MediaQuery.of(context).size.width,
-                            child: imagetest == ""
-                                ? const SizedBox(height: 10)
-                                : Image.memory(
-                                    base64Decode(imagetest),
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    color: Colors.red,
-                    width: width * .85,
-                    margin: const EdgeInsets.only(right: 10.0),
-                    child: imagetest == ""
-                        ? const SizedBox(height: 10)
-                        : Image.memory(
-                            base64Decode(imagetest),
-                            // fit: BoxFit.cover,
-                          ),
-                  ),
-                ),
+              QuiestionColumn(
+                context: context,
+                width: width,
+                testProvider: testProvider,
               ),
               Expanded(
                 flex: 2,
                 child: Container(
                   width: width * .85,
                   margin: const EdgeInsets.only(right: 10.0),
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, childAspectRatio: 1.7),
-                    itemCount: testProvider.currentQuestion!.options.length,
-                    itemBuilder: (context, index) {
-                      return OptionsButton(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xff18206f),
-                            width: 1.3,
+                  child: testProvider.currentQuestion!.type == "text"
+                      ? TextField(
+                          decoration: const InputDecoration(
+                            hintText: "Type your answer",
                           ),
-                          color: testProvider.currentQuestion!.useranswer ==
-                                  testProvider.currentQuestion!.options[index]
-                              ? Colors.green.shade700
-                              : Colors.white10,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(10),
+                          onChanged: (value) {
+                            // testProvider.currentQuestion!.useranswer = value;
+                            onAnswerSelected(value);
+                          },
+                        )
+                      : GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.7,
                           ),
+                          itemCount:
+                              testProvider.currentQuestion!.options.length,
+                          itemBuilder: (context, index) {
+                            return OptionsButton(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xff18206f),
+                                  width: 1.3,
+                                ),
+                                color:
+                                    testProvider.currentQuestion!.useranswer ==
+                                            testProvider
+                                                .currentQuestion!.options[index]
+                                        ? Colors.green.shade700
+                                        : Colors.white10,
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                              ),
+                              text: "${String.fromCharCode(65 + index)}). ",
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                "${String.fromCharCode(65 + index)}) ${testProvider.currentQuestion!.options[index]} ",
+                                style: GoogleFonts.roboto(
+                                  color: const Color(0xff18206f),
+                                  fontSize: 19.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              onPressed: () => onAnswerSelected(
+                                testProvider.currentQuestion!.options[index],
+                              ),
+                            );
+                          },
                         ),
-                        text: "${String.fromCharCode(65 + index)}). ",
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          "${String.fromCharCode(65 + index)}) ${testProvider.currentQuestion!.options[index]} ",
-                          style: GoogleFonts.roboto(
-                            color: const Color(0xff18206f),
-                            fontSize: 19.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        onPressed: () => onAnswerSelected(
-                          testProvider.currentQuestion!.options[index],
-                        ),
-                      );
-                    },
-                  ),
                 ),
               ),
               Row(
@@ -306,5 +342,54 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+}
+
+class QuiestionColumn extends StatelessWidget {
+  const QuiestionColumn({
+    super.key,
+    required this.context,
+    required this.width,
+    required this.testProvider,
+  });
+
+  final BuildContext context;
+  final double width;
+  final TestProvider testProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: testProvider.currentQuestion?.img == null
+                      ? const SizedBox(height: 10)
+                      : Image.memory(
+                          base64Decode(testProvider.currentQuestion!.img!),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+              );
+            },
+          );
+        },
+        child: Container(
+          width: width * .85,
+          margin: const EdgeInsets.only(right: 10.0),
+          child: testProvider.currentQuestion?.img == null
+              ? const SizedBox(height: 10)
+              : Image.memory(
+                  base64Decode(testProvider.currentQuestion!.img!),
+                  fit: BoxFit.cover,
+                ),
+        ),
+      ),
+    );
   }
 }

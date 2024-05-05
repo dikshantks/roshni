@@ -72,15 +72,18 @@ class _StudentProfileScreen extends State<StudentProfileScreen> {
                 ),
               ],
             ),
-            const Positioned(
+            Positioned(
               left: 0,
               right: 0,
               top: 120,
               child: CircleAvatar(
                 radius:
                     75, // Adjust this value to change the size of the CircleAvatar
-                backgroundImage: NetworkImage(
-                    'https://example.com/image.jpg'), // Replace with your image URL
+                backgroundImage: AssetImage(
+                  student.gender == 'M'
+                      ? "assets/images/male.png"
+                      : "assets/images/female.png",
+                ), // Replace with your image URL
               ),
             ),
           ],

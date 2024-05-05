@@ -26,8 +26,6 @@ class FacilitatorProvider extends ChangeNotifier {
     try {
       logger.i('Registering student... provider ');
       responseBody = await _apiService.registerStudent(studentData);
-      // Optionally refetch students if you want an immediate update:
-      // await fetchStudents();
     } catch (error) {
       _error = error.toString();
       print('Error registering student: $_error');
@@ -44,7 +42,7 @@ class FacilitatorProvider extends ChangeNotifier {
     notifyListeners();
 
     final box = await Hive.openBox<Student>('students');
-
+    logger.i('Fetching students... provider ');
     try {
       final fetchedStudents = await _apiService.fetchStudents();
       for (var student in fetchedStudents) {

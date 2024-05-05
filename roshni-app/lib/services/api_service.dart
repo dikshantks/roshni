@@ -50,15 +50,20 @@ class QuestionService {
       final jsonData = jsonDecode(response.body);
 
       final questionsData = jsonData['questions'] as List;
+      logger.i("question api $testID done : ${questionsData.length}");
       final one = questionsData.map((q) => Question.fromJson(q)).toList();
       print("question api done : ${questionsData.length} ${one.length}");
       return one;
     } else {
       // Handle errors (consider throwing an exception)
       if (kDebugMode) {
-        print("fetch question issue");
+        print(
+          "fetch question issue",
+        );
       }
-      throw Exception('Failed to fetch questions');
+      throw Exception(
+        'Failed to fetch questions',
+      );
     }
   }
 }

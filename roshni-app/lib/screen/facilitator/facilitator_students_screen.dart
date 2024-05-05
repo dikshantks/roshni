@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
+import 'package:roshni_app/screen/student/results_screen.dart';
 import 'package:roshni_app/services/api_service.dart';
 
 class StudentRegisterScreen extends StatefulWidget {
@@ -25,8 +28,15 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var authprovier = Provider.of<AuthProvider>(context);
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: const Center(child: Text('Register Student')),
+        automaticallyImplyLeading: false,
+      ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 255, 120, 120),
         onPressed: () {
           logger.i('Add Student');
           showModalBottomSheet(
@@ -39,45 +49,170 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: Consumer<FacilitatorProvider>(
-        builder: (context, facilitatorProvider, child) {
-          if (facilitatorProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (facilitatorProvider.error != null) {
-            return const Center(child: Text('An error occurred!'));
-          } else {
-            return DataTable(
-              columns: const [
-                DataColumn(label: Text('Name')),
-                DataColumn(label: Text('Unique ID')),
-                DataColumn(label: Text('Class')),
-              ],
-              rows: facilitatorProvider.students
-                  .map(
-                    (student) => DataRow(
-                      cells: [
-                        DataCell(
-                          Text(
-                            student.firstName,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Consumer<FacilitatorProvider>(
+          builder: (context, facilitatorProvider, child) {
+            if (facilitatorProvider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (facilitatorProvider.error != null) {
+              return const Center(child: Text('An error occurred!'));
+            } else {
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ExpansionTileCard(
+                      baseColor: Colors.redAccent,
+                      expandedColor: Colors.white,
+                      title: Container(
+                        height: 50.0,
+                        child: Row(
+                          children: [
+                            Text(
+                              '${facilitatorProvider.students[index].firstName} ${facilitatorProvider.students[index].lastName}',
+                            ),
+                            const Spacer(),
+                            Text(
+                              "Pin: ${facilitatorProvider.students[index].pin}",
+                            ),
+                            // const Spacer(),
+                          ],
+                        ),
+                      ),
+                      children: [
+                        const Divider(
+                          thickness: 1.0,
+                          height: 1.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              "Center: ${facilitatorProvider.students[index].location}",
+                            ),
+                            Text(
+                              "DOB: ${facilitatorProvider.students[index].dob}",
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                authprovier.setStudent(
+                                  facilitatorProvider.students[index].pin,
+                                );
+                                Navigator.of(context)
+                                    .pushNamed(ResultsScreen.routeName);
+                              },
+                              child: Text(
+                                "check past results ",
+                              ),
+                            ),
                           ),
                         ),
-                        DataCell(
-                          Text(
-                            student.pin,
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            student.location,
-                          ),
-                        ),
+                        // Align(
+
+                        //   alignment: Alignment.centerLeft,
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.symmetric(
+                        //       horizontal: 16.0,
+                        //       vertical: 8.0,
+                        //     ),
+                        //     child: Text(
+                        //       """Hi there, I'm a drop-in replacement for Flutter's ExpansionTile.
+
+                        //   Use me any time you think your app could benefit from being just a bit more Material.
+
+                        //   These buttons control the next card down!""",
+                        //       style: Theme.of(context)
+                        //           .textTheme
+                        //           .bodyMedium!
+                        //           .copyWith(fontSize: 16),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
-                  )
-                  .toList(),
-            );
-          }
-        },
+                  );
+                },
+                itemCount: facilitatorProvider.students.length,
+              );
+              //             return
+
+              //             Column(
+              //               children: [
+              //                 ExpansionTileCard(
+              //                   title: const Text("name"),
+              //                   children: [
+              //                     const Divider(
+              //                       thickness: 1.0,
+              //                       height: 1.0,
+              //                     ),
+              //                     Align(
+              //                       alignment: Alignment.centerLeft,
+              //                       child: Padding(
+              //                         padding: const EdgeInsets.symmetric(
+              //                           horizontal: 16.0,
+              //                           vertical: 8.0,
+              //                         ),
+              //                         child: Text(
+              //                           """Hi there, I'm a drop-in replacement for Flutter's ExpansionTile.
+
+              // Use me any time you think your app could benefit from being just a bit more Material.
+
+              // These buttons control the next card down!""",
+              //                           style: Theme.of(context)
+              //                               .textTheme
+              //                               .bodyMedium!
+              //                               .copyWith(fontSize: 16),
+              //                         ),
+              //                       ),
+              //                     ),
+              //                   ],
+              //                 ),
+              //                 ExpansionTileCard(title: const Text("name")),
+              //               ],
+              //             );
+              // return DataTable(
+              //   columns: const [
+              //     DataColumn(label: Text('Name')),
+              //     DataColumn(label: Text('Unique ID')),
+              //     DataColumn(label: Text('Class')),
+              //   ],
+              //   rows: facilitatorProvi der.students
+              //       .map(
+              //         (student) => DataRow(
+              //           cells: [
+              //             DataCell(
+              //               Text(
+              //                 student.firstName,
+              //               ),
+              //             ),
+              //             DataCell(
+              //               Text(
+              //                 student.pin,
+              //               ),
+              //             ),
+              //             DataCell(
+              //               Text(
+              //                 student.location,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       )
+              //       .toList(),
+              // );
+            }
+          },
+        ),
       ),
     );
   }

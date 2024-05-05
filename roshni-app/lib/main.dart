@@ -50,7 +50,9 @@ void main() async {
         builder: (context, child) => DecoratedBox(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/images/background.png"),
+              image: AssetImage(
+                "assets/images/background.png",
+              ),
               fit: BoxFit.cover,
             ),
           ),

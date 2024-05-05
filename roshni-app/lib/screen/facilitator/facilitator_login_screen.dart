@@ -42,7 +42,8 @@ class _FacilitatorLoginScreen extends State<FacilitatorLoginScreen> {
                 width: screenSize.width,
                 height: screenSize.width * .7,
                 child: Image.asset(
-                    "assets/images/roshni_black-removebg-preview.png"),
+                  "assets/images/roshni_black-removebg-preview.png",
+                ),
               ),
               FormFields(
                 pinController: _pinController,
