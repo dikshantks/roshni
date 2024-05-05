@@ -10,15 +10,11 @@ require("dotenv").config();
 
 const cors = require("cors");
 
-const prodorigins = ["http://localhost:5000"];
-const devorigin = ["http://localhost:5173", "http://localhost:5000"];
-const allowedorigin =
-    process.env.NODE_ENV === "production" ? prodorigins : devorigin;
 const corsOptions = {
     origin: [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://roshni-api.onrender.com",
+        "https://roshni-ochre.vercel.app",
     ],
 
     // origin: (origin, callback) => {
