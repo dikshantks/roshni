@@ -1,7 +1,7 @@
 import React from 'react';
 import { Fragment } from 'react';
 import { Disclosure } from '@headlessui/react';
-import { useLocation } from 'react-router-dom'; // Import useLocation hook
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate hooks
 import classNames from 'classnames';
 
 const navigation = [
@@ -11,14 +11,22 @@ const navigation = [
   { name: 'Funders', href: '/view-funders' },
 ];
 
-export default function Example() {
+export default function Navbar() {
   const location = useLocation(); // Get current location
+  const navigate = useNavigate(); // Get navigate function from useNavigate
 
   // Check if the current path is the login page
   const isLoginPage = location.pathname === '/';
 
   // Render null if it's the login page
   if (isLoginPage) return null;
+
+  const handleSignOut = () => {
+    // Implement signout logic here
+    // For example, clearing localStorage and redirecting to login page
+    localStorage.removeItem('accessToken');
+    navigate('/');
+  };
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -41,6 +49,14 @@ export default function Example() {
                     </a>
                   ))}
                 </div>
+              </div>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <button
+                  onClick={handleSignOut}
+                  className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                >
+                  Sign out
+                </button>
               </div>
             </div>
           </div>
