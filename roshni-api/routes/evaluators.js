@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 // Signup endpoint
 router.post("/signup", async (req, res) => {
     try {
-        const { adminId, firstname, lastname, email, DOB, loc} = req.body;
+        const { adminId, firstname, lastname, email, password, DOB, loc} = req.body;
 
         // Validate user input
         if (!adminId || !firstname ||!lastname || !email || !DOB || !loc) {
@@ -34,8 +34,6 @@ router.post("/signup", async (req, res) => {
           error: "Invalid DOB format. Please use DD-MM-YYYY."
         });
       }
-        // Generate a unique password
-        const password = crypto.randomBytes(5).toString('hex');
 
         async function generateUniquePin() {
             let evalID;
