@@ -11,32 +11,13 @@ require("dotenv").config();
 const cors = require("cors");
 
 const corsOptions = {
-    origin: [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://roshni-ochre.vercel.app",
-    ],
+    origin: ["http://localhost:5173", "https://roshni-ochre.vercel.app"],
 
-    // origin: (origin, callback) => {
-    //     console.log("Incoming Request Origin:", origin);
-    //     if (allowedorigin.includes(origin)) {
-    //         console.log(origin, allowedorigin);
-    //         callback(null, true);
-    //     } else {
-    //         callback(new Error("Not allowed by CORS"));
-    //     }
-    // },
     credentials: true, //access-control-allow-credentials:true
     methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
     optionSuccessStatus: 200,
 };
 
-// if (process.env.NODE_ENV === "production") {
-//     console.log(1);
-//     app.use(cors());
-// } else {
-//     app.use(cors(corsOptions));
-// }
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api/students", studentRoutes);
@@ -45,6 +26,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/funder", fundRoutes);
 app.use("/api/results", resultRoutes);
+
 app.use((err, req, res, next) => {
     console.error(err.stack); // Log the error for debugging
     res.status(500).json({ message: "Something went wrong!" });

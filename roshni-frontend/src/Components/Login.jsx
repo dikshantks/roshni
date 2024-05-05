@@ -4,6 +4,7 @@ import Dashboard from "./Dashboard"; // Import the Dashboard component
 import { FaUser, FaLock } from "react-icons/fa";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+// require('dotenv').config();
 const Login = () => {
   const [adminID, setadminID] = useState("");
   const [password, setPassword] = useState("");
@@ -27,24 +28,21 @@ const Login = () => {
     } else if (password.length < 8) {
       error += (error ? "\n" : "") + "Password must be at least 8 characters long.";
     }
-
-    // Display error message if any
     if (error) {
       setError(error);
-      return false; // Prevent form submission if there are errors
+      return false; 
     }
     return true;
-  };
+  };// Prevent form submission if there are errors
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (validateForm(e)) { // Pass the event object to validateForm
       const userCredentials = { adminID, password };
       console.log("User credentials:", userCredentials  )
-      // const apiEndpoint = "http://localhost:5000/api/admin/login";
-      const apiEndpoint = "https://roshni-api.onrender.com/api/admin/login";
-      
+      // const apiEndpoint = "https://roshni-api.onrender.com/api/admin/login";
+      const apiEndpoint = `${import.meta.env.VITE_API_URL}/admin/login`;
+
       axios.post(apiEndpoint, userCredentials)
         .then((response) => {
           console.log('Login up successful!', response.data);

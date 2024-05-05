@@ -27,7 +27,7 @@ const ViewFunder = () => {
   const fetchFunders = async () => {
     try {
       const adminID = localStorage.getItem("accessToken");
-      const response = await axios.get(`http://localhost:5000/api/admin/${adminID}/funders`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/${adminID}/funders`);
       setFunders(response.data.funders);
       console.log(response.data.funders);
     } catch (error) {
@@ -39,7 +39,7 @@ const ViewFunder = () => {
   const handleDelete = async (fundID) => {
     try {
       const adminID = localStorage.getItem("accessToken");
-      const response = await axios.delete(`http://localhost:5000/api/admin/${adminID}/funders/${fundID}`);
+      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/admin/${adminID}/funders/${fundID}`);
       if (response.status === 200) {
         setFunders((prevFunders) => prevFunders.filter((funder) => funder.fundID !== fundID));
         console.log("Funder deleted successfully");
@@ -84,7 +84,7 @@ const ViewFunder = () => {
     e.preventDefault();
     try {
       const adminID = localStorage.getItem("accessToken");
-      const response = await axios.put(`http://localhost:5000/api/admin/${adminID}/funders/${selectedFunder.fundID}`, updateData);
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/admin/${adminID}/funders/${selectedFunder.fundID}`, updateData);
       if (response.status === 200) {
         const updatedFunders = funders.map((funder) => {
           if (funder.fundID === selectedFunder.fundID) {

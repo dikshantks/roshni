@@ -72,7 +72,7 @@ const TestQuestions = () => {
     event.preventDefault();
     try {
       console.log("Deleting question with ID:", questionID);
-      const response = await axios.delete(`http://localhost:5000/api/tests/${testID}/questions/${questionID}`);
+      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/tests/${testID}/questions/${questionID}`);
       console.log(response.data, response.data.message)
       if (response.data.message === "Question deleted successfully") {
         setTestData(testData.filter(question => question.questionID !== questionID)); 
@@ -102,7 +102,7 @@ const TestQuestions = () => {
   //   });
   
   //   try {
-  //     const response = await axios.put(`http://localhost:5000/api/tests/${testID}/questions/${question.questionID}`, updateData);
+  //     const response = await axios.put(`${import.meta.env.VITE_API_URL}/tests/${testID}/questions/${question.questionID}`, updateData);
   //     if (response.data.message === "Question updated successfully") {
   //       const updatedQuestions = questions.map((q) => {
   //         if (q.questionID === question.questionID) {
@@ -125,7 +125,7 @@ const TestQuestions = () => {
   const getQuestions = async () => {
     try {
         console.log("Fetching questions for test ID in QuesView:", testID);
-        const response = await axios.get(`http://localhost:5000/api/tests/${testID}/questions`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/tests/${testID}/questions`);
 
         // Logging data 
         const quesData = response.data;

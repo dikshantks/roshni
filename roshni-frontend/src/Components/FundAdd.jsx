@@ -53,7 +53,7 @@ const FundAdd = () => {
     if (validateForm()) {
       const funderData = { organizationName, email, password, locations };
       const adminId = localStorage.getItem("accessToken"); // Replace with actual admin ID
-      const apiEndpoint = `http://localhost:5000/api/admin/${adminId}/funders`;
+      const apiEndpoint = `${import.meta.env.VITE_API_URL}/admin/${adminId}/funders`;
 
       axios
         .post(apiEndpoint, funderData)
