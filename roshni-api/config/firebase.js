@@ -1,6 +1,6 @@
 // Import necessary functions
-const { initializeApp } = require("firebase/app");
-const { getFirestore } = require("firebase/firestore");
+// const { initializeApp } = require("firebase/app");
+// const { getFirestore } = require("firebase/firestore");
 const admin = require("firebase-admin");
 require("dotenv").config();
 

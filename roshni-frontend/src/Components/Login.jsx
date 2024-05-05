@@ -42,8 +42,8 @@ const Login = () => {
     if (validateForm(e)) { // Pass the event object to validateForm
       const userCredentials = { adminID, password };
       console.log("User credentials:", userCredentials  )
-      const apiEndpoint = "https://localhost:5000/api/admin/login";
-      // const apiEndpoint = "http:/roshni-api.onrender.com/api/admin/login";
+      // const apiEndpoint = "http://localhost:5000/api/admin/login";
+      const apiEndpoint = "https:/roshni-api.onrender.com/api/admin/login";
       
       axios.post(apiEndpoint, userCredentials)
         .then((response) => {
