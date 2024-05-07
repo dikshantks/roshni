@@ -9,6 +9,9 @@ import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
+import 'package:roshni_app/screen/common/onboarding_screen.dart';
+import 'package:roshni_app/screen/facilitator/facilitator_screen.dart';
+import 'package:roshni_app/screen/student/student_screen.dart';
 import 'package:roshni_app/services/api_service.dart';
 import 'package:roshni_app/utils/route_generation.dart';
 import 'package:roshni_app/themes/themes.dart';
@@ -42,10 +45,44 @@ void main() async {
           ),
         ),
       ],
+      // child: MaterialApp(
+      //   theme: theme1,
+      //   debugShowCheckedModeBanner: false,
+      //   initialRoute: '/',
+      //   onGenerateRoute: onGenerateRoute,
+      //   builder: (context, child) => DecoratedBox(
+      //     decoration: const BoxDecoration(
+      //       image: DecorationImage(
+      //         image: AssetImage(
+      //           "assets/images/background.png",
+      //         ),
+      //         fit: BoxFit.cover,
+      //       ),
+      //     ),
+      //     child: child,
+      //   ),
+      // ),
       child: MaterialApp(
         theme: theme1,
         debugShowCheckedModeBanner: false,
-        initialRoute: '/',
+        home: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            if (authProvider.facilitator == null &&
+                authProvider.student == null) {
+              return const OnboardingScreen();
+            } else if (authProvider.facilitator != null) {
+              return const FacilitatorScreen();
+            } else if (authProvider.student != null &&
+                authProvider.facilitator == null) {
+              return const StudentScreen();
+            } else {
+              logger.i(authProvider.status);
+              return const Center(
+                child: CircularProgressIndicator(),
+              ); // Show a loading spinner while waiting for auth state
+            }
+          },
+        ),
         onGenerateRoute: onGenerateRoute,
         builder: (context, child) => DecoratedBox(
           decoration: const BoxDecoration(

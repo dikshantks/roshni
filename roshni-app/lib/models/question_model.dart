@@ -36,6 +36,7 @@ class Question {
     required dynamic correct,
     required this.difficulty,
     required this.options,
+    required this.img,
     this.useranswer,
   }) : this.correct = correct is List<dynamic> ? correct : [correct];
 
@@ -49,6 +50,7 @@ class Question {
       correct: json['correct'],
       difficulty: json['difficulty'],
       options: json['options'],
+      img: json["imageUrl"],
     );
   }
 }

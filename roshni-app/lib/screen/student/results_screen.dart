@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:roshni_app/models/result_model.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
 import 'package:roshni_app/screen/common/after_quiz_screen.dart';
-import 'package:roshni_app/services/api_service.dart';
 
 class ResultsScreen extends StatefulWidget {
   static const routeName = '/student/results';
@@ -16,18 +16,50 @@ class ResultsScreen extends StatefulWidget {
 }
 
 class _ResultsScreenState extends State<ResultsScreen> {
+  void postAllResults(List<Result> results) async {
+    for (var result in results) {
+      try {
+        await Provider.of<TestProvider>(context, listen: false)
+            .postResults(result);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Failed to post results for test ${result.testID}')),
+        );
+        return; // Stop posting if one fails
+      }
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('All results posted successfully')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var studetntprovider = Provider.of<AuthProvider>(context);
+    var studentProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
-          appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
         centerTitle: true,
         title: const Text("Past Results"),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.send),
+            onPressed: () {
+              final results = Provider.of<TestProvider>(context, listen: false)
+                  .getResultsForStudent(studentProvider.student!.pin);
+              if (results != null) {
+                postAllResults(results);
+              }
+            },
+          ),
+        ],
       ),
       body: Consumer<TestProvider>(
         builder: (context, testProvider, child) {
           final results =
-              testProvider.getResultsForStudent(studetntprovider.student!.pin);
+              testProvider.getResultsForStudent(studentProvider.student!.pin);
 
           if (results == null) {
             return const Center(
@@ -81,8 +113,7 @@ class ProfileListTiles1 extends StatelessWidget {
           testProvider.currentTest = testProvider.getTestById(question);
           testProvider.calculateScore();
           testProvider.calculateTotalMarks();
-          logger.i('Score: ${testProvider.score}');
-          logger.i('Total Marks: ${testProvider.currentTest}');
+
           Navigator.of(context).pushReplacementNamed(AfterQuizScreen.routeName);
         },
         title: Text(
@@ -103,7 +134,7 @@ class ProfileListTiles1 extends StatelessWidget {
                 ),
               ),
               Text(
-                "Time of Attmepting : $userAnswer",
+                "Attemtpted on: $userAnswer",
                 style: GoogleFonts.roboto(
                   textStyle: Theme.of(context).textTheme.bodyMedium,
                 ),

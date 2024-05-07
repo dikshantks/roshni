@@ -359,6 +359,8 @@ class QuiestionColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    logger.i(testProvider.currentQuestion!.img);
+    const prefix = 'data:image/png;base64,';
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -371,7 +373,8 @@ class QuiestionColumn extends StatelessWidget {
                   child: testProvider.currentQuestion?.img == null
                       ? const SizedBox(height: 10)
                       : Image.memory(
-                          base64Decode(testProvider.currentQuestion!.img!),
+                          base64Decode(testProvider.currentQuestion!.img!
+                              .substring(prefix.length)),
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -385,7 +388,8 @@ class QuiestionColumn extends StatelessWidget {
           child: testProvider.currentQuestion?.img == null
               ? const SizedBox(height: 10)
               : Image.memory(
-                  base64Decode(testProvider.currentQuestion!.img!),
+                  base64Decode(testProvider.currentQuestion!.img!
+                      .substring(prefix.length)),
                   fit: BoxFit.cover,
                 ),
         ),

@@ -24,10 +24,9 @@ class QuestionAdapter extends TypeAdapter<Question> {
       correct: fields[4] as dynamic,
       difficulty: fields[5] as String,
       options: (fields[6] as List).cast<dynamic>(),
+      img: fields[8] as String?,
       useranswer: fields[7] as String?,
-    )
-      ..img = fields[8] as String?
-      ..marks = fields[9] as int?;
+    )..marks = fields[9] as int?;
   }
 
   @override

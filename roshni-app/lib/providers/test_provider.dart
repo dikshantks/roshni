@@ -4,6 +4,8 @@ import 'package:roshni_app/models/question_model.dart';
 import 'package:roshni_app/models/result_model.dart';
 import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/services/api_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TestProvider extends ChangeNotifier {
   final TestService testService;
@@ -57,12 +59,9 @@ class TestProvider extends ChangeNotifier {
     if (_tests.isEmpty) {
       await _fetchAndStoreTestsFromApi();
     }
-    // } catch (error) {
-    //   _handleError(error);
-    // } finally {
+
     _isLoading = false;
     notifyListeners();
-    // }
   }
 
   void saveResult(String testID, String studentPin) {
@@ -141,6 +140,27 @@ class TestProvider extends ChangeNotifier {
         .toList();
   }
 
+  Future<void> postResults(Result result) async {
+    final response = await http.post(
+      Uri.parse('https://roshni-api.onrender.com/api/results/add'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'testID': result.testID,
+        'testScores': {
+          result.studentPin: result.score.toString(),
+        },
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Results posted successfully');
+    } else {
+      throw Exception('Failed to post results');
+    }
+  }
+
   Future<void> fetchAndStoreQuestionsForTest(Test test) async {
     // try {
     await openHiveBoxes();
@@ -148,7 +168,9 @@ class TestProvider extends ChangeNotifier {
     logger.i("test : ${test.testID} - ${questions.length} ");
     for (final question in questions) {
       await _questionBox?.put(
-          question.key, question); // Use the key when adding data
+        question.key,
+        question,
+      ); // Use the key when adding data
     }
     print(
         "fetched questions -- ${test.testID} - ${questions.length} - ${_questionBox?.length ?? "hk"}");
@@ -197,26 +219,15 @@ class TestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // int calculateScore() {
-  //   _score = _questions.fold(
-  //     0,
-  //     (prev, q) => prev + (q.correct == q.useranswer ? (q.marks ?? 1) : 0),
-  //   );
-
-  //   notifyListeners();
-  //   return _score;
-  // }
   int calculateScore() {
     _score = 0;
     for (Question q in _questions) {
       if (q.type == 'text') {
-        // Assuming q.correct is List<String>
-        // double similarityScore = calculateSimilarity(q.useranswer, q.correct);
-        double similarityScore = .5;
-        _score += (similarityScore * (q.marks ?? 0)).toInt();
+        // double similarityScore = .5;
+        // _score += (similarityScore * (q.marks ?? 1)).toInt();
+        _score += (q.correct[0] == q.useranswer ? q.marks ?? 1 : 0);
       } else {
-        // Assuming q.correct is a String
-        _score += (q.correct[0] == q.useranswer ? q.marks ?? 0 : 0);
+        _score += (q.correct[0] == q.useranswer ? q.marks ?? 1 : 0);
 
         logger.i("score $score");
       }

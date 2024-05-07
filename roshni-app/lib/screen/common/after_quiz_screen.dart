@@ -116,7 +116,9 @@ class ProfileListTiles extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
-          color: Colors.redAccent.shade100),
+          color: correctAnswer == userAnswer
+              ? Colors.greenAccent.shade200
+              : Colors.redAccent.shade100),
       child: ListTile(
         title: Text(
           question,
