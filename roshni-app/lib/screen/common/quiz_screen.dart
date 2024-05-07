@@ -9,6 +9,7 @@ import 'package:roshni_app/providers/test_provider.dart';
 import 'package:roshni_app/screen/common/after_quiz_screen.dart';
 import 'package:roshni_app/services/api_service.dart';
 import 'package:roshni_app/widgets/buttons.dart';
+import 'package:roshni_app/widgets/form_field.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 
 class QuestionsScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Are you sure?'),
+          title: const Text('Leave Quiz?'),
           content: const Text(
             'Are you sure you want to leave this page?',
           ),
@@ -214,125 +215,130 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     final height = MediaQuery.of(context).size.height;
 
     return Padding(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.only(
-              top: 20, left: 20, right: 10.0, bottom: 15.0),
-          width: width,
-          height: height * .78,
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 10,
-                spreadRadius: 1,
-                color: const Color(0xff161a1d).withOpacity(.2),
-              ),
-            ],
-            color: const Color(0xfffff0f3),
-            borderRadius: const BorderRadius.all(Radius.circular(25)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: width,
-                child: Text(
-                  testProvider.currentQuestion!.text,
-                  style: GoogleFonts.roboto(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 20,
+        child: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.only(
+                top: 20, left: 20, right: 10.0, bottom: 15.0),
+            width: width,
+            height: height * .78,
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                  color: const Color(0xff161a1d).withOpacity(.2),
+                ),
+              ],
+              color: const Color(0xfffff0f3),
+              borderRadius: const BorderRadius.all(Radius.circular(25)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                QuestionColumn(
+                  width: width,
+                  testProvider: testProvider,
+                ),
+                ImageColumn(
+                  context: context,
+                  width: width,
+                  testProvider: testProvider,
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    width: width * .85,
+                    margin: const EdgeInsets.only(right: 10.0),
+                    child: testProvider.currentQuestion!.type == "text"
+                        ? Center(
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                  hintText: "Type your answer",
+                                  // labelText: label,
+                                  labelStyle:
+                                      const TextStyle(color: Colors.black),
+                                  errorBorder: textFieldBorder(),
+                                  focusedErrorBorder: textFieldBorder(),
+                                  errorStyle: const TextStyle(fontSize: 14),
+                                  border: textFieldBorder(),
+                                  enabledBorder: textFieldBorder(),
+                                  focusedBorder: textFieldBorder()),
+                              onChanged: (value) {
+                                onAnswerSelected(value);
+                              },
+                            ),
+                          )
+                        : GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 1.7,
+                            ),
+                            itemCount:
+                                testProvider.currentQuestion!.options.length,
+                            itemBuilder: (context, index) {
+                              return OptionsButton(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: const Color(0xff18206f),
+                                    width: 1.3,
+                                  ),
+                                  color: testProvider
+                                              .currentQuestion!.useranswer ==
+                                          testProvider
+                                              .currentQuestion!.options[index]
+                                      ? Colors.green.shade700
+                                      : Colors.white10,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                text: "${String.fromCharCode(65 + index)}). ",
+                                child: Text(
+                                  textAlign: TextAlign.center,
+                                  "${String.fromCharCode(65 + index)}) ${testProvider.currentQuestion!.options[index]} ",
+                                  style: GoogleFonts.roboto(
+                                    color: const Color(0xff18206f),
+                                    fontSize: 19.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                onPressed: () => onAnswerSelected(
+                                  testProvider.currentQuestion!.options[index],
+                                ),
+                              );
+                            },
+                          ),
                   ),
                 ),
-              ),
-              QuiestionColumn(
-                context: context,
-                width: width,
-                testProvider: testProvider,
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  width: width * .85,
-                  margin: const EdgeInsets.only(right: 10.0),
-                  child: testProvider.currentQuestion!.type == "text"
-                      ? TextField(
-                          decoration: const InputDecoration(
-                            hintText: "Type your answer",
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    testProvider.currentQuestionIndex == 0
+                        ? const SizedBox(
+                            width: 20,
+                          )
+                        : RoundButton3(
+                            onPressed: testProvider.previousQuestion,
+                            text: 'Previous',
                           ),
-                          onChanged: (value) {
-                            // testProvider.currentQuestion!.useranswer = value;
-                            onAnswerSelected(value);
-                          },
-                        )
-                      : GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.7,
-                          ),
-                          itemCount:
-                              testProvider.currentQuestion!.options.length,
-                          itemBuilder: (context, index) {
-                            return OptionsButton(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xff18206f),
-                                  width: 1.3,
-                                ),
-                                color:
-                                    testProvider.currentQuestion!.useranswer ==
-                                            testProvider
-                                                .currentQuestion!.options[index]
-                                        ? Colors.green.shade700
-                                        : Colors.white10,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              text: "${String.fromCharCode(65 + index)}). ",
-                              child: Text(
-                                textAlign: TextAlign.center,
-                                "${String.fromCharCode(65 + index)}) ${testProvider.currentQuestion!.options[index]} ",
-                                style: GoogleFonts.roboto(
-                                  color: const Color(0xff18206f),
-                                  fontSize: 19.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              onPressed: () => onAnswerSelected(
-                                testProvider.currentQuestion!.options[index],
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  testProvider.currentQuestionIndex == 0
-                      ? const SizedBox(
-                          width: 20,
-                        )
-                      : RoundButton3(
-                          onPressed: testProvider.previousQuestion,
-                          text: 'Previous',
-                        ),
-                  RoundButton2(
-                    text: testProvider.currentQuestionIndex <
-                            testProvider.questions.length - 1
-                        ? 'Next'
-                        : 'Finish',
-                    onPressed: testProvider.currentQuestionIndex <
-                            testProvider.questions.length - 1
-                        ? testProvider.nextQuestion
-                        : onQuizFinished,
-                  ),
-                ],
-              )
-            ],
+                    RoundButton2(
+                      text: testProvider.currentQuestionIndex <
+                              testProvider.questions.length - 1
+                          ? 'Next'
+                          : 'Finish',
+                      onPressed: testProvider.currentQuestionIndex <
+                              testProvider.questions.length - 1
+                          ? testProvider.nextQuestion
+                          : onQuizFinished,
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -345,8 +351,34 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   }
 }
 
-class QuiestionColumn extends StatelessWidget {
-  const QuiestionColumn({
+class QuestionColumn extends StatelessWidget {
+  const QuestionColumn({
+    super.key,
+    required this.width,
+    required this.testProvider,
+  });
+
+  final double width;
+  final TestProvider testProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Text(
+        testProvider.currentQuestion!.text,
+        style: GoogleFonts.roboto(
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+        ),
+      ),
+    );
+  }
+}
+
+class ImageColumn extends StatelessWidget {
+  const ImageColumn({
     super.key,
     required this.context,
     required this.width,
@@ -390,7 +422,7 @@ class QuiestionColumn extends StatelessWidget {
               : Image.memory(
                   base64Decode(testProvider.currentQuestion!.img!
                       .substring(prefix.length)),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
         ),
       ),

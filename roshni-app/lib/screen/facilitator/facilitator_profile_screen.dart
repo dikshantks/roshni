@@ -34,6 +34,25 @@ class _FacilitatorProfileScreen extends State<FacilitatorProfileScreen> {
                   height: 200,
                   width: double.infinity,
                   color: Colors.redAccent,
+                  child: Align(
+                    child: Consumer<TestProvider>(
+                      builder: (context, testProvider, child) {
+                        return Center(
+                          child: testProvider.isLoading // Check if loading
+                              ? CircularProgressIndicator(
+                                  // radius: 80.0,
+                                  ) // Show indicator
+                              : Column(
+                                  // Show your normal content when not loading
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Your buttons, lists, etc.
+                                  ],
+                                ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 75, left: 20, right: 20),

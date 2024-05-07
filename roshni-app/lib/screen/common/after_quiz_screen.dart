@@ -4,6 +4,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 class AfterQuizScreen extends StatefulWidget {
   static const routeName = '/quiz/result';
@@ -62,6 +63,9 @@ class _AfterQuizScreenState extends State<AfterQuizScreen> {
                       lineWidth: 15.0,
                       percent: testProvider.score / testProvider.totalmarks,
                       // circularStrokeCap: CircularStrokeCap.round,
+                      center: Text(
+                        "${(testProvider.score / testProvider.totalmarks) * 100} %",
+                      ),
                       rotateLinearGradient: true,
                       arcType: ArcType.FULL,
                       arcBackgroundColor: Colors.grey,
@@ -81,13 +85,22 @@ class _AfterQuizScreenState extends State<AfterQuizScreen> {
                 child: ListView.builder(
                   itemCount: testProvider.questions.length,
                   itemBuilder: (context, index) {
-                    return ProfileListTiles(
-                      question:
-                          "Q${index + 1}) ${testProvider.questions[index].text}",
-                      correctAnswer: testProvider.questions[index].correct[0],
-                      userAnswer:
-                          testProvider.questions[index].useranswer ?? "",
-                    );
+                    final question = testProvider.questions[index];
+                    return question.type == "text"
+                        ? ProfileListTiles1(
+                            question:
+                                "Q${index + 1}) ${question.text} Marks:${question.marks ?? "hmm"}",
+                            correctAnswer: question.correct[
+                                0], // Assuming the first item is the correct answer
+                            userAnswer: question.useranswer ?? "",
+                            correctAnswers: question
+                                .correct, // Pass the list of correct answers
+                          )
+                        : ProfileListTiles(
+                            question: "Q${index + 1}) ${question.text}",
+                            correctAnswer: question.correct[0],
+                            userAnswer: question.useranswer ?? "",
+                          );
                   },
                 ),
               ),
@@ -143,6 +156,91 @@ class ProfileListTiles extends StatelessWidget {
                   textStyle: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileListTiles1 extends StatelessWidget {
+  final String question;
+  final String correctAnswer;
+  final String userAnswer;
+  final List<dynamic>
+      correctAnswers; // Assuming this is a list of correct answers for text type questions
+
+  const ProfileListTiles1({
+    super.key,
+    required this.question,
+    required this.correctAnswer,
+    required this.userAnswer,
+    required this.correctAnswers,
+  });
+
+  double calculateSimilarityScore(
+      String userAnswer, List<dynamic> correctAnswers) {
+    double maxSimilarity = 0.0;
+
+    for (String answer in correctAnswers) {
+      double similarity =
+          StringSimilarity.compareTwoStrings(userAnswer, answer);
+      if (similarity > maxSimilarity) {
+        maxSimilarity = similarity;
+      }
+    }
+    return maxSimilarity;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Calculate similarity score for text type questions
+    double similarityScore =
+        calculateSimilarityScore(userAnswer, correctAnswers);
+    bool isCorrect =
+        similarityScore >= 0.8; // You can adjust this threshold as needed
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color:
+            isCorrect ? Colors.greenAccent.shade200 : Colors.redAccent.shade100,
+      ),
+      child: ListTile(
+        title: Text(
+          question,
+          style: GoogleFonts.roboto(
+            textStyle: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Correct: $correctAnswer",
+                style: GoogleFonts.roboto(
+                  textStyle: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Text(
+                "Your answer: $userAnswer",
+                style: GoogleFonts.roboto(
+                  textStyle: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              if (!isCorrect) ...[
+                Text(
+                  "Similarity Score: ${similarityScore.toStringAsFixed(2)}",
+                  style: GoogleFonts.roboto(
+                    textStyle: Theme.of(context).textTheme.bodySmall,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:string_similarity/string_similarity.dart'; // You'll need an external library like 'fuzzy'
 
 class TestProvider extends ChangeNotifier {
   final TestService testService;
@@ -41,7 +42,18 @@ class TestProvider extends ChangeNotifier {
       (_questions.isNotEmpty && _currentQuestionIndex < _questions.length)
           ? _questions[_currentQuestionIndex]
           : null;
+  Test? _currentTest;
   Test? get currentTest => _currentTest;
+
+  set currentTest(Test? test) {
+    _currentTest = test;
+    notifyListeners();
+  }
+
+  set currentQuestionIndex(int idx) {
+    _currentQuestionIndex = idx;
+    notifyListeners();
+  }
 
   Future<void> openHiveBoxes() async {
     _testBox = await Hive.openBox<Test>('testBox');
@@ -50,18 +62,181 @@ class TestProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTests() async {
+    DateTime startTime = DateTime.now();
+
+    logger.i("AAAAAAfethcing lading func 1");
     await Hive.openBox<Test>('testBox');
 
     _isLoading = true;
+    notifyListeners();
+
     _error = null;
-    // try {
-    await _loadCachedTests();
-    if (_tests.isEmpty) {
+
+    final one = await _loadCachedTests();
+    if (one.isEmpty) {
       await _fetchAndStoreTestsFromApi();
     }
 
     _isLoading = false;
     notifyListeners();
+    DateTime endTime = DateTime.now(); // Record the end time
+    Duration difference =
+        endTime.difference(startTime); // Calculate the difference
+
+    logger.i(
+      "AAAAAAfethcing lading func 1|${_tests.length} |${_tests.length}|time ${difference.inMilliseconds}",
+    );
+  }
+
+  Future<void> fetchAndStoreQuestionsForTest(Test test) async {
+    logger.i("AAAAAfethcing question 1");
+
+    // try {
+    await openHiveBoxes();
+    final questions = await questionService.fetchQuestionsForTest(test.testID);
+    logger.i("test : ${test.testID} - ${questions.length} ");
+    for (final question in questions) {
+      await _questionBox?.put(
+        question.key,
+        question,
+      ); // Use the key when adding data
+    }
+    // print(
+    //   "fetched questions -- ${test.testID} - ${questions.length} - ${_questionBox?.length ?? "hk"}",
+    // );
+    logger.i(
+        "AAAAAfethcing question  ${test.testID} - ${questions.length} - ${_questionBox?.length ?? "hk"}");
+  }
+
+  Future<List<Question>> fetchQuestionsFromHive(
+      List<dynamic> questionIds) async {
+    await openHiveBoxes();
+
+    try {
+      final questions = _questionBox!.values
+          .where((question) => questionIds.contains(question.questionID))
+          .toList();
+      logger.i("${questionIds.length} hmm ${questions.length} , ");
+      _questions = questions;
+    } catch (e) {
+      logger.e("error here ${e.toString()}");
+      _questions = [];
+    }
+
+    return questions;
+  }
+
+  Future<List<Test>> _loadCachedTests() async {
+    _testBox = await Hive.openBox<Test>('testBox');
+
+    List<Test> cachedTests = _testBox?.values.toList() ?? [];
+    if (cachedTests.isNotEmpty) {
+      _tests = cachedTests;
+      notifyListeners();
+      return _tests;
+    }
+    for (final test in cachedTests) {
+      await fetchAndStoreQuestionsForTest(test);
+    }
+    notifyListeners();
+    return _tests;
+  }
+
+  Future<void> _fetchAndStoreTestsFromApi() async {
+    DateTime startTime = DateTime.now();
+    logger.i("AAAAAAfethcing api 1");
+    final fetchedTests = await testService.fetchAllTests();
+    await _testBox?.addAll(fetchedTests);
+    await _questionBox?.clear(); // Clear the box before adding new data
+
+    for (final test in fetchedTests) {
+      await fetchAndStoreQuestionsForTest(test);
+    }
+    _tests = fetchedTests;
+    logger.i("AAAAAfethcing api done");
+    DateTime endTime = DateTime.now(); // Record the end time
+    Duration difference =
+        endTime.difference(startTime); // Calculate the difference
+
+    logger.i(
+        'AAAAAAFunction execution time: ${difference.inMilliseconds} milliseconds');
+  }
+
+  void nextQuestion() {
+    if (_currentQuestionIndex < _questions.length - 1) {
+      _currentQuestionIndex++;
+      notifyListeners();
+    }
+  }
+
+  void previousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      _currentQuestionIndex--;
+      notifyListeners();
+    }
+  }
+
+  void resetQuiz() {
+    _score = 0;
+    _currentQuestionIndex = 0;
+    notifyListeners();
+  }
+
+  void selectAnswer(String answer) {
+    _questions[_currentQuestionIndex].useranswer = answer;
+    notifyListeners();
+  }
+
+  int calculateSimilarityScore(
+      String? userAnswer, List<dynamic> correctAnswers) {
+    double maxSimilarity = 0.0;
+
+    for (String correctAnswer in correctAnswers) {
+      if (userAnswer != null) {
+        double similarity =
+            StringSimilarity.compareTwoStrings(userAnswer, correctAnswer);
+
+        if (similarity > maxSimilarity) {
+          maxSimilarity = similarity;
+        }
+      }
+    }
+
+    logger.i("similairty  ");
+
+    return maxSimilarity.toInt();
+  }
+
+  int calculateScore() {
+    _score = 0;
+    for (Question q in _questions) {
+      if (q.type == 'text') {
+        _score +=
+            calculateSimilarityScore(q.useranswer, q.correct) * (q.marks ?? 1);
+      } else {
+        _score += (q.correct[0] == q.useranswer ? q.marks ?? 1 : 0);
+        logger.i("score $score");
+      }
+    }
+    notifyListeners();
+    return _score;
+  }
+
+  int calculateTotalMarks() {
+    _totalMarks = _questions.fold(0, (prev, q) => prev + (q.marks ?? 1));
+    notifyListeners();
+    return _totalMarks;
+  }
+
+  Test? getTestById(String testId) {
+    openHiveBoxes();
+    try {
+      logger.i("test found ${_tests.length}");
+      return _tests.firstWhere((element) => element.testID == testId);
+    } catch (e) {
+      logger.e("error in get test by id $e");
+      return null;
+    }
   }
 
   void saveResult(String testID, String studentPin) {
@@ -79,7 +254,6 @@ class TestProvider extends ChangeNotifier {
     final existingResult = _resultsBox!.get(resultKey);
 
     if (existingResult != null) {
-      // Update the existing result
       existingResult
         ..score = score
         ..timestamp = timestamp
@@ -102,30 +276,6 @@ class TestProvider extends ChangeNotifier {
     logger.i("saved result $resultKey");
 
     notifyListeners();
-  }
-
-  Future<void> _loadCachedTests() async {
-    _testBox = await Hive.openBox<Test>('testBox');
-
-    List<Test> cachedTests = _testBox?.values.toList() ?? [];
-    if (cachedTests.isNotEmpty) {
-      _tests = cachedTests;
-    }
-    for (final test in cachedTests) {
-      await fetchAndStoreQuestionsForTest(test);
-    }
-    logger.i("cached tests ${_tests.length}  , ${cachedTests.length}");
-  }
-
-  Future<void> _fetchAndStoreTestsFromApi() async {
-    final fetchedTests = await testService.fetchAllTests();
-    await _testBox?.addAll(fetchedTests);
-    await _questionBox?.clear(); // Clear the box before adding new data
-
-    for (final test in fetchedTests) {
-      await fetchAndStoreQuestionsForTest(test);
-    }
-    _tests = fetchedTests;
   }
 
   List<Result>? getAllResults() {
@@ -161,99 +311,6 @@ class TestProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAndStoreQuestionsForTest(Test test) async {
-    // try {
-    await openHiveBoxes();
-    final questions = await questionService.fetchQuestionsForTest(test.testID);
-    logger.i("test : ${test.testID} - ${questions.length} ");
-    for (final question in questions) {
-      await _questionBox?.put(
-        question.key,
-        question,
-      ); // Use the key when adding data
-    }
-    print(
-        "fetched questions -- ${test.testID} - ${questions.length} - ${_questionBox?.length ?? "hk"}");
-  }
-
-  Future<List<Question>> fetchQuestionsFromHive(
-      List<dynamic> questionIds) async {
-    await openHiveBoxes();
-
-    try {
-      final questions = _questionBox!.values
-          .where((question) => questionIds.contains(question.questionID))
-          .toList();
-      logger.i("${questionIds.length} hmm ${questions.length} , ");
-      _questions = questions;
-    } catch (e) {
-      logger.e("error here ${e.toString()}");
-      _questions = [];
-    }
-
-    return questions;
-  }
-
-  void nextQuestion() {
-    if (_currentQuestionIndex < _questions.length - 1) {
-      _currentQuestionIndex++;
-      notifyListeners();
-    }
-  }
-
-  void previousQuestion() {
-    if (_currentQuestionIndex > 0) {
-      _currentQuestionIndex--;
-      notifyListeners();
-    }
-  }
-
-  void resetQuiz() {
-    _score = 0;
-    _currentQuestionIndex = 0;
-    notifyListeners();
-  }
-
-  void selectAnswer(String answer) {
-    _questions[_currentQuestionIndex].useranswer = answer;
-    notifyListeners();
-  }
-
-  int calculateScore() {
-    _score = 0;
-    for (Question q in _questions) {
-      if (q.type == 'text') {
-        // double similarityScore = .5;
-        // _score += (similarityScore * (q.marks ?? 1)).toInt();
-        _score += (q.correct[0] == q.useranswer ? q.marks ?? 1 : 0);
-      } else {
-        _score += (q.correct[0] == q.useranswer ? q.marks ?? 1 : 0);
-
-        logger.i("score $score");
-      }
-    }
-    notifyListeners();
-    return _score;
-  }
-
-  int calculateTotalMarks() {
-    _totalMarks = _questions.fold(0, (prev, q) => prev + (q.marks ?? 1));
-    notifyListeners();
-    return _totalMarks;
-  }
-
-  Test? getTestById(String testId) {
-    openHiveBoxes();
-    try {
-      logger.i("test found ${_tests.length}");
-      return _tests.firstWhere((element) => element.testID == testId);
-    } catch (e) {
-      logger.e("error in get test by id $e");
-      return null;
-    }
-  }
-
-  Test? _currentTest;
   void selectTest(String testId) {
     openHiveBoxes();
     for (var element in _testBox?.values ?? _tests) {
@@ -266,18 +323,6 @@ class TestProvider extends ChangeNotifier {
     } catch (e) {
       _currentTest = null;
     }
-    notifyListeners();
-  }
-
-  // Getter for the currently selected test
-
-  set currentTest(Test? test) {
-    _currentTest = test;
-    notifyListeners();
-  }
-
-  set currentQuestionIndex(int idx) {
-    _currentQuestionIndex = idx;
     notifyListeners();
   }
 }

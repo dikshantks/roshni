@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/screen/facilitator/facilitator_login_screen.dart';
 import 'package:roshni_app/screen/student/student_login_screen.dart';
+import 'package:roshni_app/services/api_service.dart';
 
 import '../../widgets/buttons.dart';
 
@@ -15,6 +18,10 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
+    var authProvider = Provider.of<AuthProvider>(context);
+    logger.i(
+        "main page| fac:${authProvider.facilitator}| stu:${authProvider.student}| ${authProvider.status}");
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(

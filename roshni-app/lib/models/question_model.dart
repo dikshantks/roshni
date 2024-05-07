@@ -38,7 +38,8 @@ class Question {
     required this.options,
     required this.img,
     this.useranswer,
-  }) : this.correct = correct is List<dynamic> ? correct : [correct];
+    this.marks,
+  }) : correct = correct is List<dynamic> ? correct : [correct];
 
   factory Question.fromJson(Map<String, dynamic> json) {
     Logger().i("question json $json");
@@ -51,6 +52,7 @@ class Question {
       difficulty: json['difficulty'],
       options: json['options'],
       img: json["imageUrl"],
+      marks: json["marks"],
     );
   }
 }

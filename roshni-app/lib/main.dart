@@ -67,13 +67,14 @@ void main() async {
         debugShowCheckedModeBanner: false,
         home: Consumer<AuthProvider>(
           builder: (context, authProvider, _) {
+            logger.i(
+                "main page fac ${authProvider.facilitator} : stu ${authProvider.student} ${authProvider.status}");
             if (authProvider.facilitator == null &&
                 authProvider.student == null) {
               return const OnboardingScreen();
             } else if (authProvider.facilitator != null) {
               return const FacilitatorScreen();
-            } else if (authProvider.student != null &&
-                authProvider.facilitator == null) {
+            } else if (authProvider.student != null) {
               return const StudentScreen();
             } else {
               logger.i(authProvider.status);
