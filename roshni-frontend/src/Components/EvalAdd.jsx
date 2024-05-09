@@ -13,6 +13,7 @@ const AddEval = () => {
   const [email, setEmail] = useState("");
   const [DOB, setDOB] = useState("");
   const [loc, setLocation] = useState("");
+  const [password,setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const AddEval = () => {
 
     if (validateForm()) {
       const adminId = localStorage.getItem("accessToken");
-      const evaluatorData = { adminId, firstname, lastname, email, DOB, loc };
+      const evaluatorData = { adminId, firstname, lastname, email, DOB, loc, password };
       const apiEndpoint = "https://roshni-api.onrender.com/api/evaluators/signup/";
 
       axios
@@ -174,6 +175,24 @@ const AddEval = () => {
               placeholder="Enter location"
               value={loc}
               onChange={(e) => setLocation(e.target.value)}
+            />
+            </FloatingLabel>
+          </Form.Group>
+          </Row>
+          <br />
+          <Row>
+          <Form.Group as={Col} controlId="password">
+          <FloatingLabel
+                  controlId="floatingInput"
+                  label="Enter Password"
+                  className="mbb-4"
+                >
+            <Form.Control
+              className="fieldss"
+              type="text"
+              placeholder="Enter Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             </FloatingLabel>
           </Form.Group>

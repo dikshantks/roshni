@@ -168,7 +168,8 @@ router.put("/update/:testID", async (req, res) => {
 router.post('/:testID/questions', upload.single('image'), async (req, res) => {
   try {
     const { testID } = req.params;
-    const { text, type, difficulty, options = [""], correct= [""], marks } = req.body;
+    const { text, type, difficulty, options = [""], correct= [""], marks} = req.body;
+
     let imageUrl = null;
     if (req.file) {
       // Compress image using sharp

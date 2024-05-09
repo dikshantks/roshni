@@ -1,10 +1,12 @@
-import React, { useState, useEffect, Fragment, useRef } from "react";
+import React, { useState, useEffect, Fragment, useRef, createContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, Card, Form, Modal} from "react-bootstrap";
 import "./dash.css"
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
+
+
 
 function Dash() {
     const [tests, setTests] = useState([]);
@@ -46,7 +48,7 @@ function Dash() {
         try {
             const response = await axios.get("https://roshni-api.onrender.com/api/tests");
             setTests(response.data);
-        } catch (error) {
+          } catch (error) {
             console.error("Error fetching tests:", error);
             setError("An error occurred while fetching tests.");
         }
@@ -210,7 +212,7 @@ function Dash() {
         <>
       <header className="bg-white shadow">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Questions</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Tests</h1>
               <div>
                   <a href="#" onClick={() => setModalIsOpen(true)} className="flex items-center justify-center px-3 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-base md:px-8">
                       Add Test
@@ -513,6 +515,9 @@ function Dash() {
         </div>
         </>
     );
+
+
 }
+
 
 export default Dash;
