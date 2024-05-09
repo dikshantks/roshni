@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/test_provider.dart';
-import 'package:roshni_app/screen/student/results_screen.dart';
+import 'package:roshni_app/screen/student/past_results_screen.dart';
 import 'package:roshni_app/screen/student/student_profile_screen.dart';
 import 'package:roshni_app/screen/student/student_scan_screen.dart';
 

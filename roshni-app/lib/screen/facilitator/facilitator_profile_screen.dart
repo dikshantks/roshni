@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/models/test_model.dart';
@@ -30,63 +31,106 @@ class _FacilitatorProfileScreen extends State<FacilitatorProfileScreen> {
           children: [
             Column(
               children: [
+                // top bar
                 Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
                   height: 200,
                   width: double.infinity,
                   color: Colors.redAccent,
-                  child: Align(
-                    child: Consumer<TestProvider>(
-                      builder: (context, testProvider, child) {
-                        return Center(
-                          child: testProvider.isLoading // Check if loading
-                              ? CircularProgressIndicator(
-                                  // radius: 80.0,
-                                  ) // Show indicator
-                              : Column(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Your other items here
+                          // Spacer(),
+
+                          IconButton(
+                            icon: const Icon(
+                              Icons.restart_alt_outlined,
+                              size: 30.0,
+                            ),
+                            color: Colors.white,
+                            onPressed: () {
+                              // Navigator.of(context).pop();
+                              Provider.of<TestProvider>(context, listen: false)
+                                  .fetchAndStoreTestsFromApi();
+                              // Call your logout method here
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.logout,
+                              size: 30.0,
+                            ),
+                            color: Colors.white,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              Provider.of<AuthProvider>(context, listen: false)
+                                  .facilitator = null;
+                              // Call your logout method here
+                            },
+                          ),
+                        ],
+                      ),
+                      Consumer<TestProvider>(
+                        builder: (context, testProvider, child) {
+                          return testProvider.isLoading // Check if loading
+                              ? const Center(
+                                  child: SpinKitPouringHourGlassRefined(
+                                      color: Colors.white),
+                                ) // Show indicator
+                              : const Column(
                                   // Show your normal content when not loading
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     // Your buttons, lists, etc.
                                   ],
-                                ),
-                        );
-                      },
-                    ),
+                                );
+                        },
+                      ),
+                    ],
                   ),
                 ),
+                // profiling
                 Padding(
                   padding: const EdgeInsets.only(top: 75, left: 20, right: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${facilitator!.firstname} ${facilitator.lastname}',
-                        style: GoogleFonts.openSans(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        facilitator.evalID,
-                        style: GoogleFonts.openSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ProfileRow(
-                        field: "email",
-                        detail: facilitator.email,
-                      ),
-                      ProfileRow(
-                        field: "date of birth",
-                        detail: facilitator.dob,
-                      ),
-                      ProfileRow(
-                        field: "Center",
-                        detail: facilitator.loc,
-                      ),
-                    ],
+                    children: facilitator == null
+                        ? []
+                        : [
+                            Text(
+                              '${facilitator.firstname} ${facilitator.lastname}',
+                              style: GoogleFonts.openSans(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              facilitator.evalID,
+                              style: GoogleFonts.openSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ProfileRow(
+                              field: "email",
+                              detail: facilitator.email,
+                            ),
+                            ProfileRow(
+                              field: "date of birth",
+                              detail: facilitator.dob,
+                            ),
+                            ProfileRow(
+                              field: "Center",
+                              detail: facilitator.loc,
+                            ),
+                          ],
                   ),
                 ),
               ],

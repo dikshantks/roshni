@@ -73,8 +73,9 @@ class TestProvider extends ChangeNotifier {
     _error = null;
 
     final one = await _loadCachedTests();
+    logger.i("AAAAAAA logging $one |${one.length}");
     if (one.isEmpty) {
-      await _fetchAndStoreTestsFromApi();
+      await fetchAndStoreTestsFromApi();
     }
 
     _isLoading = false;
@@ -86,6 +87,34 @@ class TestProvider extends ChangeNotifier {
     logger.i(
       "AAAAAAfethcing lading func 1|${_tests.length} |${_tests.length}|time ${difference.inMilliseconds}",
     );
+  }
+
+  Future<void> fetchAndStoreTestsFromApi() async {
+    _isLoading = true;
+    notifyListeners();
+    DateTime startTime = DateTime.now();
+    logger.i("AAAAAAfethcing api 1");
+    final fetchedTests = await testService.fetchAllTests();
+    // await _testBox?.addAll(fetchedTests);
+    await _testBox?.clear();
+    for (var test in fetchedTests) {
+      await _testBox?.put(test.key, test);
+    }
+    await _questionBox?.clear(); // Clear the box before adding new data
+
+    for (final test in fetchedTests) {
+      await fetchAndStoreQuestionsForTest(test);
+    }
+    _tests = fetchedTests;
+    _isLoading = false;
+    notifyListeners();
+    logger.i("AAAAAfethcing api done");
+    DateTime endTime = DateTime.now(); // Record the end time
+    Duration difference =
+        endTime.difference(startTime); // Calculate the difference
+
+    logger.i(
+        'AAAAAAFunction execution time: ${difference.inMilliseconds} milliseconds');
   }
 
   Future<void> fetchAndStoreQuestionsForTest(Test test) async {
@@ -140,26 +169,6 @@ class TestProvider extends ChangeNotifier {
     }
     notifyListeners();
     return _tests;
-  }
-
-  Future<void> _fetchAndStoreTestsFromApi() async {
-    DateTime startTime = DateTime.now();
-    logger.i("AAAAAAfethcing api 1");
-    final fetchedTests = await testService.fetchAllTests();
-    await _testBox?.addAll(fetchedTests);
-    await _questionBox?.clear(); // Clear the box before adding new data
-
-    for (final test in fetchedTests) {
-      await fetchAndStoreQuestionsForTest(test);
-    }
-    _tests = fetchedTests;
-    logger.i("AAAAAfethcing api done");
-    DateTime endTime = DateTime.now(); // Record the end time
-    Duration difference =
-        endTime.difference(startTime); // Calculate the difference
-
-    logger.i(
-        'AAAAAAFunction execution time: ${difference.inMilliseconds} milliseconds');
   }
 
   void nextQuestion() {

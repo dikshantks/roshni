@@ -45,7 +45,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         title: const Text("Past Results"),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.send),
+            icon: const Icon(Icons.upload_file_outlined),
             onPressed: () {
               final results = Provider.of<TestProvider>(context, listen: false)
                   .getResultsForStudent(studentProvider.student!.pin);
@@ -114,7 +114,7 @@ class ProfileListTiles1 extends StatelessWidget {
           testProvider.calculateScore();
           testProvider.calculateTotalMarks();
 
-          Navigator.of(context).pushReplacementNamed(AfterQuizScreen.routeName);
+          Navigator.of(context).pushNamed(AfterQuizScreen.routeName);
         },
         title: Text(
           "Test ID: $question",

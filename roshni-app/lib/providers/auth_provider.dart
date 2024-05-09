@@ -15,7 +15,17 @@ class AuthProvider extends ChangeNotifier {
 
   AuthStatus get status => _status;
   Facilitator? get facilitator => _facilitator;
+  set facilitator(Facilitator? facilitator) {
+    _facilitator = facilitator;
+    notifyListeners();
+  }
+
   Student? get student => _student;
+  set student(Student? student) {
+    _student = student;
+    notifyListeners();
+  }
+
   String? get ngoId {
     if (_facilitator != null) {
       return _facilitator!.evalID;

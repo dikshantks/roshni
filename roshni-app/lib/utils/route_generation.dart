@@ -6,7 +6,7 @@ import 'package:roshni_app/screen/facilitator/facilitator_examscreen_screen.dart
 import 'package:roshni_app/screen/facilitator/facilitator_students_screen.dart';
 import 'package:roshni_app/screen/common/onboarding_screen.dart';
 import 'package:roshni_app/screen/common/quiz_screen.dart';
-import 'package:roshni_app/screen/student/results_screen.dart';
+import 'package:roshni_app/screen/student/past_results_screen.dart';
 import 'package:roshni_app/screen/student/student_login_screen.dart';
 import 'package:roshni_app/screen/student/student_profile_screen.dart';
 import 'package:roshni_app/screen/student/student_scan_screen.dart';
@@ -46,6 +46,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (_) => const StudentScreen(),
       );
+
     case '/student/profile':
       return MaterialPageRoute(
         builder: (_) => const StudentProfileScreen(),

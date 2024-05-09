@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/models/test_model.dart';
@@ -30,63 +31,102 @@ class _StudentProfileScreen extends State<StudentProfileScreen> {
           children: [
             Column(
               children: [
+                // top bar
                 Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
                   height: 200,
                   width: double.infinity,
                   color: Colors.redAccent,
-                  child: Positioned(
-                    top: 10.0,
-                    left: 10.0,
-                    child: Consumer<TestProvider>(
-                      builder: (context, testProvider, child) {
-                        return testProvider.isLoading // Check if loading
-                            ? CircularProgressIndicator(
-                                // radius: 80.0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Spacer(),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.restart_alt_outlined,
+                              size: 30.0,
+                            ),
+                            color: Colors.white,
+                            onPressed: () {
+                              Provider.of<TestProvider>(context, listen: false)
+                                  .fetchAndStoreTestsFromApi();
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.logout,
+                              size: 30.0,
+                            ),
+                            color: Colors.white,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              Provider.of<AuthProvider>(context, listen: false)
+                                  .student = null;
+                              // Call your logout method here
+                            },
+                          ),
+                        ],
+                      ),
+                      Consumer<TestProvider>(
+                        builder: (context, testProvider, child) {
+                          return testProvider.isLoading // Check if loading
+                              ? const Center(
+                                  child: SpinKitPouringHourGlassRefined(
+                                      color: Colors.white),
                                 ) // Show indicator
-                            : Column(
-                                // Show your normal content when not loading
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Your buttons, lists, etc.
-                                ],
-                              );
-                      },
-                    ),
+                              : const Column(
+                                  // Show your normal content when not loading
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Your buttons, lists, etc.
+                                  ],
+                                );
+                        },
+                      ),
+                    ],
                   ),
                 ),
+                // profile detail
                 Padding(
                   padding: const EdgeInsets.only(top: 75, left: 20, right: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${student!.firstName} ${student.lastName}',
-                        style: GoogleFonts.openSans(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        student.pin,
-                        style: GoogleFonts.openSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ProfileRow(
-                        field: "Gender",
-                        detail: student.gender == 'M' ? "Male" : 'Female',
-                      ),
-                      ProfileRow(
-                        field: "date of birth",
-                        detail: student.dob,
-                      ),
-                      ProfileRow(
-                        field: "Center",
-                        detail: student.location,
-                      ),
-                    ],
+                    children: student == null
+                        ? []
+                        : [
+                            Text(
+                              '${student.firstName} ${student.lastName}',
+                              style: GoogleFonts.openSans(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              student.pin,
+                              style: GoogleFonts.openSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ProfileRow(
+                              field: "Gender",
+                              detail: student.gender == 'M' ? "Male" : 'Female',
+                            ),
+                            ProfileRow(
+                              field: "date of birth",
+                              detail: student.dob,
+                            ),
+                            ProfileRow(
+                              field: "Center",
+                              detail: student.location,
+                            ),
+                          ],
                   ),
                 ),
               ],
@@ -96,27 +136,29 @@ class _StudentProfileScreen extends State<StudentProfileScreen> {
               right: 0,
               top: 120,
               child: Column(
-                children: [
-                  CircleAvatar(
-                    radius:
-                        75, // Adjust this value to change the size of the CircleAvatar
-                    // child: ClipOval(
-                    backgroundImage: AssetImage(
-                      student.gender == 'M'
-                          ? "assets/images/boy.png"
-                          : "assets/images/girl.png",
-                    ),
-                    //   child: Image.asset(
-                    //     // fit: boxfi,
-                    //     scale: 3.0,
-                    //     // fit: BoxFit.contain,
-                    //     student.gender == 'M'
-                    //         ? "assets/images/boy.png"
-                    //         : "assets/images/girl.png",
-                    //   ),
-                    // ),
-                  ),
-                ],
+                children: student == null
+                    ? []
+                    : [
+                        CircleAvatar(
+                          radius:
+                              75, // Adjust this value to change the size of the CircleAvatar
+                          // child: ClipOval(
+                          backgroundImage: AssetImage(
+                            student.gender == 'M'
+                                ? "assets/images/boy.png"
+                                : "assets/images/girl.png",
+                          ),
+                          //   child: Image.asset(
+                          //     // fit: boxfi,
+                          //     scale: 3.0,
+                          //     // fit: BoxFit.contain,
+                          //     student.gender == 'M'
+                          //         ? "assets/images/boy.png"
+                          //         : "assets/images/girl.png",
+                          //   ),
+                          // ),
+                        ),
+                      ],
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/models/test_model.dart';
 import 'package:roshni_app/providers/test_provider.dart';
@@ -120,7 +121,7 @@ class _StudentScanScreenState extends State<StudentScanScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        title: const Center(child: Text('Scan')),
+        title: const Center(child: Text('Attempt Exam')),
       ),
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
@@ -135,7 +136,15 @@ class _StudentScanScreenState extends State<StudentScanScreen> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.all(Radius.circular(20)),
                 color: Colors.grey,
+
                 // color: Colors.redAccent,
+              ),
+              child: const Center(
+                child: FaIcon(
+                  FontAwesomeIcons.camera,
+                  size: 75.0,
+                  color: Colors.white70,
+                ),
               ),
             ),
             const SizedBox(height: 30),

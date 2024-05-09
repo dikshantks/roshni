@@ -106,8 +106,8 @@ class _QuizListScreenState extends State<QuizListScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        onPressed: () {
+                      child: InkWell(
+                        onTap: () {
                           testProvider.currentTest = test;
                           logger
                               .i("length of test is ${test.questions.length}");
@@ -156,7 +156,23 @@ class _QuizListScreenState extends State<QuizListScreen> {
                             },
                           );
                         },
-                        child: Text("Start Quiz"),
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: Ink(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 12.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.0),
+                            color: Colors.green,
+                          ),
+                          child: Text(
+                            "Give Quiz",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 19.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   ],

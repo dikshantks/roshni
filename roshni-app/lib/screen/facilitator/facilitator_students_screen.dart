@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
-import 'package:roshni_app/screen/student/results_screen.dart';
+import 'package:roshni_app/screen/student/past_results_screen.dart';
 import 'package:roshni_app/services/api_service.dart';
+import 'package:roshni_app/widgets/form_field.dart';
 
 class StudentRegisterScreen extends StatefulWidget {
   static String routename = '/facilitator/register';
@@ -60,6 +62,7 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
             } else {
               return ListView.builder(
                 itemBuilder: (context, index) {
+                  final student = facilitatorProvider.students[index];
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ExpansionTileCard(
@@ -69,12 +72,22 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
                         height: 50.0,
                         child: Row(
                           children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundImage: AssetImage(
+                                  student.gender == "M" ||
+                                          student.gender == "male"
+                                      ? "assets/images/boy.png"
+                                      : "assets/images/girl.png"),
+                            ),
+                            Spacer(),
                             Text(
-                              '${facilitatorProvider.students[index].firstName} ${facilitatorProvider.students[index].lastName}',
+                              '${student.firstName} ${student.lastName}',
+                              style: GoogleFonts.roboto(),
                             ),
                             const Spacer(),
                             Text(
-                              "Pin: ${facilitatorProvider.students[index].pin}",
+                              "Pin: ${student.pin}",
                             ),
                             // const Spacer(),
                           ],
@@ -89,127 +102,75 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Text(
-                              "Center: ${facilitatorProvider.students[index].location}",
+                              "Center: ${student.location}",
+                              style: GoogleFonts.openSans(
+                                // color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
                             ),
                             Text(
-                              "DOB: ${facilitatorProvider.students[index].dob}",
+                              "DOB: ${student.dob}",
+                              style: GoogleFonts.openSans(
+                                // color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         ),
                         Align(
-                          alignment: Alignment.centerLeft,
+                          alignment: Alignment.center,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
-                              vertical: 8.0,
+                              vertical: 14.0,
                             ),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                authprovier.setStudent(
-                                  facilitatorProvider.students[index].pin,
-                                );
-                                Navigator.of(context)
-                                    .pushNamed(ResultsScreen.routeName);
-                              },
-                              child: Text(
-                                "check past results ",
-                              ),
-                            ),
+                            child: InkWell(
+                                onTap: () {
+                                  authprovier.setStudent(
+                                    student.pin,
+                                  );
+                                  Navigator.of(context)
+                                      .pushNamed(ResultsScreen.routeName);
+                                },
+                                borderRadius: BorderRadius.circular(16.0),
+                                child: Ink(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0, vertical: 10.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    color: Colors.red.shade700,
+                                  ),
+                                  child: Text(
+                                    "Check Past Results",
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white,
+                                      fontSize: 19.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )),
+                            // child: ElevatedButton(
+                            //   onPressed: () {
+                            //     authprovier.setStudent(
+                            //       student.pin,
+                            //     );
+                            //     Navigator.of(context)
+                            //         .pushNamed(ResultsScreen.routeName);
+                            //   },
+                            //   child: Text(
+                            //     "check past results ",
+                            //   ),
+                            // ),
                           ),
                         ),
-                        // Align(
-
-                        //   alignment: Alignment.centerLeft,
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.symmetric(
-                        //       horizontal: 16.0,
-                        //       vertical: 8.0,
-                        //     ),
-                        //     child: Text(
-                        //       """Hi there, I'm a drop-in replacement for Flutter's ExpansionTile.
-
-                        //   Use me any time you think your app could benefit from being just a bit more Material.
-
-                        //   These buttons control the next card down!""",
-                        //       style: Theme.of(context)
-                        //           .textTheme
-                        //           .bodyMedium!
-                        //           .copyWith(fontSize: 16),
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     ),
                   );
                 },
                 itemCount: facilitatorProvider.students.length,
               );
-              //             return
-
-              //             Column(
-              //               children: [
-              //                 ExpansionTileCard(
-              //                   title: const Text("name"),
-              //                   children: [
-              //                     const Divider(
-              //                       thickness: 1.0,
-              //                       height: 1.0,
-              //                     ),
-              //                     Align(
-              //                       alignment: Alignment.centerLeft,
-              //                       child: Padding(
-              //                         padding: const EdgeInsets.symmetric(
-              //                           horizontal: 16.0,
-              //                           vertical: 8.0,
-              //                         ),
-              //                         child: Text(
-              //                           """Hi there, I'm a drop-in replacement for Flutter's ExpansionTile.
-
-              // Use me any time you think your app could benefit from being just a bit more Material.
-
-              // These buttons control the next card down!""",
-              //                           style: Theme.of(context)
-              //                               .textTheme
-              //                               .bodyMedium!
-              //                               .copyWith(fontSize: 16),
-              //                         ),
-              //                       ),
-              //                     ),
-              //                   ],
-              //                 ),
-              //                 ExpansionTileCard(title: const Text("name")),
-              //               ],
-              //             );
-              // return DataTable(
-              //   columns: const [
-              //     DataColumn(label: Text('Name')),
-              //     DataColumn(label: Text('Unique ID')),
-              //     DataColumn(label: Text('Class')),
-              //   ],
-              //   rows: facilitatorProvi der.students
-              //       .map(
-              //         (student) => DataRow(
-              //           cells: [
-              //             DataCell(
-              //               Text(
-              //                 student.firstName,
-              //               ),
-              //             ),
-              //             DataCell(
-              //               Text(
-              //                 student.pin,
-              //               ),
-              //             ),
-              //             DataCell(
-              //               Text(
-              //                 student.location,
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       )
-              //       .toList(),
-              // );
             }
           },
         ),
@@ -249,16 +210,50 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  TextFormField(
-                    controller: _firstNameController,
-                    decoration: const InputDecoration(labelText: 'First Name'),
-                    validator: (value) => value!.isEmpty ? 'Required' : null,
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        height: 50.0,
+                        width: 100.0,
+                        // margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5.0),
+                        child: TextFormField(
+                          validator: (value) =>
+                              value!.isEmpty ? 'Required' : null,
+                          style: const TextStyle(color: Colors.black),
+                          controller: _firstNameController,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: textFieldDecoration1("hmm"),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        height: 50.0,
+                        width: 100.0,
+                        // margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5.0),
+                        child: TextFormField(
+                          validator: (value) =>
+                              value!.isEmpty ? 'Required' : null,
+
+                          // controller: _pinController,
+                          style: const TextStyle(color: Colors.black),
+                          // keyboardType: txtinp,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: textFieldDecoration1("hmm"),
+                        ),
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    controller: _lastNameController,
-                    decoration: const InputDecoration(labelText: 'Last Name'),
-                    validator: (value) => value!.isEmpty ? 'Required' : null,
-                  ),
+                  // TextFormField(
+                  //   controller: _firstNameController,
+                  //   decoration: const InputDecoration(labelText: 'First Name'),
+                  //   validator: (value) => value!.isEmpty ? 'Required' : null,
+                  // ),
+                  // TextFormField(
+                  //   controller: _lastNameController,
+                  //   decoration: const InputDecoration(labelText: 'Last Name'),
+                  //   validator: (value) => value!.isEmpty ? 'Required' : null,
+                  // ),
                   // ... Add fields for dob, gender, location, grade with suitable widgets
                   TextFormField(
                     controller: _dobController,

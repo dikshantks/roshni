@@ -52,7 +52,10 @@ class Question {
       difficulty: json['difficulty'],
       options: json['options'],
       img: json["imageUrl"],
-      marks: json["marks"],
+      // marks: json["marks"],
+      marks: json["marks"].runtimeType == String
+          ? int.parse(json["marks"])
+          : json["marks"],
     );
   }
 }

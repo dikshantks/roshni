@@ -26,7 +26,18 @@ void main() async {
   Hive.registerAdapter(ResultAdapter());
   Hive.registerAdapter(FacilitatorAdapter());
   runApp(
-    MultiProvider(
+    const MyApp(),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (context) => AuthProvider(
@@ -45,46 +56,9 @@ void main() async {
           ),
         ),
       ],
-      // child: MaterialApp(
-      //   theme: theme1,
-      //   debugShowCheckedModeBanner: false,
-      //   initialRoute: '/',
-      //   onGenerateRoute: onGenerateRoute,
-      //   builder: (context, child) => DecoratedBox(
-      //     decoration: const BoxDecoration(
-      //       image: DecorationImage(
-      //         image: AssetImage(
-      //           "assets/images/background.png",
-      //         ),
-      //         fit: BoxFit.cover,
-      //       ),
-      //     ),
-      //     child: child,
-      //   ),
-      // ),
       child: MaterialApp(
         theme: theme1,
         debugShowCheckedModeBanner: false,
-        home: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            logger.i(
-                "main page fac ${authProvider.facilitator} : stu ${authProvider.student} ${authProvider.status}");
-            if (authProvider.facilitator == null &&
-                authProvider.student == null) {
-              return const OnboardingScreen();
-            } else if (authProvider.facilitator != null) {
-              return const FacilitatorScreen();
-            } else if (authProvider.student != null) {
-              return const StudentScreen();
-            } else {
-              logger.i(authProvider.status);
-              return const Center(
-                child: CircularProgressIndicator(),
-              ); // Show a loading spinner while waiting for auth state
-            }
-          },
-        ),
-        onGenerateRoute: onGenerateRoute,
         builder: (context, child) => DecoratedBox(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -96,7 +70,25 @@ void main() async {
           ),
           child: child,
         ),
+        // initialRoute: '/',
+        home: Consumer<AuthProvider>(
+          builder: (context, authprovider, child) {
+            if (authprovider.student == null &&
+                authprovider.facilitator == null) {
+              return const OnboardingScreen();
+            } else if (authprovider.facilitator != null) {
+              return const FacilitatorScreen();
+            } else if (authprovider.student != null) {
+              return const StudentScreen();
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
+        ),
+        onGenerateRoute: onGenerateRoute,
       ),
-    ),
-  );
+    );
+  }
 }
