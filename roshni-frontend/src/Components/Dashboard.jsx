@@ -129,8 +129,10 @@ export default function Example() {
                         }`}
                       >
                         {test.subject}
+                        
                       </button>
                     </li>
+
                 ))}
                 </ul>
               </nav>
@@ -161,6 +163,7 @@ export default function Example() {
                         <th scope="col" className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-100">
                           Location
                         </th>
+                        
                       </tr>
                     </thead>
                     <tbody>
