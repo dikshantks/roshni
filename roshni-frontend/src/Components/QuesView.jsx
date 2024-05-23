@@ -195,7 +195,7 @@ const TestQuestions = () => {
     <>
       <header className="bg-white shadow">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Questions</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Questions for {testID}</h1>
               <div>
                   <a href="#" onClick={(event) => handleAddModal(event, testID)} className="flex items-center justify-center px-3 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-base md:px-8">
                       Add Question
@@ -338,8 +338,9 @@ const TestQuestions = () => {
                 <div className="dark:bg-grey-500 m-5 dark:text-black rounded-lg px-6 py-8 ring-1 ring-slate-900/5 shadow-xl" key={index}>
                 {question.imageUrl && (
                         <img
-                          src={`data:image/png;base64;,${question.imageUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")}`}
-                          alt="Question Image"
+                        // src={`data:image/png;base64;,${question.imageUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")}`}
+                        src={question.imageUrl}
+                        alt="Question Image"
                           className="mb-4"
                         />
                       )}                  

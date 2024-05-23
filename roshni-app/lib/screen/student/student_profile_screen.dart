@@ -64,9 +64,9 @@ class _StudentProfileScreen extends State<StudentProfileScreen> {
                             ),
                             color: Colors.white,
                             onPressed: () {
-                              Navigator.of(context).pop();
                               Provider.of<AuthProvider>(context, listen: false)
                                   .student = null;
+                              Navigator.of(context).pop();
                               // Call your logout method here
                             },
                           ),

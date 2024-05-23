@@ -389,10 +389,30 @@ class ImageColumn extends StatelessWidget {
   final double width;
   final TestProvider testProvider;
 
+  final String? base64Image = "";
+
   @override
   Widget build(BuildContext context) {
     logger.i(testProvider.currentQuestion!.img);
-    const prefix = 'data:image/png;base64,';
+    String? base64Image = testProvider.currentQuestion?.img;
+    String prefix = '';
+
+    if (base64Image != null) {
+      if (base64Image.startsWith('data:image/png;base64,')) {
+        prefix = 'data:image/png;base64,';
+      } else if (base64Image.startsWith('data:image/jpeg;base64,')) {
+        prefix = 'data:image/jpeg;base64,';
+      } else if (base64Image.startsWith('data:image/jpg;base64,')) {
+        prefix = 'data:image/jpg;base64,';
+      }
+
+      // Remove the prefix if it exists
+      if (prefix.isNotEmpty) {
+        base64Image = base64Image.substring(prefix.length);
+      }
+    }
+
+    // const prefix = 'data:image/png;base64,';
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -405,8 +425,7 @@ class ImageColumn extends StatelessWidget {
                   child: testProvider.currentQuestion?.img == null
                       ? const SizedBox(height: 10)
                       : Image.memory(
-                          base64Decode(testProvider.currentQuestion!.img!
-                              .substring(prefix.length)),
+                          base64Decode(base64Image!),
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -420,8 +439,7 @@ class ImageColumn extends StatelessWidget {
           child: testProvider.currentQuestion?.img == null
               ? const SizedBox(height: 10)
               : Image.memory(
-                  base64Decode(testProvider.currentQuestion!.img!
-                      .substring(prefix.length)),
+                  base64Decode(base64Image!),
                   fit: BoxFit.contain,
                 ),
         ),

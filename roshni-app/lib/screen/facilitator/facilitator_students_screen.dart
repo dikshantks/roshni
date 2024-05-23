@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:roshni_app/providers/auth_provider.dart';
 import 'package:roshni_app/providers/facilitator_provider.dart';
@@ -192,9 +193,27 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _dobController = TextEditingController();
-  final _genderController = TextEditingController();
+  // final _genderController = TextEditingController();
   final _locationController = TextEditingController();
   final _gradeController = TextEditingController();
+  String? _selectedGender = 'Male'; // Or initialize to the default you want
+  DateTime? _selectedDate;
+
+  // Method to show the date picker
+  void _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) return;
+      setState(() {
+        _selectedDate = pickedDate;
+        _dobController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,16 +225,18 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         height: 50.0,
-                        width: 100.0,
+                        width: 190.0,
                         // margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5.0),
                         child: TextFormField(
                           validator: (value) =>
@@ -223,48 +244,66 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                           style: const TextStyle(color: Colors.black),
                           controller: _firstNameController,
                           textCapitalization: TextCapitalization.words,
-                          decoration: textFieldDecoration1("hmm"),
+                          decoration: textFieldDecoration1("First Name"),
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         height: 50.0,
-                        width: 100.0,
+                        width: 190.0,
                         // margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5.0),
                         child: TextFormField(
                           validator: (value) =>
                               value!.isEmpty ? 'Required' : null,
 
-                          // controller: _pinController,
+                          controller: _lastNameController,
                           style: const TextStyle(color: Colors.black),
                           // keyboardType: txtinp,
                           textCapitalization: TextCapitalization.words,
-                          decoration: textFieldDecoration1("hmm"),
+                          decoration: textFieldDecoration1("Last Name"),
                         ),
                       ),
                     ],
                   ),
                   // TextFormField(
-                  //   controller: _firstNameController,
-                  //   decoration: const InputDecoration(labelText: 'First Name'),
+                  //   controller: _dobController,
+                  //   decoration:
+                  //       const InputDecoration(labelText: 'Date of Birth'),
                   //   validator: (value) => value!.isEmpty ? 'Required' : null,
                   // ),
-                  // TextFormField(
-                  //   controller: _lastNameController,
-                  //   decoration: const InputDecoration(labelText: 'Last Name'),
-                  //   validator: (value) => value!.isEmpty ? 'Required' : null,
-                  // ),
-                  // ... Add fields for dob, gender, location, grade with suitable widgets
-                  TextFormField(
-                    controller: _dobController,
-                    decoration:
-                        const InputDecoration(labelText: 'Date of Birth'),
-                    validator: (value) => value!.isEmpty ? 'Required' : null,
+                  GestureDetector(
+                    // Or any other suitable widget
+                    onTap: _showDatePicker,
+                    child: AbsorbPointer(
+                      // Prevents keyboard input
+                      child: TextFormField(
+                        controller: _dobController,
+                        decoration:
+                            const InputDecoration(labelText: 'Date of Birth'),
+                        validator: (value) =>
+                            value!.isEmpty ? 'Required' : null,
+                      ),
+                    ),
                   ),
-                  TextFormField(
-                    controller: _genderController,
-                    decoration: const InputDecoration(labelText: 'Gender'),
-                    validator: (value) => value!.isEmpty ? 'Required' : null,
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: 'Gender'),
+                      items: const [
+                        DropdownMenuItem(value: 'Male', child: Text('Male')),
+                        DropdownMenuItem(
+                            value: 'Female', child: Text('Female')),
+                        DropdownMenuItem(value: 'Other', child: Text('Other')),
+                      ],
+                      value:
+                          _selectedGender, // Add a variable to store selected value
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedGender = newValue;
+                        });
+                      },
+                      validator: (value) => value == null ? 'Required' : null,
+                    ),
                   ),
                   TextFormField(
                     controller: _locationController,
@@ -289,11 +328,15 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                         Map<String, dynamic> studentData = {
                           'firstName': _firstNameController.text,
                           'lastName': _lastNameController.text,
-                          'dob': _dobController.text,
-                          'gender': _genderController.text,
+                          // 'dob': _dobController.text,
+                          'dob': _selectedDate == null
+                              ? ''
+                              : DateFormat('dd-MM-yyyy').format(_selectedDate!),
+                          'gender': _selectedGender,
                           'location': _locationController.text,
                           'grade': _gradeController.text,
                         };
+                        logger.i(studentData);
 
                         try {
                           var responseBody = await facilitatorProvider
@@ -336,7 +379,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _dobController.dispose();
-    _genderController.dispose();
+    // _genderController.dispose();
     _locationController.dispose();
     _gradeController.dispose();
     super.dispose();

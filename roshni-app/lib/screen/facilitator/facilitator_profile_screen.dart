@@ -68,9 +68,9 @@ class _FacilitatorProfileScreen extends State<FacilitatorProfileScreen> {
                             ),
                             color: Colors.white,
                             onPressed: () {
-                              Navigator.of(context).pop();
                               Provider.of<AuthProvider>(context, listen: false)
                                   .facilitator = null;
+                              Navigator.of(context).pop();
                               // Call your logout method here
                             },
                           ),
